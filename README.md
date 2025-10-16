@@ -59,7 +59,7 @@ export const environment = {
   
   // B-API OpenAI Configuration (OpenAI-kompatibel)
   bApiOpenai: {
-    apiKey: 'bb6cdf84-...', // 👈 B-API Key
+    apiKey: 'xxxxx-...', // 👈 B-API Key
     model: 'gpt-4.1-mini',
     baseUrl: 'https://b-api.staging.openeduhub.net/api/v1/llm/openai',
     // ...
@@ -67,7 +67,7 @@ export const environment = {
   
   // B-API AcademicCloud Configuration (DeepSeek-R1)
   bApiAcademicCloud: {
-    apiKey: 'bb6cdf84-...', // 👈 Gleicher B-API Key
+    apiKey: 'xxxxx-...', // 👈 Gleicher B-API Key
     model: 'deepseek-r1',
     baseUrl: 'https://b-api.staging.openeduhub.net/api/v1/llm/academiccloud',
     // ...
@@ -92,21 +92,21 @@ $env:LLM_PROVIDER="b-api-openai"
 
 # API-Keys
 $env:OPENAI_API_KEY="sk-proj-..."
-$env:B_API_KEY="bb6cdf84-..."
+$env:B_API_KEY="xxxxx-..."
 ```
 
 **Windows (CMD):**
 ```cmd
 set LLM_PROVIDER=b-api-openai
 set OPENAI_API_KEY=sk-proj-...
-set B_API_KEY=bb6cdf84-...
+set B_API_KEY=xxxxx-...
 ```
 
 **Linux/Mac:**
 ```bash
 export LLM_PROVIDER="b-api-openai"
 export OPENAI_API_KEY="sk-proj-..."
-export B_API_KEY="bb6cdf84-..."
+export B_API_KEY="xxxxx-..."
 ```
 
 **Hinweis:** Environment Variables gelten nur für die aktuelle Session. Für permanente Konfiguration nutzen Sie Option A.
@@ -129,10 +129,10 @@ set OPENAI_API_KEY=sk-proj-...
 **Für B-API Provider:**
 ```powershell
 # PowerShell
-$env:B_API_KEY="bb6cdf84-..."
+$env:B_API_KEY="xxxxx-..."
 
 # CMD
-set B_API_KEY=bb6cdf84-...
+set B_API_KEY=xxxxx-...
 ```
 
 **Terminal 1: Proxy starten**
