@@ -15,6 +15,8 @@ export interface VocabularyConcept {
   uri?: string;
   altLabels?: string[];
   schema_file?: string;
+  icon?: string;
+  description?: string;
 }
 
 export interface ValidationRules {
@@ -69,6 +71,7 @@ export interface CanvasState {
   userText: string;
   detectedContentType: string | null;
   contentTypeConfidence: number;
+  contentTypeReason: string;
   selectedContentType: string | null;
   coreFields: CanvasFieldState[];
   specialFields: CanvasFieldState[];

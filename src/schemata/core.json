@@ -280,51 +280,61 @@
           "concepts": [
             {
               "label": "Person",
+              "icon": "👤",
               "schema_file": "person.json",
               "description": "Individuelle Akteur:innen im Bildungsbereich (z. B. Lehrende, Lernende, Mentor:innen) mit Fokus auf Biografien, Rollen und Qualifikationen."
             },
             {
               "label": "Organisation",
+              "icon": "🏢",
               "schema_file": "organization.json",
               "description": "Institutionalisierte Zusammenschlüsse wie Schulen, Hochschulen, Bildungsträger oder Unternehmen, die Bildungsaktivitäten planen, anbieten oder unterstützen."
             },
             {
               "label": "Veranstaltung",
+              "icon": "📅",
               "schema_file": "event.json",
               "description": "Konkretes, zeitlich begrenztes Ereignis mit Termin, Ort, Ablauf und Teilnehmenden (z. B. Konferenz, Tagung, Fortbildungstermin)."
             },
             {
               "label": "Lernmaterial",
+              "icon": "📚",
               "schema_file": "learning_material.json",
               "description": "Wissens- oder Informationsmedien wie Texte, Videos, Podcasts oder Arbeitshilfen, die direkt zum Lehren, Lernen oder Informieren dienen."
             },
             {
               "label": "Bildungsgänge und Bildungsangebote",
+              "icon": "🎓",
               "schema_file": "education_offer.json",
               "description": "Strukturierte Lernprogramme mit definierten Lernzielen, Curricula oder Abschlüssen; Fokus auf Lernprozess, Kompetenzaufbau und Teilnahmebedingungen."
             },
             {
               "label": "Berufsbilder",
+              "icon": "💼",
               "schema_file": "occupation.json",
               "description": "Beschreibungen qualifizierter Tätigkeiten mitsamt Anforderungen, Kompetenzen, Arbeitsfeldern und beruflichen Perspektiven."
             },
             {
               "label": "Prompts",
+              "icon": "💭",
               "schema_file": "prompt.json",
               "description": "Anweisungen an KI-Systeme zur Generierung, Strukturierung oder Optimierung von Lern- und Übungsinhalten."
             },
             {
               "label": "Tools Infrastrukturen & Services",
+              "icon": "🛠️",
               "schema_file": "tool_service.json",
               "description": "Technische Plattformen, Werkzeuge oder Dienstleistungen, die Bildungsprozesse ermöglichen oder unterstützen, ohne eigene Bildungsinhalte bereitzustellen."
             },
             {
               "label": "Quelle",
+              "icon": "📰",
               "schema_file": "source.json",
               "description": "Inhaltlich verantwortliche Anbieter oder Publikationskanäle (z. B. YouTube-Kanal, Podcast-Feed, Fachportal) mit eigenem redaktionellen Profil."
             },
             {
               "label": "Didaktische Planungsinstrumente (Unterrichtsmethoden und -entwürfe)",
+              "icon": "📋",
               "schema_file": "didactic_planning_tools.json",
               "description": "Praktische Werkzeuge, Methoden und Vorlagen zur Planung, Strukturierung und Umsetzung von Lehr- und Lernsequenzen."
             }

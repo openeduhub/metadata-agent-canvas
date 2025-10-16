@@ -223,8 +223,15 @@ export class ShapeExpanderService {
     parentField: CanvasFieldState,
     allFields: CanvasFieldState[]
   ): any {
-    // Get all sub-fields for this parent
-    const subFields = allFields.filter(f => f.parentFieldId === parentField.fieldId);
+    // Use sub-fields from parentField.subFields directly if available
+    let subFields: CanvasFieldState[] = [];
+    
+    if (parentField.subFields && parentField.subFields.length > 0) {
+      subFields = parentField.subFields;
+    } else {
+      // Fallback: search by parentFieldId
+      subFields = allFields.filter(f => f.parentFieldId === parentField.fieldId);
+    }
 
     if (subFields.length === 0) {
       return parentField.value; // No sub-fields, return original value
@@ -258,7 +265,8 @@ export class ShapeExpanderService {
     const result: any = {};
 
     fields.forEach(field => {
-      if (!field.path || field.value === null || field.value === undefined) {
+      // Skip fields without value (but allow empty strings and 0)
+      if (!field.path || (field.value === null || field.value === undefined)) {
         return;
       }
 

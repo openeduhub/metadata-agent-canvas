@@ -50,10 +50,11 @@
     </div>
   </div>
   
-  <!-- Info Icon with Tooltip -->
-  <button
-    class="info-icon"
-    [title]="getTooltipInfo()"
+  <!-- Info Button (only for parent fields, not sub-fields) -->
+  <button 
+    *ngIf="field.description && !field.parentFieldId" 
+    class="info-button"
+    [title]="getTooltipText()"
     type="button"
   >
     ℹ️
@@ -64,21 +65,47 @@
     {{ field.extractionError }}
   </div>
   
-  <!-- Sub-fields for complex objects -->
-  <div *ngIf="field.isParent && field.subFields && field.subFields.length > 0" class="sub-fields-container">
-    <div class="sub-field-header">
-      <button class="toggle-sub-fields" (click)="toggleSubFields()" type="button">
-        {{ showSubFields ? '▼' : '▶' }} Details ({{ field.subFields.length }} Felder)
-      </button>
+</div>
+
+<!-- Sub-fields (for complex objects with shape) - Tree structure outside main container -->
+<div *ngIf="field.isParent && field.subFields && field.subFields.length > 0" class="sub-fields-tree">
+  <div *ngFor="let subField of field.subFields; let isLast = last" class="sub-field-tree-row">
+    <!-- Left side: Tree branch + Status + Label -->
+    <div class="sub-field-left">
+      <!-- Tree branch connector -->
+      <div class="tree-branch" [class.tree-branch-last]="isLast">
+        <span class="tree-line-vertical"></span>
+        <span class="tree-line-horizontal"></span>
+      </div>
+      
+      <!-- Status Icon -->
+      <span class="status-icon sub-field-status" [title]="subField.status">{{ getStatusIconForField(subField) }}</span>
+      
+      <!-- Label -->
+      <label class="field-label sub-field-label">
+        {{ subField.label }}
+        <span *ngIf="subField.isRequired" class="required-marker">*</span>
+      </label>
     </div>
     
-    <div *ngIf="showSubFields" class="sub-fields-list">
-      <div *ngFor="let subField of field.subFields" class="sub-field">
-        <!-- Recursive canvas-field for sub-fields -->
-        <app-canvas-field 
-          [field]="subField" 
-          (fieldChange)="onSubFieldChange($event)"
-        ></app-canvas-field>
+    <!-- Right side: Input field (aligned with parent inputs) -->
+    <div class="sub-field-right">
+      <div class="field-input-container">
+        <!-- Preview for parent fields -->
+        <div *ngIf="subField.isParent && subField.subFields && subField.subFields.length > 0" class="structured-field-preview">
+          <span class="preview-text">{{ getStructuredPreviewForField(subField) }}</span>
+        </div>
+        
+        <!-- Regular input for non-parent fields -->
+        <textarea
+          *ngIf="!subField.isParent"
+          class="field-input"
+          [(ngModel)]="subField.value"
+          (blur)="onSubFieldValueChange(subField)"
+          [placeholder]="subField.description"
+          [disabled]="subField.status === FieldStatus.EXTRACTING"
+          rows="1"
+        ></textarea>
       </div>
     </div>
   </div>

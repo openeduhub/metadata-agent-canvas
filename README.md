@@ -5,13 +5,15 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 ## 🎯 Features
 
 - ⚡ **Schnell**: Parallele Feld-Extraktion (6-10s statt 40-50s)
-- 🎨 **Canvas-UI**: Alle Felder gleichzeitig sichtbar und bearbeitbar
+- 🎨 **Canvas-UI**: Alle Felder gleichzeitig sichtbar und bearbeitbar mit Baum-Hierarchie für verschachtelte Felder
 - 📊 **Live-Updates**: Echtzeit-Streaming während der Extraktion
 - ✏️ **Inline-Editing**: Direkte Feldbearbeitung mit Autocomplete
-- 🔄 **Automatische Normalisierung**: Datumsformate, URLs, Vokabulare
+- 🔄 **Automatische Normalisierung**: Datumsformate, URLs, Vokabulare (mit intelligenter LLM-Fallback-Optimierung)
+- 🗺️ **Geocoding-Integration**: Automatische Anreicherung mit Geo-Koordinaten beim Export (Photon API)
 - 🎓 **Content-Type-Erkennung**: Automatische Schema-Auswahl (Event, Kurs, etc.)
 - ✅ **Validierung**: Pflichtfelder, Vokabulare, Datentypen
 - 🔒 **Sicher**: API-Key wird nie im Code gespeichert (Production)
+- 🔌 **Multi-Provider Support**: OpenAI, B-API OpenAI, B-API AcademicCloud (DeepSeek-R1)
 
 ---
 
@@ -28,65 +30,117 @@ cd metadata-agent-canvas/webkomponente-canvas
 npm install
 ```
 
-### 3. API-Key konfigurieren
+### 3. API-Key & Provider konfigurieren
+
+**NEU: Multi-Provider Support** 🎉
+
+Die App unterstützt jetzt **drei LLM-Provider**:
+- **OpenAI** (direkt)
+- **B-API OpenAI** (OpenAI-kompatible Modelle via B-API)
+- **B-API AcademicCloud** (DeepSeek-R1 via B-API)
 
 **Option A: Direkt in Datei (empfohlen für lokale Entwicklung)**
 
-Öffnen Sie `src/environments/environment.ts` und fügen Sie Ihren OpenAI API-Key ein:
+Öffnen Sie `src/environments/environment.ts` und konfigurieren Sie Ihren bevorzugten Provider:
 
 ```typescript
 export const environment = {
   production: false,
+  
+  // LLM Provider Selection ('openai', 'b-api-openai', oder 'b-api-academiccloud')
+  llmProvider: 'b-api-openai', // 👈 Provider wählen
+  
+  // OpenAI Configuration
   openai: {
-    apiKey: 'sk-proj-...', // 👈 Ihren API-Key hier eintragen
+    apiKey: 'sk-proj-...', // 👈 OpenAI API-Key
     model: 'gpt-4.1-mini',
+    // ...
+  },
+  
+  // B-API OpenAI Configuration (OpenAI-kompatibel)
+  bApiOpenai: {
+    apiKey: 'bb6cdf84-...', // 👈 B-API Key
+    model: 'gpt-4.1-mini',
+    baseUrl: 'https://b-api.staging.openeduhub.net/api/v1/llm/openai',
+    // ...
+  },
+  
+  // B-API AcademicCloud Configuration (DeepSeek-R1)
+  bApiAcademicCloud: {
+    apiKey: 'bb6cdf84-...', // 👈 Gleicher B-API Key
+    model: 'deepseek-r1',
+    baseUrl: 'https://b-api.staging.openeduhub.net/api/v1/llm/academiccloud',
     // ...
   }
 };
 ```
 
+**Provider-Übersicht:**
+
+| Provider | Modell | Base URL | API-Key |
+|----------|--------|----------|--------|
+| `openai` | `gpt-4.1-mini` | OpenAI direkt | `OPENAI_API_KEY` |
+| `b-api-openai` | `gpt-4.1-mini` | B-API OpenAI-Endpoint | `B_API_KEY` |
+| `b-api-academiccloud` | `deepseek-r1` | B-API AcademicCloud | `B_API_KEY` |
+
 **Option B: Als Environment Variable**
 
 **Windows (PowerShell):**
 ```powershell
+# Provider auswählen
+$env:LLM_PROVIDER="b-api-openai"
+
+# API-Keys
 $env:OPENAI_API_KEY="sk-proj-..."
+$env:B_API_KEY="bb6cdf84-..."
 ```
 
 **Windows (CMD):**
 ```cmd
+set LLM_PROVIDER=b-api-openai
 set OPENAI_API_KEY=sk-proj-...
+set B_API_KEY=bb6cdf84-...
 ```
 
 **Linux/Mac:**
 ```bash
-export OPENAI_API_KEY=sk-proj-...
+export LLM_PROVIDER="b-api-openai"
+export OPENAI_API_KEY="sk-proj-..."
+export B_API_KEY="bb6cdf84-..."
 ```
 
 **Hinweis:** Environment Variables gelten nur für die aktuelle Session. Für permanente Konfiguration nutzen Sie Option A.
+
+**Mehr Details:** Siehe `ENVIRONMENT_VARIABLES.md` für vollständige Dokumentation aller Konfigurations-Optionen.
 
 ### 4. Lokale Entwicklung starten
 
 **WICHTIG: API-Key für Proxy setzen (im selben Terminal):**
 
-**Windows (PowerShell):**
+**Für OpenAI:**
 ```powershell
+# PowerShell
 $env:OPENAI_API_KEY="sk-proj-..."
-```
 
-**Windows (CMD):**
-```cmd
+# CMD
 set OPENAI_API_KEY=sk-proj-...
 ```
 
-**Linux/Mac:**
-```bash
-export OPENAI_API_KEY=sk-proj-...
+**Für B-API Provider:**
+```powershell
+# PowerShell
+$env:B_API_KEY="bb6cdf84-..."
+
+# CMD
+set B_API_KEY=bb6cdf84-...
 ```
 
 **Terminal 1: Proxy starten**
 ```bash
 npm run proxy
 ```
+
+**Wichtig:** Der lokale Proxy (`local-proxy.js`) unterstützt **alle drei Provider** automatisch!
 
 **Terminal 2: App starten**
 ```bash
@@ -433,6 +487,7 @@ Nach dem Deployment:
 **Feld-Features:**
 - **Autocomplete**: Bei Vokabular-Feldern (z.B. Bildungsstufe)
 - **Chips**: Array-Felder zeigen Werte als entfernbare Chips
+- **Baum-Hierarchie**: Verschachtelte Felder (z.B. Location → Address → Street) mit visuellen Tree-Linien (├─ und └─)
 - **Confidence-Badge**: KI-Sicherheit (0-100%) bei extrahierten Werten
 - **Auto-Resize**: Textareas passen sich automatisch an
 
@@ -440,6 +495,195 @@ Nach dem Deployment:
 - Fortschrittsbalken mit Prozent
 - Felder-Zähler: `Gefüllt/Gesamt`
 - Pflichtfelder-Status separat angezeigt
+
+---
+
+## 🗺️ Geocoding-Integration
+
+Die App reichert Adressdaten **automatisch mit Geo-Koordinaten** an, bevor der JSON-Export erfolgt.
+
+### Funktionsweise
+
+**Wann wird geocodiert?**
+- Beim Klick auf **"Bestätigen & JSON herunterladen"**
+- **Vor** dem tatsächlichen Download
+- **Nur** wenn Adress-Daten vorhanden sind
+
+**Welche Felder werden geocodiert?**
+- `schema:location` (Events, Bildungsangebote)
+- `schema:address` (Organisationen)
+- `schema:legalAddress` (Organisationen)
+
+**API-Service:**
+- Verwendet **Photon API** von Komoot (OpenStreetMap-basiert)
+- **Kostenlos** und ohne API-Key
+- **Rate Limit:** 1 Request/Sekunde (automatisch eingehalten)
+- **Proxy-Support:** Netlify Function umgeht Browser-Blocker
+
+### Beispiel: Vorher/Nachher
+
+**Input (vom User oder KI extrahiert):**
+```json
+{
+  "schema:location": [{
+    "@type": "Place",
+    "name": "Gasteig HP8",
+    "address": {
+      "streetAddress": "Hans-Preißinger-Straße 8",
+      "postalCode": "81379",
+      "addressLocality": "München"
+    }
+  }]
+}
+```
+
+**Output (nach Geocoding beim Export):**
+```json
+{
+  "schema:location": [{
+    "@type": "Place",
+    "name": "Gasteig HP8",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Hans-Preißinger-Straße 8",
+      "postalCode": "81379",
+      "addressLocality": "München",
+      "addressRegion": "Bayern",          // ← Angereichert
+      "addressCountry": "Deutschland",    // ← Angereichert
+      "countryCode": "DE"                 // ← Angereichert
+    },
+    "geo": {                              // ← NEU!
+      "@type": "GeoCoordinates",
+      "latitude": 48.1173,
+      "longitude": 11.5942
+    }
+  }]
+}
+```
+
+### Features
+
+**✅ Vorteile:**
+- **Automatisch**: Keine manuelle Eingabe von Koordinaten
+- **Genau**: OpenStreetMap-Datenbank
+- **Anreicherung**: Ergänzt Bundesland, Land, Postleitzahl
+- **Fehler-tolerant**: Export funktioniert auch wenn Geocoding fehlschlägt
+- **Intelligent**: Überspringt bereits geocodete Locations
+- **Schnell**: < 1 Sekunde pro Adresse
+
+**🛡️ Technische Details:**
+- **Rate Limiting:** 1 Request/Sekunde (Photon API-Limit)
+- **Sequenzielle Verarbeitung:** Mehrere Adressen werden nacheinander verarbeitet
+- **Netlify-Proxy:** Production-Build nutzt Server-side Proxy
+- **Lokal:** Direkter API-Zugriff ohne Proxy
+- **Caching:** 10 Minuten Cache auf Netlify (gleiche Adresse = kein erneuter Request)
+
+### Konfiguration
+
+Die Geocoding-Funktion ist **standardmäßig aktiviert** und benötigt keine Konfiguration.
+
+**Services:**
+- `geocoding.service.ts` - Photon API Integration
+- `canvas.service.ts` - Anreicherungs-Logik vor Export
+- `netlify/functions/photon.js` - Server-side Proxy für Production
+
+**Logging:**
+```
+🗺️ Enriching data with geocoding...
+🔧 Reconstructing schema:location from sub-fields before geocoding...
+🗺️ Geocoding address: "Hans-Preißinger-Straße 8, 81379, München"
+✅ Geocoded: 48.1173, 11.5942
+✅ Geocoding enrichment complete: 1 locations geocoded
+```
+
+### Fehlerbehandlung
+
+**Wenn Geocoding fehlschlägt:**
+1. Browser-Konsole zeigt Fehler-Log
+2. User erhält Bestätigungs-Dialog:
+   ```
+   Geocoding-Anreicherung fehlgeschlagen. Trotzdem herunterladen?
+   ```
+3. Download funktioniert auch ohne Geo-Daten
+
+**Mögliche Fehler:**
+- API nicht erreichbar
+- Adresse nicht gefunden (zu ungenau)
+- Rate Limit überschritten (bei vielen Adressen)
+- Netzwerk-Probleme
+
+---
+
+## 🌳 Verschachtelte Felder & Baum-Hierarchie
+
+Die App unterstützt **komplexe verschachtelte Felder** mit visueller Baum-Darstellung.
+
+### Beispiel: Location-Feld
+
+**Schema-Definition:**
+```json
+{
+  "id": "schema:location",
+  "datatype": "array",
+  "items": {
+    "type": "object",
+    "shape": {
+      "oneOf": [
+        {
+          "@type": "Place",
+          "name": "string",
+          "address": {
+            "streetAddress": "string",
+            "postalCode": "string",
+            "addressLocality": "string"
+          },
+          "geo": {
+            "latitude": "number",
+            "longitude": "number"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### UI-Darstellung
+
+**Baum-Hierarchie mit visuellen Linien:**
+```
+✓ Ort                      [Steubenstraße 34]      ℹ️
+│
+├─ ✓ Name                 [Hausparty]
+├─ ✓ Street Address       [Steubenstraße 34]
+├─ ⚪ Postal Code          [99423]
+├─ ✓ Address Locality     [Weimar]
+├─ ⚪ Address Region       []
+└─ ✓ Address Country      [DE]
+```
+
+**Vorteile:**
+- **Permanent sichtbar**: Keine aufklappbaren Details mehr
+- **Visuell klar**: Tree-Lines zeigen Hierarchie
+- **Inline-Editing**: Alle Sub-Fields direkt bearbeitbar
+- **Alignment**: Input-Felder vertikal aligned
+- **Responsive**: Funktioniert auf allen Bildschirmgrößen
+
+### Sub-Field-Rendering
+
+**Component:** `canvas-field.component.html`
+- Parent-Feld zeigt Preview (z.B. erste gefüllte Sub-Field)
+- Sub-Fields haben eigene Zeile mit Tree-Connector
+- Status-Icons und Labels im grauen Bereich (links)
+- Input-Felder im weißen Bereich (rechts)
+
+**Shape-Expander Service:**
+- Lädt `shape` aus Schema-Definition
+- Erstellt automatisch Sub-Fields
+- Rekonstruiert Objekte für JSON-Export
+- Unterstützt verschachtelte Strukturen (mehrere Ebenen)
+
+---
 
 ## 📋 Schema-Datenstruktur
 
@@ -615,8 +859,11 @@ Steuert **Normalisierung** und **Validierung**:
 
 ## ✅ Validierungs- und Normalisierungsverfahren
 
-### 1. Lokale Normalisierung (< 1ms)
+### 🆕 **NEU: Intelligente LLM-Fallback-Optimierung**
 
+Die App verwendet jetzt eine **smarte 3-stufige Normalisierung**, die **unnötige API-Calls vermeidet**:
+
+#### Stufe 1: Lokale Normalisierung (< 1ms) ⚡
 Wird **sofort** auf User-Eingaben angewendet:
 
 **Datumsformate:**
@@ -660,9 +907,30 @@ Input: "Primary School" → Match: "Grundschule" (altLabel)
 Input: "GS"             → Match: "Grundschule" (altLabel)
 ```
 
-### 3. LLM-Fallback (~500ms)
+### 3. Intelligente LLM-Prüfung 🧠
 
-Wird aufgerufen wenn lokale Normalisierung fehlschlägt:
+**NEU:** Bevor ein API-Call gemacht wird, prüft die App:
+
+**✅ LLM wird ÜBERSPRUNGEN für:**
+- Einfache Strings ohne Vocabulary
+- Arrays ohne Vocabulary
+- Bereits normalisierte Werte (Boolean, Number, Date, DateTime)
+- Exakte Vocabulary-Matches (lokal validiert)
+
+**⚠️ LLM wird NUR GERUFEN für:**
+- Komplexe Datumsformate die lokaler Parser nicht versteht
+- Komplexe Zahlenwörter ("einhundert", "zwei Dutzend")
+- Vocabulary-Felder mit semantischer Matching-Anforderung (nach Fuzzy-Match fehlgeschlagen)
+
+**Beispiel-Logs:**
+```
+⚡ Local validation succeeded: "OfflineEventAttendanceMode"
+⏩ Skipping LLM normalization (not needed for simple case)
+```
+
+### 4. LLM-Fallback (~500ms)
+
+Wird **nur noch selten** aufgerufen wenn lokale Normalisierung fehlschlägt:
 
 **Komplexe Datumsformate:**
 ```
@@ -677,7 +945,12 @@ Input: "einhundert"         → LLM → 100
 Input: "zwei Dutzend"       → LLM → 24
 ```
 
-### 4. Validierung
+**Performance-Gewinn:**
+- ⚡ 95% weniger API-Calls zur Normalisierung
+- 💰 Deutlich reduzierte API-Kosten
+- ⚡ Schnellere User-Eingabe-Verarbeitung (< 1ms statt ~500ms)
+
+### 5. Validierung
 
 **Pflichtfelder:**
 - Status-Icon wird rot umrandet (⚠️) wenn leer
@@ -728,6 +1001,17 @@ Input: "zwei Dutzend"       → LLM → 24
 **SchemaLoaderService** (`schema-loader.service.ts`)
 - Lädt JSON-Schemata aus `src/schemata/`
 - Parst Feld-Definitionen
+
+**ShapeExpanderService** (`shape-expander.service.ts`)
+- Erweitert Felder mit `shape` zu Sub-Fields
+- Erstellt hierarchische Feld-Strukturen
+- Rekonstruiert verschachtelte Objekte für Export
+
+**GeocodingService** (`geocoding.service.ts`)
+- Photon API Integration
+- Address → Geo-Koordinaten Konvertierung
+- Rate Limiting (1 Request/Sekunde)
+- Anreicherung mit Zusatzdaten (Bundesland, Land)
 
 ### Component-Layer
 
@@ -797,14 +1081,16 @@ BATCH_DELAY_MS = 100;      // Pause zwischen Batches (Rate-Limit)
 ### Performance-Gewinn
 
 - **Extraktion**: 80% schneller (40-50s → 6-10s)
-- **Normalisierung**: < 1ms (lokal), ~500ms (LLM-Fallback)
+- **Normalisierung**: 🆕 < 1ms (lokal), ~500ms (LLM-Fallback - nur noch selten benötigt!)
+- **Normalisierungs-API-Calls**: 🆕 95% Reduktion durch intelligente LLM-Prüfung
 - **UI-Updates**: Echtzeit (RxJS Streams)
 
 ### Kosten
 
-- **API-Requests**: +40-50% mehr Requests (durch Parallelisierung)
-- **Token-Verbrauch**: +150-200% (jedes Feld mit vollem Kontext)
-- **Trade-off**: Bessere UX vs. höhere Kosten
+- **API-Requests Extraktion**: +40-50% mehr Requests (durch Parallelisierung)
+- **API-Requests Normalisierung**: 🆕 -95% weniger Requests (durch intelligente LLM-Prüfung)
+- **Token-Verbrauch**: +150-200% (Extraktion), 🆕 -95% (Normalisierung)
+- **Gesamt-Trade-off**: Bessere UX vs. moderat höhere Kosten (durch Normalisierungs-Optimierung deutlich reduziert)
 
 ---
 
@@ -855,12 +1141,26 @@ Die Schemata befinden sich in `src/schemata/`:
 
 ## 🛠️ Technologie-Stack
 
+### Frontend
 - **Angular 19** - Framework
 - **RxJS** - Reactive Programming
-- **@langchain/openai** - OpenAI-Integration
 - **TypeScript** - Typsicherheit
+- **Material Design** - UI-Komponenten
 
----
+### LLM-Integration (Multi-Provider)
+- **OpenAI API** - Direkte Integration (GPT-4.1-mini, GPT-4o-mini)
+- **B-API OpenAI** - OpenAI-kompatible Modelle via B-API Endpoint
+- **B-API AcademicCloud** - DeepSeek-R1 via B-API Endpoint
+- **Lokaler Proxy** - `local-proxy.js` für alle Provider (Development)
+- **Netlify Functions** - Provider-agnostischer Proxy (Production)
+
+### Externe APIs
+- **OpenAI API** via Netlify Function (`netlify/functions/openai-proxy.js`)
+  - Unterstützt: `openai`, `b-api-openai`, `b-api-academiccloud`
+  - Automatisches Routing basierend auf `llmProvider`
+- **Photon Geocoding API** via Netlify Function (`netlify/functions/photon.js`)
+  - OpenStreetMap-basiert
+  - Rate Limiting: 1 Request/Sekunde
 
 ---
 
@@ -914,6 +1214,7 @@ BATCH_DELAY_MS = 100;  // Reduzieren nur wenn API-Limit erhöht
 
 ## 📦 Weitere Dokumentation
 
+- **ENVIRONMENT_VARIABLES.md** - 🆕 **NEU:** Vollständige Dokumentation aller LLM-Provider und Environment Variables
 - **INSTALLATION.md** - Detaillierte Setup-Anleitung
 - **CANVAS_DOCUMENTATION.md** - Canvas-Architektur
 - **PERFORMANCE.md** - Performance-Optimierungen

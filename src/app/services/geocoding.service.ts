@@ -8,7 +8,31 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class GeocodingService {
-  private readonly PHOTON_API_URL = 'https://photon.komoot.io/api/';
+  private readonly PHOTON_DIRECT_URL = 'https://photon.komoot.io/api/';
+  private readonly PHOTON_PROXY_URL = '/.netlify/functions/photon';
+  private readonly RATE_LIMIT_MS = 1000; // 1 request per second
+  private lastRequestTime = 0;
+
+  /**
+   * Get the appropriate Photon API URL based on environment
+   * - Local development: Direct API access
+   * - Netlify production: Via proxy function (avoids client blockers)
+   */
+  private getPhotonUrl(): string {
+    // Check if we're running on Netlify (deployed)
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      // Use proxy on Netlify domains or production, direct access locally
+      if (hostname.includes('netlify.app') || 
+          hostname.includes('netlify.com') ||
+          (!hostname.includes('localhost') && hostname !== '127.0.0.1')) {
+        console.log('🗺️ Using Netlify Photon proxy');
+        return this.PHOTON_PROXY_URL;
+      }
+    }
+    console.log('🗺️ Using direct Photon API access');
+    return this.PHOTON_DIRECT_URL;
+  }
 
   /**
    * Geocode an address using Photon API
@@ -45,8 +69,12 @@ export class GeocodingService {
       const query = queryParts.join(', ');
       console.log(`🗺️ Geocoding address: "${query}"`);
 
-      // Call Photon API
-      const url = `${this.PHOTON_API_URL}?q=${encodeURIComponent(query)}&lang=de&limit=1`;
+      // Rate limiting: Wait if needed to respect 1 request/second
+      await this.waitForRateLimit();
+
+      // Build API URL (automatically uses proxy on Netlify, direct on localhost)
+      const baseUrl = this.getPhotonUrl();
+      const url = `${baseUrl}?q=${encodeURIComponent(query)}&lang=de&limit=1`;
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -149,21 +177,40 @@ export class GeocodingService {
 
     console.log(`🗺️ Geocoding ${locations.length} locations...`);
 
-    const geocodedLocations = await Promise.all(
-      locations.map(async (location) => {
-        // Check if it's a Place with address (not VirtualLocation)
-        if (location['@type'] === 'Place' && location.address) {
-          return await this.geocodePlace(location);
-        }
+    // Process sequentially to respect rate limit (not in parallel)
+    const geocodedLocations: any[] = [];
+    for (const location of locations) {
+      // Check if it's a Place with address (not VirtualLocation)
+      if (location['@type'] === 'Place' && location.address) {
+        const geocoded = await this.geocodePlace(location);
+        geocodedLocations.push(geocoded);
+      } else {
         // Return as-is for VirtualLocation or PostalAddress
-        return location;
-      })
-    );
+        geocodedLocations.push(location);
+      }
+    }
 
     const geocodedCount = geocodedLocations.filter(l => l.geo).length;
     console.log(`✅ Geocoded ${geocodedCount} of ${locations.length} locations`);
 
     return geocodedLocations;
+  }
+
+  /**
+   * Wait for rate limit (1 request per second)
+   * Ensures we don't exceed Photon API rate limits
+   */
+  private async waitForRateLimit(): Promise<void> {
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    
+    if (timeSinceLastRequest < this.RATE_LIMIT_MS) {
+      const waitTime = this.RATE_LIMIT_MS - timeSinceLastRequest;
+      console.log(`⏱️ Rate limiting: Waiting ${waitTime}ms before next geocoding request`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+    
+    this.lastRequestTime = Date.now();
   }
 }
 

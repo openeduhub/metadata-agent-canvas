@@ -19,8 +19,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
   FieldStatus = FieldStatus;
   filteredOptions: string[] = [];
   showAutocomplete = false;
-  inputValue = '';
-  showSubFields = false;  // Collapsed by default
+  inputValue = '';  // Collapsed by default
 
   constructor() {}
 
@@ -315,20 +314,80 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   /**
-   * Toggle sub-fields visibility
-   */
-  toggleSubFields(): void {
-    this.showSubFields = !this.showSubFields;
-    console.log(`📂 ${this.field.fieldId}: Sub-fields ${this.showSubFields ? 'expanded' : 'collapsed'}`);
-  }
-
-  /**
    * Handle changes from sub-fields (propagate to parent)
    */
   onSubFieldChange(event: { fieldId: string; value: any }): void {
     console.log(`📤 Sub-field change detected:`, event);
     // Propagate to parent through fieldChange event
     this.fieldChange.emit(event);
+  }
+
+  /**
+   * Get tooltip text for info button
+   */
+  getTooltipText(): string {
+    let tooltip = this.field.description || '';
+    
+    if (this.field.isRequired) {
+      tooltip += '\n\n⚠️ Pflichtfeld';
+    }
+    
+    if (this.field.multiple) {
+      tooltip += '\nTrennen Sie mehrere Werte mit Enter oder Komma';
+    }
+    
+    return tooltip;
+  }
+
+  /**
+   * Get status icon for a given field
+   */
+  getStatusIconForField(field: CanvasFieldState): string {
+    switch (field.status) {
+      case FieldStatus.FILLED:
+        return '✅';
+      case FieldStatus.EMPTY:
+        return '⚪';
+      case FieldStatus.EXTRACTING:
+        return '⏳';
+      case FieldStatus.ERROR:
+        return '❌';
+      default:
+        return '⚪';
+    }
+  }
+
+  /**
+   * Get preview text for a given structured field
+   */
+  getStructuredPreviewForField(field: CanvasFieldState): string {
+    if (!field.subFields || field.subFields.length === 0) {
+      return 'Keine Daten';
+    }
+
+    const nameField = field.subFields.find(f => 
+      f.path?.toLowerCase().includes('name') && f.value
+    );
+    if (nameField && nameField.value) {
+      return String(nameField.value);
+    }
+
+    const firstFilledField = field.subFields.find(f => 
+      f.value && typeof f.value === 'string' && f.value.trim() !== ''
+    );
+    if (firstFilledField && firstFilledField.value) {
+      return String(firstFilledField.value);
+    }
+
+    return 'Noch keine Daten';
+  }
+
+  /**
+   * Handle sub-field value changes
+   */
+  onSubFieldValueChange(subField: CanvasFieldState): void {
+    console.log(`📝 Sub-field ${subField.fieldId} changed:`, subField.value);
+    this.fieldChange.emit({ fieldId: subField.fieldId, value: subField.value });
   }
 
   /**

@@ -6,6 +6,7 @@ import { CanvasService } from '../../services/canvas.service';
 import { SchemaLoaderService } from '../../services/schema-loader.service';
 import { CanvasState, FieldGroup, FieldStatus } from '../../models/canvas-models';
 import { CanvasFieldComponent } from '../canvas-field/canvas-field.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-canvas-view',
@@ -21,7 +22,8 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   FieldStatus = FieldStatus;
   showContentTypeDropdown = false;
   contentTypeOptions: Array<{ label: string; schemaFile: string }> = [];
-  isGeocodingInProgress = false;
+  llmProvider = environment.llmProvider; // Active LLM provider
+  llmModel = this.getActiveLlmModel(); // Active LLM model
   
   private destroy$ = new Subject<void>();
   private savedScrollPosition = 0;
@@ -197,36 +199,16 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   /**
    * Confirm and download JSON
    */
-  async confirmAndExport(): Promise<void> {
+  confirmAndExport(): void {
     if (!this.allRequiredFieldsFilled()) {
       const status = this.getRequiredFieldsStatus();
       alert(`Bitte füllen Sie alle Pflichtfelder aus. (${status.filled}/${status.total} erfüllt)`);
       return;
     }
 
-    // Show loading indicator
-    this.isGeocodingInProgress = true;
-    this.cdr.detectChanges();
-    console.log('🗺️ Enriching data with geocoding...');
-    
-    try {
-      // Enrich with geocoding data before export
-      await this.canvasService.enrichWithGeocodingBeforeExport();
-      
-      // Download JSON with enriched data
-      this.downloadJson();
-      
-    } catch (error) {
-      console.error('❌ Error during geocoding enrichment:', error);
-      // Still allow download even if geocoding fails
-      if (confirm('Geocoding-Anreicherung fehlgeschlagen. Trotzdem herunterladen?')) {
-        this.downloadJson();
-      }
-    } finally {
-      // Hide loading indicator
-      this.isGeocodingInProgress = false;
-      this.cdr.detectChanges();
-    }
+    // Geocoding already happened automatically after extraction
+    // Just download the JSON
+    this.downloadJson();
   }
 
   /**
@@ -284,6 +266,44 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
       return this.schemaLoader.getContentTypeLabel(schemaFile!);
     }
     return 'Nicht erkannt';
+  }
+
+  /**
+   * Get content type icon
+   */
+  getContentTypeIcon(): string {
+    if (!this.state.selectedContentType && !this.state.detectedContentType) {
+      return '';
+    }
+
+    const schemaFile = this.state.selectedContentType || this.state.detectedContentType;
+    
+    // Try to get from SchemaLoader directly (more reliable)
+    const concepts = this.schemaLoader.getContentTypeConcepts();
+    const concept = concepts.find(c => c.schema_file === schemaFile);
+    
+    if (concept?.icon) {
+      return concept.icon;
+    }
+    
+    // Fallback: Try from field vocabulary
+    const contentTypeField = this.state.coreFields.find(f => f.fieldId === 'ccm:oeh_flex_lrt');
+    if (contentTypeField?.vocabulary) {
+      const vocabConcept = contentTypeField.vocabulary.concepts.find(c => c.schema_file === schemaFile);
+      return vocabConcept?.icon || '';
+    }
+    
+    return '';
+  }
+
+  /**
+   * Get content type tooltip with confidence and reason
+   */
+  getContentTypeTooltip(): string {
+    const confidence = Math.round(this.state.contentTypeConfidence * 100);
+    const reason = this.state.contentTypeReason || 'Automatisch erkannt';
+    
+    return `Confidence: ${confidence}%\n${reason}`;
   }
 
   /**
@@ -416,6 +436,20 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
       event.stopPropagation();
     }
     this.showContentTypeDropdown = false;
+  }
+  
+  /**
+   * Get active LLM model based on provider
+   */
+  private getActiveLlmModel(): string {
+    const provider = environment.llmProvider;
+    if (provider === 'b-api-openai') {
+      return (environment as any).bApiOpenai?.model || 'gpt-4.1-mini';
+    } else if (provider === 'b-api-academiccloud') {
+      return (environment as any).bApiAcademicCloud?.model || 'deepseek-r1';
+    } else {
+      return environment.openai?.model || 'gpt-4.1-mini';
+    }
   }
   
   /**

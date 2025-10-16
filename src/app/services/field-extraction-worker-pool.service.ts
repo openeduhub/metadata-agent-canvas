@@ -86,7 +86,7 @@ export class FieldExtractionWorkerPoolService {
 
       console.log(`🔍 Extracting field: ${field.label} (${field.fieldId})`);
 
-      // Call OpenAI via proxy
+      // Call OpenAI via proxy (with automatic retries)
       const response = await this.openaiProxy.invoke([
         { role: 'user', content: prompt }
       ]);
@@ -112,12 +112,17 @@ export class FieldExtractionWorkerPoolService {
         confidence: confidence
       };
     } catch (error) {
-      console.error(`❌ Extraction error for field ${field.fieldId} (${field.label}):`, error);
+      // Silent failure: Log error but don't show to user
+      // Return empty result instead of propagating error
+      console.error(`❌ Extraction failed for field ${field.fieldId} (${field.label}) after retries:`, error);
+      console.log(`⚪ Returning empty value for ${field.label} (silent failure)`);
+      
       return {
         fieldId: field.fieldId,
         value: null,
         confidence: 0.0,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        // Don't include error in result - silent failure
+        // error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

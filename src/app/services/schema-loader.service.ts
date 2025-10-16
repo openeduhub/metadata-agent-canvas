@@ -168,7 +168,7 @@ export class SchemaLoaderService {
   /**
    * Get vocabulary concepts for content type detection (requires core schema to be cached)
    */
-  getContentTypeConcepts(): Array<{ schema_file?: string; label: string; description?: string }> {
+  getContentTypeConcepts(): Array<{ schema_file?: string; label: string; description?: string; icon?: string }> {
     const coreSchema = this.schemaCache.get('core.json');
 
     if (!coreSchema?.fields) {
@@ -186,7 +186,8 @@ export class SchemaLoaderService {
     return concepts.map((concept: any) => ({
       schema_file: concept.schema_file,
       label: concept.label,
-      description: concept.description
+      description: concept.description,
+      icon: concept.icon
     }));
   }
 

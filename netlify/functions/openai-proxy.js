@@ -1,7 +1,12 @@
 /**
- * Netlify Function: OpenAI API Proxy
- * Handles OpenAI API requests from the browser
- * API Key is stored in Netlify Environment Variables (secure)
+ * Netlify Function: Multi-Provider LLM API Proxy
+ * Handles OpenAI and OpenAI-compatible API requests from the browser
+ * API Keys are stored in Netlify Environment Variables (secure)
+ * 
+ * Supported Providers:
+ * - openai: Standard OpenAI API (uses OPENAI_API_KEY)
+ * - b-api-openai: B-API OpenAI-compatible endpoint (uses B_API_KEY)
+ * - b-api-academiccloud: B-API AcademicCloud endpoint with deepseek-r1 (uses B_API_KEY)
  */
 
 exports.handler = async (event, context) => {
@@ -32,27 +37,69 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // Get API key from environment variable
-    const apiKey = process.env.OPENAI_API_KEY;
-    
-    if (!apiKey) {
-      console.error('OPENAI_API_KEY not set in Netlify environment variables');
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ 
-          error: 'API key not configured',
-          message: 'Please set OPENAI_API_KEY in Netlify Dashboard → Site Settings → Environment Variables'
-        }),
-      };
-    }
-
     // Parse request body
     const body = JSON.parse(event.body || '{}');
-    const { messages, model, temperature, modelKwargs } = body;
+    const { messages, model, temperature, modelKwargs, provider } = body;
+    
+    // Determine which provider to use (default: openai)
+    const selectedProvider = provider || 'openai';
+    
+    // Get API key and base URL based on provider
+    let apiKey, baseUrl, requiresCustomHeader;
+    
+    if (selectedProvider === 'b-api-openai') {
+      apiKey = process.env.B_API_KEY;
+      baseUrl = 'https://b-api.staging.openeduhub.net/api/v1/llm/openai';
+      requiresCustomHeader = true;
+      
+      if (!apiKey) {
+        console.error('B_API_KEY not set in Netlify environment variables');
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'API key not configured',
+            message: 'Please set B_API_KEY in Netlify Dashboard → Site Settings → Environment Variables'
+          }),
+        };
+      }
+    } else if (selectedProvider === 'b-api-academiccloud') {
+      apiKey = process.env.B_API_KEY;
+      baseUrl = 'https://b-api.staging.openeduhub.net/api/v1/llm/academiccloud';
+      requiresCustomHeader = true;
+      
+      if (!apiKey) {
+        console.error('B_API_KEY not set in Netlify environment variables');
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'API key not configured',
+            message: 'Please set B_API_KEY in Netlify Dashboard → Site Settings → Environment Variables'
+          }),
+        };
+      }
+    } else {
+      // Default: OpenAI
+      apiKey = process.env.OPENAI_API_KEY;
+      baseUrl = 'https://api.openai.com/v1';
+      requiresCustomHeader = false;
+      
+      if (!apiKey) {
+        console.error('OPENAI_API_KEY not set in Netlify environment variables');
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'API key not configured',
+            message: 'Please set OPENAI_API_KEY in Netlify Dashboard → Site Settings → Environment Variables'
+          }),
+        };
+      }
+    }
 
-    // Build OpenAI API request
-    const openaiRequest = {
+    // Build LLM API request
+    const llmRequest = {
       model: model || 'gpt-4.1-mini',
       messages: messages,
       temperature: temperature !== undefined ? temperature : 0.3,
@@ -61,33 +108,45 @@ exports.handler = async (event, context) => {
     // Add GPT-5 or other model-specific parameters
     if (modelKwargs) {
       if (modelKwargs.reasoning_effort) {
-        openaiRequest.reasoning_effort = modelKwargs.reasoning_effort;
+        llmRequest.reasoning_effort = modelKwargs.reasoning_effort;
       }
       if (modelKwargs.response_format) {
-        openaiRequest.response_format = modelKwargs.response_format;
+        llmRequest.response_format = modelKwargs.response_format;
       }
     }
 
-    console.log(`Proxying request to OpenAI API (Model: ${openaiRequest.model})`);
+    console.log(`Proxying request to ${selectedProvider.toUpperCase()} API (Model: ${llmRequest.model})`);
 
-    // Call OpenAI API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Build request headers
+    const requestHeaders = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Provider-specific headers
+    if (requiresCustomHeader) {
+      // Provider B requires X-API-KEY header
+      requestHeaders['X-API-KEY'] = apiKey;
+    } else {
+      // OpenAI uses Authorization Bearer
+      requestHeaders['Authorization'] = `Bearer ${apiKey}`;
+    }
+
+    // Call LLM API
+    const apiUrl = `${baseUrl}/chat/completions`;
+    const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(openaiRequest),
+      headers: requestHeaders,
+      body: JSON.stringify(llmRequest),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
+      console.error(`${selectedProvider.toUpperCase()} API error:`, response.status, errorText);
       return {
         statusCode: response.status,
         headers,
         body: JSON.stringify({ 
-          error: 'OpenAI API error', 
+          error: `${selectedProvider.toUpperCase()} API error`, 
           status: response.status,
           message: errorText
         }),

@@ -14,3 +14,8 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# External APIs used by the application:
+# - OpenAI API: via Netlify Function (netlify/functions/openai-proxy.js)
+# - Photon Geocoding API: via Netlify Function proxy (netlify/functions/photon.js)
+#   The proxy avoids client-side blockers (AdBlock, etc.) and provides caching
