@@ -3,7 +3,7 @@
  * Proxies requests to Photon API to avoid client-side blockers
  * and provide better rate limiting & caching
  */
-export async function handler(event) {
+exports.handler = async (event) => {
   // CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -84,4 +84,4 @@ export async function handler(event) {
       })
     };
   }
-}
+};

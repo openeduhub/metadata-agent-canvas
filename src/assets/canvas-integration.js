@@ -212,14 +212,20 @@
         return;
       }
 
+      // Extract URL from metadata for separate handling
+      const metadata = this.extractPageMetadata();
+
       // Wait a bit for iframe to load
       setTimeout(() => {
         this.iframe.contentWindow.postMessage({
-          type: 'SET_TEXT',
-          text: text
+          type: 'SET_PAGE_DATA',
+          text: text,
+          url: metadata.url,
+          pageTitle: metadata.title,
+          mode: 'bookmarklet'
         }, this.canvasUrl);
         
-        console.log('✅ Metadata sent to canvas');
+        console.log('✅ Metadata sent to canvas (URL:', metadata.url, ')');
       }, 500);
     }
   };

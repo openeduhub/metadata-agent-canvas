@@ -162,11 +162,14 @@ export class FieldExtractionWorkerPoolService {
     }
 
     if (field.vocabulary && field.vocabulary.concepts.length > 0) {
-      prompt += `\nErlaubte Werte:\n`;
+      prompt += `\nErlaubte Werte (verwende EXAKT diese Labels):\n`;
       field.vocabulary.concepts.forEach(concept => {
-        prompt += `- ${concept.label}`;
+        // Clean label: Remove parentheses with explanations like "(auch: ...)"
+        const cleanLabel = concept.label.replace(/\s*\(auch:.*?\)/gi, '').trim();
+        prompt += `- "${cleanLabel}"`;
         if (concept.altLabels && concept.altLabels.length > 0) {
-          prompt += ` (auch: ${concept.altLabels.join(', ')})`;
+          // Use different format to prevent AI from copying it
+          prompt += ` [Alternativen: ${concept.altLabels.map(a => `"${a}"`).join(', ')}]`;
         }
         prompt += `\n`;
       });
@@ -184,7 +187,16 @@ export class FieldExtractionWorkerPoolService {
     }
     
     if (field.vocabulary && field.vocabulary.concepts.length > 0) {
-      prompt += `WICHTIG: Verwende NUR die exakten Labels aus der Liste oben!\n`;
+      prompt += `\n**KRITISCH - Verwende NUR die exakten Labels:**\n`;
+      prompt += `- Gib NUR das Label selbst zurück (in Anführungszeichen)\n`;
+      prompt += `- KEINE eckigen Klammern [Alternativen: ...]\n`;
+      prompt += `- KEINE runden Klammern oder Zusätze\n`;
+      prompt += `- Wenn du ein Alternativ-Label erkennst, nutze das Haupt-Label\n\n`;
+      prompt += `Beispiele:\n`;
+      prompt += `- Wenn Text "Erziehungswissenschaften" enthält → Ausgabe: {"${field.fieldId}": "Pädagogik"}\n`;
+      prompt += `- Wenn Text "Politische Bildung" enthält → Ausgabe: {"${field.fieldId}": "Politik"}\n`;
+      prompt += `- ❌ FALSCH: {"${field.fieldId}": "Pädagogik (auch: ...)"}\n`;
+      prompt += `- ❌ FALSCH: {"${field.fieldId}": "Pädagogik [Alternativen: ...]"}\n`;
     }
 
     return prompt;

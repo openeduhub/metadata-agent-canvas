@@ -1,8 +1,14 @@
 [build]
   command = "npm run build:prod"
   publish = "dist"
-  functions = "netlify/functions"
 
+[dev]
+  command = "npm start"
+  framework = "#custom"
+  targetPort = 4200
+  port = 8888
+
+# SPA Fallback Redirect: Alle Routen zu index.html für Angular Client-Side Routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -14,6 +20,29 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# Optional: Image CDN Configuration für externe Bilder
+# Nur aktivieren falls NgOptimizedImage mit externen Domains verwendet wird
+# [images]
+#   remote_images = ["https://cdn.example.com/.*"]
+
+# =======================================================================
+# Security: API Keys Configuration
+# =======================================================================
+# API keys are NEVER stored in code or committed to Git.
+# 
+# Set these in Netlify Dashboard → Site Settings → Environment Variables:
+# 
+# Required for LLM functionality:
+#   B_API_KEY = your-uuid-key-here           (for b-api-openai / b-api-academiccloud)
+#   OPENAI_API_KEY = sk-proj-...            (only if using direct OpenAI)
+# 
+# Optional (will be read from environment.ts if not set):
+#   LLM_PROVIDER = b-api-openai             (options: openai, b-api-openai, b-api-academiccloud)
+# 
+# The Netlify Functions (netlify/functions/*.js) read these from process.env
+# Angular frontend NEVER receives the API keys - they stay server-side!
+# =======================================================================
 
 # External APIs used by the application:
 # - OpenAI API: via Netlify Function (netlify/functions/openai-proxy.js)

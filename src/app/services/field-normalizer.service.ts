@@ -9,14 +9,39 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { CanvasFieldState } from '../models/canvas-models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FieldNormalizerService {
-  private apiUrl = 'http://localhost:8000';
+  // Use environment-based proxy URL (same as OpenAI Proxy Service)
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    // Get proxy URL from environment config (same pattern as openai-proxy.service)
+    const provider = environment.llmProvider || 'b-api-openai';
+    const providerConfig = (environment as any)[this.getProviderConfigKey(provider)];
+    
+    if (environment.production) {
+      // Production: Use Netlify Function
+      this.apiUrl = providerConfig?.proxyUrl || '/.netlify/functions/openai-proxy';
+    } else {
+      // Local: Use local proxy
+      this.apiUrl = providerConfig?.proxyUrl || 'http://localhost:3001/llm';
+    }
+    
+    console.log('🔧 FieldNormalizerService initialized with proxy:', this.apiUrl);
+  }
+  
+  /**
+   * Get provider config key based on provider name
+   */
+  private getProviderConfigKey(provider: string): string {
+    if (provider === 'b-api-openai') return 'bApiOpenai';
+    if (provider === 'b-api-academiccloud') return 'bApiAcademicCloud';
+    return 'openai';
+  }
 
   /**
    * Normalize user input value based on field schema
@@ -66,14 +91,26 @@ export class FieldNormalizerService {
     
     console.log(`📝 Normalization prompt for ${field.fieldId}:`, prompt.substring(0, 200) + '...');
 
-    return this.http.post<any>(`${this.apiUrl}/generate`, {
-      prompt: prompt,
+    // Get model from environment
+    const provider = environment.llmProvider || 'b-api-openai';
+    const providerConfig = (environment as any)[this.getProviderConfigKey(provider)];
+    const model = providerConfig?.model || 'gpt-4.1-mini';
+
+    // Use OpenAI-compatible format (works with all proxies)
+    return this.http.post<any>(this.apiUrl, {
+      model: model,  // Required by API
+      messages: [
+        { role: 'system', content: 'You are a data normalization assistant. Return ONLY the normalized value without any explanation, parentheses, or additional text.' },
+        { role: 'user', content: prompt }
+      ],
       temperature: 0.1,  // Low temperature for consistent formatting
       max_tokens: 200
     }).pipe(
       map(response => {
         console.log(`📥 Raw response for ${field.fieldId}:`, response);
-        const normalized = this.parseNormalizationResponse(response.content, field, userInput);
+        // OpenAI format: response.choices[0].message.content
+        const content = response.choices?.[0]?.message?.content || response.content || '';
+        const normalized = this.parseNormalizationResponse(content, field, userInput);
         console.log(`✅ Normalized ${field.fieldId}:`, userInput, '→', normalized);
         return normalized;
       }),
@@ -469,11 +506,14 @@ export class FieldNormalizerService {
     // Add vocabulary hints for label matching
     if (field.vocabulary && field.vocabulary.concepts.length > 0) {
       prompt += `\n**WICHTIG: Dieses Feld hat ein kontrolliertes Vokabular (${field.vocabulary.type} vocabulary)**\n\n`;
-      prompt += `Verfügbare Labels:\n`;
+      prompt += `Verfügbare Labels (nutze EXAKT diese Schreibweise):\n`;
       field.vocabulary.concepts.forEach((concept, idx) => {
-        prompt += `${idx + 1}. "${concept.label}"`;
+        // Clean label: Remove parentheses with explanations like "(auch: ...)"
+        const cleanLabel = concept.label.replace(/\s*\(auch:.*?\)/gi, '').trim();
+        prompt += `${idx + 1}. "${cleanLabel}"`;
         if (concept.altLabels && concept.altLabels.length > 0) {
-          prompt += ` (Alternative Schreibweisen: ${concept.altLabels.map(a => `"${a}"`).join(', ')})`;
+          // Use different format to prevent AI from copying it
+          prompt += ` [Alternativen: ${concept.altLabels.map(a => `"${a}"`).join(', ')}]`;
         }
         prompt += `\n`;
       });
@@ -483,22 +523,32 @@ export class FieldNormalizerService {
         prompt += `**Deine Aufgabe:**\n`;
         prompt += `1. Analysiere die Benutzereingabe\n`;
         prompt += `2. Finde das ähnlichste Label aus der Liste (ignoriere Groß-/Kleinschreibung)\n`;
-        prompt += `3. Korrigiere Tippfehler intelligent:\n`;
+        prompt += `3. Gib EXAKT das Label aus der Liste zurück - OHNE Klammern, OHNE Erklärungen!\n`;
+        prompt += `4. Korrigiere Tippfehler intelligent:\n`;
         prompt += `   - "CC BEI" → "CC BY" (ähnlich klingend)\n`;
         prompt += `   - "CK BY" → "CC BY" (Buchstabendreher)\n`;
         prompt += `   - "Tagugn" → "Tagung" (fehlende Buchstaben)\n`;
-        prompt += `   - "Konfrenz" → "Konferenz" (Tippfehler)\n`;
-        prompt += `4. Wenn KEIN passendes Label gefunden werden kann: Gib null zurück\n`;
-        prompt += `5. Achte auf semantische Ähnlichkeit, nicht nur Buchstaben-Distanz\n\n`;
+        prompt += `   - "Erziehungswissenschaften" → "Pädagogik" (erkenne Alternative)\n`;
+        prompt += `5. Wenn KEIN passendes Label gefunden werden kann: Gib null zurück\n`;
+        prompt += `6. Achte auf semantische Ähnlichkeit, nicht nur Buchstaben-Distanz\n\n`;
+        prompt += `**KRITISCH - Ausgabe-Format:**\n`;
+        prompt += `- Gib NUR das exakte Label zurück (in Anführungszeichen)\n`;
+        prompt += `- KEINE eckigen Klammern [Alternativen: ...]\n`;
+        prompt += `- KEINE runden Klammern oder Erklärungen\n`;
+        prompt += `- KEINE zusätzlichen Texte\n`;
+        prompt += `- Exakte Groß-/Kleinschreibung aus der Liste\n\n`;
         prompt += `**Beispiele:**\n`;
         prompt += `- Eingabe: "cc by-sa" → Ausgabe: "CC BY-SA"\n`;
+        prompt += `- Eingabe: "Erziehungswissenschaften" → Ausgabe: "Pädagogik"\n`;
+        prompt += `- Eingabe: "Politische Bildung" → Ausgabe: "Politik"\n`;
         prompt += `- Eingabe: "creative commons" → Ausgabe: null (zu ungenau)\n`;
-        prompt += `- Eingabe: "BY" → Ausgabe: "CC BY" (falls "CC BY" in Liste)\n`;
       } else {
         prompt += `\n📖 Open/SKOS Vocabulary - Freie Eingabe erlaubt, aber bevorzuge Labels aus der Liste\n\n`;
         prompt += `**Deine Aufgabe:**\n`;
-        prompt += `1. Wenn die Eingabe einem Label ähnelt: Korrigiere auf exaktes Label\n`;
-        prompt += `2. Wenn die Eingabe komplett anders ist: Behalte Original-Wert\n`;
+        prompt += `1. Wenn die Eingabe einem Label ähnelt: Korrigiere auf exaktes Label (nur das Label selbst!)\n`;
+        prompt += `2. Wenn die Eingabe einem Alternative-Label entspricht: Nutze das Haupt-Label\n`;
+        prompt += `3. Wenn die Eingabe komplett anders ist: Behalte Original-Wert\n`;
+        prompt += `4. Gib NIEMALS eckige Klammern [Alternativen: ...] zurück!\n`;
       }
     }
     

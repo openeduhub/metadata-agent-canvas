@@ -880,6 +880,98 @@ export class CanvasService {
   }
 
   /**
+   * Get metadata for Browser-Plugin in Repository-API format
+   * Converts {label, uri} objects to URI strings only
+   */
+  getMetadataForPlugin(): Record<string, any> {
+    const state = this.getCurrentState();
+    const allFields = [...state.coreFields, ...state.specialFields];
+    
+    // Create a map of fieldId to field object
+    const fieldMap = new Map<string, any>();
+    allFields.forEach(field => {
+      fieldMap.set(field.fieldId, field);
+    });
+    
+    // Build a set of sub-field IDs to exclude from output
+    const subFieldIds = new Set<string>();
+    allFields.forEach(field => {
+      if (field.isParent && field.subFields) {
+        field.subFields.forEach((sf: any) => subFieldIds.add(sf.fieldId));
+      }
+    });
+    
+    // Build output in Repository-API format
+    const output: Record<string, any> = {};
+    
+    Object.keys(state.metadata).forEach(fieldId => {
+      const value = state.metadata[fieldId];
+      const field = fieldMap.get(fieldId);
+      
+      // Skip sub-fields
+      if (subFieldIds.has(fieldId)) {
+        return;
+      }
+      
+      if (!field) {
+        output[fieldId] = value;
+        return;
+      }
+      
+      // Check if field has sub-fields (complex object)
+      if (field.isParent && field.subFields && field.subFields.length > 0) {
+        const reconstructedValue = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
+        output[fieldId] = reconstructedValue;
+        return;
+      }
+      
+      // Convert vocabulary values: {label, uri} → uri string
+      if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
+        if (Array.isArray(value)) {
+          // Array: Extract URIs from each {label, uri} object
+          output[fieldId] = value
+            .filter(v => v !== null && v !== undefined && v !== '')
+            .map(v => {
+              if (typeof v === 'object' && v.uri) {
+                return v.uri; // Already {label, uri} format
+              }
+              // Find URI from vocabulary
+              const concept = field.vocabulary.concepts.find((c: any) => 
+                c.uri === v || c.label === v || (c.altLabels && c.altLabels.includes(v))
+              );
+              return concept ? concept.uri : v;
+            });
+        } else if (value !== null && value !== undefined && value !== '') {
+          // Single value: Extract URI
+          if (typeof value === 'object' && value.uri) {
+            output[fieldId] = [value.uri]; // Repository expects array
+          } else {
+            // Find URI from vocabulary
+            const concept = field.vocabulary.concepts.find((c: any) => 
+              c.uri === value || c.label === value || (c.altLabels && c.altLabels.includes(value))
+            );
+            output[fieldId] = concept ? [concept.uri] : [value];
+          }
+        } else {
+          output[fieldId] = [];
+        }
+      } else {
+        // Non-vocabulary field: use as-is, but ensure arrays
+        if (field.multiple && !Array.isArray(value)) {
+          output[fieldId] = value ? [value] : [];
+        } else if (!field.multiple && Array.isArray(value)) {
+          output[fieldId] = value.length > 0 ? value[0] : null;
+        } else {
+          output[fieldId] = value;
+        }
+      }
+    });
+    
+    console.log('📦 Metadata prepared for Plugin (Repository format)');
+    return output;
+  }
+
+  /**
    * Get metadata JSON with URI and label information
    * For vocabulary-based fields: returns array of {label, uri} pairs
    * For free-text fields: returns just the value

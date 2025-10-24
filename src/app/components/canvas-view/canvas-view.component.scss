@@ -7,6 +7,51 @@
   margin: 0;
 }
 
+// Header for integration modes
+.canvas-header {
+  background: white;
+  padding: 12px 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .btn-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: #f5f5f5;
+      color: #333;
+    }
+  }
+}
+
 // Input Section - Material Design
 .input-section {
   background: white;
@@ -552,6 +597,20 @@
       color: #999;
       font-weight: 400;
       letter-spacing: 0.3px;
+    }
+  }
+  
+  .footer-actions {
+    display: flex;
+    gap: 12px;
+    
+    &.multi-button {
+      flex-direction: row;
+      
+      button {
+        flex: 1;
+        min-width: 180px;
+      }
     }
   }
 }

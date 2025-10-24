@@ -4,12 +4,18 @@
   "description": "Angular Web Component for AI-powered Metadata Extraction",
   "main": "dist/index.js",
   "scripts": {
-    "proxy": "node local-proxy.js",
-    "start": "node replace-env.js && ng serve",
-    "start:ssl": "node replace-env.js && ng serve --ssl",
-    "build": "node replace-env.js && ng build --configuration production",
-    "build:prod": "node replace-env.js && ng build --configuration production",
+    "proxy": "node local-universal-proxy.js",
+    "proxy:old": "node local-proxy.js",
+    "proxy:repo": "node local-repository-proxy.js",
+    "start": "node validate-env.js && ng serve",
+    "start:all": "concurrently \"npm run proxy\" \"npm start\" --names \"PROXY,ANGULAR\" --prefix-colors \"cyan,green\"",
+    "dev": "node validate-env.js && netlify dev",
+    "start:ssl": "node validate-env.js && ng serve --ssl",
+    "build": "node validate-env.js && ng build --configuration production",
+    "build:prod": "node validate-env.js && ng build --configuration production",
     "build:dev": "ng build",
+    "build:safe": "npm run build && npm run check-bundle",
+    "check-bundle": "node check-bundle-security.js",
     "test": "ng test",
     "lint": "ng lint"
   },
@@ -23,11 +29,12 @@
     "@angular/material": "^19.2.18",
     "@angular/platform-browser": "^19.2.14",
     "@angular/platform-browser-dynamic": "^19.2.14",
+    "browserify-zlib": "^0.2.0",
+    "dotenv": "^17.2.3",
+    "process": "^0.11.10",
     "rxjs": "^7.8.1",
     "tslib": "^2.3.1",
-    "zone.js": "~0.15.1",
-    "process": "^0.11.10",
-    "browserify-zlib": "^0.2.0"
+    "zone.js": "~0.15.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.14",
@@ -35,6 +42,7 @@
     "@angular/compiler-cli": "^19.2.14",
     "@netlify/functions": "^2.8.2",
     "@types/node": "^20.4.2",
+    "concurrently": "^9.2.1",
     "typescript": "~5.8.3"
   }
 }

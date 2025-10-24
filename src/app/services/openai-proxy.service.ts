@@ -48,39 +48,29 @@ export class OpenAIProxyService {
       this.providerConfig = environment.openai;
     }
     
+    console.log('🧭 Provider configuration loaded:', {
+      provider: this.provider,
+      proxyUrl: this.providerConfig?.proxyUrl,
+      baseUrl: this.providerConfig?.baseUrl,
+      production: environment.production
+    });
+
     // Determine proxy URL based on environment
     if (environment.production) {
       // Production: Use Netlify Function
       this.proxyUrl = this.providerConfig.proxyUrl || '/.netlify/functions/openai-proxy';
     } else {
-      // Development: Use local proxy server
-      this.proxyUrl = this.providerConfig.proxyUrl || 'http://localhost:3001';
+      // Development: Use universal proxy /llm endpoint
+      this.proxyUrl = this.providerConfig.proxyUrl || 'http://localhost:3001/llm';
     }
     
-    // Determine if we should use direct API access or proxy
-    // B-API providers MUST use proxy (even in dev) to avoid CORS issues with X-API-KEY header
-    // OpenAI can use direct access in dev if API key is available
-    const hasApiKey = this.providerConfig?.apiKey || false;
+    // SECURITY: Always use proxy to keep API keys server-side
+    // Direct API access is disabled for security - keys must never be in frontend code
+    this.useDirectAccess = false;
     
-    // B-API providers always use proxy to avoid CORS, OpenAI can use direct access in dev
-    const isBApiProvider = this.provider === 'b-api-openai' || this.provider === 'b-api-academiccloud';
-    if (isBApiProvider) {
-      this.useDirectAccess = false; // Always use local proxy for B-API providers (CORS)
-    } else {
-      this.useDirectAccess = !environment.production && hasApiKey;
-    }
-    
-    if (this.useDirectAccess) {
-      console.log(`🔧 Development mode: Using direct ${this.provider.toUpperCase()} API access (no proxy)`);
-      console.log(`🌐 Base URL: ${this.providerConfig.baseUrl || 'OpenAI default'}`);
-    } else {
-      if (environment.production) {
-        console.log(`🚀 Production mode: Using Netlify Function proxy for ${this.provider.toUpperCase()}`);
-      } else {
-        console.log(`🔧 Development mode: Using local proxy for ${this.provider.toUpperCase()}`);
-        console.log(`📡 Local proxy: http://localhost:3001`);
-        console.log(`💡 Start proxy in separate terminal: npm run proxy`);
-      }
+    // Log proxy configuration (only in development for debugging)
+    if (!environment.production) {
+      console.log(`🔧 Development: ${this.provider.toUpperCase()} via proxy → ${this.proxyUrl}`);
     }
   }
 

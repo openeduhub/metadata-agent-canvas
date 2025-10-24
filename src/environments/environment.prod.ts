@@ -3,13 +3,14 @@ export const environment = {
   
   // LLM Provider Selection ('openai', 'b-api-openai', or 'b-api-academiccloud')
   // NOTE: In production, switch provider via environment variable or build config
-  llmProvider: 'openai', // Switch between providers
+  llmProvider: 'b-api-openai', // Switch between providers
   
   // OpenAI Configuration
-  // NOTE: In production, API Key is NOT stored in code for security
-  // The Netlify Function proxy handles authentication server-side
+  // SECURITY: API Keys are NEVER stored in code
+  // The Netlify Function (/.netlify/functions/openai-proxy) handles authentication server-side
+  // Keys are read from Netlify Environment Variables (marked as secrets)
   openai: {
-    apiKey: '', // Injected from environment variable
+    apiKey: '', // NOT USED - API key is kept server-side for security
     baseUrl: '', // Optional: Custom OpenAI-compatible endpoint
     proxyUrl: '', // Optional: Custom proxy URL (leave empty to use /.netlify/functions/openai-proxy)
     model: 'gpt-4.1-mini',
@@ -52,5 +53,16 @@ export const environment = {
   canvas: {
     maxWorkers: 10, // Number of parallel field extractions (5-20 recommended)
     timeout: 30000 // Timeout per field extraction in milliseconds
+  },
+  
+  // Geocoding API Configuration (Photon)
+  geocoding: {
+    proxyUrl: '' // Production uses /.netlify/functions/photon
+  },
+  
+  // Repository API Configuration (edu-sharing)
+  repository: {
+    proxyUrl: '', // Production uses /.netlify/functions/repository-proxy
+    baseUrl: 'https://repository.staging.openeduhub.net/edu-sharing'
   }
 };

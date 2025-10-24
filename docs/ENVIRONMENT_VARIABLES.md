@@ -32,7 +32,7 @@ Das `replace-env.js` Script unterstützt jetzt **drei LLM-Provider** und kann de
 
 | Variable | Beschreibung | Standard | Beispiel |
 |----------|-------------|----------|----------|
-| `B_API_KEY` | B-API Key (für beide B-API Provider) | - | `bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc` |
+| `B_API_KEY` | B-API Key (für beide B-API Provider) | - | `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` |
 | `B_MODEL` | Modell-Name (optional) | Provider-abhängig | `gpt-4.1-mini` |
 
 **Provider-spezifische Defaults:**
@@ -54,7 +54,7 @@ $env:OPENAI_API_KEY="sk-proj-..."
 $env:OPENAI_MODEL="gpt-4.1-mini"
 
 # B-API (für beide B-API Provider)
-$env:B_API_KEY="bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc"
+$env:B_API_KEY="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 $env:B_MODEL="gpt-4.1-mini"  # Optional
 
 # App starten
@@ -66,7 +66,7 @@ npm start
 ```cmd
 set LLM_PROVIDER=b-api-openai
 set OPENAI_API_KEY=sk-proj-...
-set B_API_KEY=bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc
+set B_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 npm start
 ```
 
@@ -85,7 +85,7 @@ export OPENAI_API_KEY="sk-proj-..."
 export OPENAI_MODEL="gpt-4.1-mini"
 
 # B-API (für beide B-API Provider)
-export B_API_KEY="bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc"
+export B_API_KEY="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 export B_MODEL="gpt-4.1-mini"  # Optional
 
 # App starten
@@ -103,7 +103,7 @@ npm start
 ```
 LLM_PROVIDER=b-api-openai
 OPENAI_API_KEY=sk-proj-...
-B_API_KEY=bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc
+B_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
 **Provider wechseln:** Ändern Sie einfach `LLM_PROVIDER` zu:
@@ -171,7 +171,7 @@ openai: {
   apiKey: 'sk-proj-...',  // ← Vorhandener Key
 }
 bApiOpenai: {
-  apiKey: 'bb6cdf84-...',  // ← Vorhandener Key
+  apiKey: 'xxxxxxxx-xxxx-...',  // ← Vorhandener Key
 }
 ```
 
@@ -200,7 +200,7 @@ bApiOpenai: {
 
 ```powershell
 # Nur B-API Key setzen
-$env:B_API_KEY="bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc"
+$env:B_API_KEY="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 $env:LLM_PROVIDER="b-api-openai"
 
 # environment.ts:
@@ -224,7 +224,7 @@ npm start
 
 ```powershell
 $env:OPENAI_API_KEY="sk-proj-..."
-$env:B_API_KEY="bb6cdf84-..."
+$env:B_API_KEY="xxxxxxxx-xxxx-..."
 $env:LLM_PROVIDER="b-api-openai"  # Aktiver Provider
 
 npm start
@@ -245,7 +245,7 @@ llmProvider: 'b-api-academiccloud', // ← B-API AcademicCloud
 **Netlify Dashboard:**
 ```
 LLM_PROVIDER=b-api-openai
-B_API_KEY=bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc
+B_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
 **environment.prod.ts:**
@@ -265,10 +265,10 @@ bApiAcademicCloud: {
 ```typescript
 llmProvider: 'b-api-openai',
 bApiOpenai: {
-  apiKey: 'bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc',
+  apiKey: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
 }
 bApiAcademicCloud: {
-  apiKey: 'bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc',
+  apiKey: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
 }
 ```
 

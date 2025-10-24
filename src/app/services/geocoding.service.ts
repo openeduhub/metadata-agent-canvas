@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 
 /**
  * Geocoding service using Photon API from Komoot
@@ -8,30 +9,24 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class GeocodingService {
-  private readonly PHOTON_DIRECT_URL = 'https://photon.komoot.io/api/';
-  private readonly PHOTON_PROXY_URL = '/.netlify/functions/photon';
   private readonly RATE_LIMIT_MS = 1000; // 1 request per second
   private lastRequestTime = 0;
 
   /**
    * Get the appropriate Photon API URL based on environment
-   * - Local development: Direct API access
-   * - Netlify production: Via proxy function (avoids client blockers)
+   * - Local development: From environment.geocoding.proxyUrl
+   * - Netlify production: /.netlify/functions/photon
    */
   private getPhotonUrl(): string {
-    // Check if we're running on Netlify (deployed)
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      // Use proxy on Netlify domains or production, direct access locally
-      if (hostname.includes('netlify.app') || 
-          hostname.includes('netlify.com') ||
-          (!hostname.includes('localhost') && hostname !== '127.0.0.1')) {
-        console.log('🗺️ Using Netlify Photon proxy');
-        return this.PHOTON_PROXY_URL;
-      }
+    if (environment.production) {
+      console.log('🗺️ Using Netlify Photon proxy');
+      return '/.netlify/functions/photon';
     }
-    console.log('🗺️ Using direct Photon API access');
-    return this.PHOTON_DIRECT_URL;
+    
+    // Development: Use URL from environment config
+    const proxyUrl = (environment as any).geocoding?.proxyUrl || 'http://localhost:3001/geocoding';
+    console.log(`🗺️ Using geocoding proxy: ${proxyUrl}`);
+    return proxyUrl;
   }
 
   /**

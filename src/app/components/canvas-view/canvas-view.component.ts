@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { CanvasService } from '../../services/canvas.service';
 import { SchemaLoaderService } from '../../services/schema-loader.service';
+import { IntegrationModeService } from '../../services/integration-mode.service';
+import { GuestSubmissionService } from '../../services/guest-submission.service';
 import { CanvasState, FieldGroup, FieldStatus } from '../../models/canvas-models';
 import { CanvasFieldComponent } from '../canvas-field/canvas-field.component';
 import { environment } from '../../../environments/environment';
@@ -21,6 +23,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   userText = '';
   FieldStatus = FieldStatus;
   showContentTypeDropdown = false;
+  isSubmitting = false;
   contentTypeOptions: Array<{ label: string; schemaFile: string }> = [];
   llmProvider = environment.llmProvider; // Active LLM provider
   llmModel = this.getActiveLlmModel(); // Active LLM model
@@ -31,7 +34,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   constructor(
     private canvasService: CanvasService,
     private schemaLoader: SchemaLoaderService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public integrationMode: IntegrationModeService,
+    private guestSubmission: GuestSubmissionService
   ) {
     this.state = this.canvasService.getCurrentState();
   }
@@ -48,6 +53,27 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     
     // Listen for postMessage from parent window (test integration)
     this.setupPostMessageListener();
+    
+    // Auto-start extraction if we have page data from integration
+    this.handleIntegrationMode();
+  }
+  
+  /**
+   * Handle integration mode (Browser Extension or Bookmarklet)
+   */
+  private async handleIntegrationMode(): Promise<void> {
+    const pageData = this.integrationMode.getPageData();
+    
+    if (pageData && pageData.content) {
+      console.log('🚀 Auto-starting extraction from integration mode');
+      
+      // Pre-fill text area
+      this.userText = pageData.content;
+      this.cdr.detectChanges();
+      
+      // Auto-start extraction
+      await this.startExtraction();
+    }
   }
   
   /**
@@ -68,8 +94,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         return;
       }
       
+      // Handle legacy SET_TEXT (backward compatibility)
       if (event.data.type === 'SET_TEXT' && event.data.text) {
-        console.log('📨 Received text via postMessage:', event.data.text.substring(0, 100) + '...');
+        console.log('📨 Received text via postMessage (legacy):', event.data.text.substring(0, 100) + '...');
         
         // Set text in textarea
         this.userText = event.data.text;
@@ -86,6 +113,79 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         }
         
         console.log('✅ Text successfully set in canvas textarea');
+      }
+      
+      // Handle structured SET_PAGE_DATA (bookmarklet with URL)
+      if (event.data.type === 'SET_PAGE_DATA' && event.data.text) {
+        console.log('📨 Received page data via postMessage:');
+        console.log('  - URL:', event.data.url);
+        console.log('  - Title:', event.data.pageTitle);
+        console.log('  - Mode:', event.data.mode);
+        
+        // Update mode if specified
+        if (event.data.mode) {
+          this.integrationMode.setMode(event.data.mode);
+        }
+        
+        // Set text in textarea
+        this.userText = event.data.text;
+        
+        // Store URL for later use (will be pre-filled in metadata)
+        if (event.data.url) {
+          sessionStorage.setItem('canvas_page_url', event.data.url);
+        }
+        
+        // Trigger change detection
+        this.cdr.detectChanges();
+        
+        // Send confirmation back
+        if (event.source) {
+          (event.source as Window).postMessage({
+            type: 'PAGE_DATA_RECEIVED',
+            success: true
+          }, event.origin);
+        }
+        
+        console.log('✅ Page data successfully set in canvas');
+      }
+      
+      // Handle PLUGIN_PAGE_DATA (Browser-Plugin with page extraction)
+      if (event.data.type === 'PLUGIN_PAGE_DATA') {
+        console.log('📨 Received page data from Browser Plugin:');
+        console.log('  - URL:', event.data.url);
+        console.log('  - Title:', event.data.title);
+        console.log('  - Mode:', event.data.mode);
+        
+        // Update mode to browser-extension
+        if (event.data.mode === 'browser-extension') {
+          this.integrationMode.setMode('browser-extension');
+        }
+        
+        // Set text in textarea (use text or html)
+        this.userText = event.data.text || event.data.html;
+        
+        // Store URL for later use
+        if (event.data.url) {
+          sessionStorage.setItem('canvas_page_url', event.data.url);
+        }
+        
+        // Store metadata if provided
+        if (event.data.metadata) {
+          sessionStorage.setItem('canvas_plugin_metadata', JSON.stringify(event.data.metadata));
+        }
+        
+        // Trigger change detection
+        this.cdr.detectChanges();
+        
+        // Send confirmation back to plugin
+        if (event.source) {
+          (event.source as Window).postMessage({
+            type: 'PLUGIN_DATA_RECEIVED',
+            success: true
+          }, event.origin);
+        }
+        
+        console.log('✅ Plugin page data successfully set in canvas');
       }
     });
   }
@@ -197,7 +297,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Confirm and download JSON
+   * Confirm and export (mode-aware)
    */
   confirmAndExport(): void {
     if (!this.allRequiredFieldsFilled()) {
@@ -207,8 +307,142 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     }
 
     // Geocoding already happened automatically after extraction
-    // Just download the JSON
-    this.downloadJson();
+    
+    if (this.integrationMode.isBrowserExtension() || this.integrationMode.isBookmarklet()) {
+      // Send metadata back to parent (Extension or Bookmarklet)
+      this.sendMetadataToParent();
+    } else {
+      // Standalone mode: Download JSON
+      this.downloadJson();
+    }
+  }
+  
+  /**
+   * Send metadata to parent window (Extension or Bookmarklet)
+   */
+  private sendMetadataToParent(): void {
+    // For Browser-Extension: Use Repository-API format (URI strings, not {label, uri} objects)
+    // For Bookmarklet: Use enriched format with {label, uri}
+    const metadata = this.integrationMode.isBrowserExtension()
+      ? this.canvasService.getMetadataForPlugin()
+      : JSON.parse(this.canvasService.getMetadataJson());
+    
+    this.integrationMode.sendMetadataToParent(metadata);
+    
+    // Show success message
+    alert(this.integrationMode.isLoggedIn() 
+      ? '✅ Metadaten werden veröffentlicht...'
+      : '✅ Vorschlag wird eingereicht...');
+  }
+  
+  /**
+   * Close canvas (for integration modes)
+   */
+  closeCanvas(): void {
+    this.integrationMode.requestClose();
+  }
+  
+  /**
+   * Submit metadata (mode-dependent)
+   */
+  async submitAsGuest(): Promise<void> {
+    if (!this.allRequiredFieldsFilled()) {
+      alert('Bitte füllen Sie alle Pflichtfelder aus.');
+      return;
+    }
+    
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+    
+    try {
+      const json = this.canvasService.getMetadataJson();
+      const metadata = JSON.parse(json);
+      
+      // BROWSER-EXTENSION MODE: Send to plugin via postMessage
+      if (this.integrationMode.isBrowserExtension()) {
+        console.log('📤 Sending metadata to Browser-Plugin...');
+        
+        // Use Repository-API format (URI strings, not {label, uri} objects)
+        const pluginMetadata = this.canvasService.getMetadataForPlugin();
+        this.integrationMode.sendMetadataToParent(pluginMetadata);
+        
+        // Show success message
+        alert(`✅ Metadaten an Browser-Plugin gesendet!
+        
+Die Daten wurden erfolgreich an das Browser-Plugin übertragen.
+Das Plugin wird nun die Veröffentlichung im Repository durchführen.
+
+Vielen Dank! 🎉`);
+        
+        // Close canvas after short delay
+        setTimeout(() => {
+          this.integrationMode.requestClose();
+        }, 1500);
+        
+        this.isSubmitting = false;
+        return;
+      }
+      
+      // STANDALONE/BOOKMARKLET MODE: Submit to Netlify Functions
+      console.log('📤 Submitting as guest to repository...');
+      const result = await this.guestSubmission.submitAsGuest(metadata);
+      
+      if (result.success) {
+        // SUCCESS
+        const viewInRepo = confirm(`✅ Ihr Vorschlag wurde erfolgreich eingereicht!
+
+📋 Node-ID: ${result.nodeId}
+🔍 Status: Wird geprüft
+📊 Repository: WLO Staging
+
+Ihr Beitrag wird nun von unserem Team geprüft.
+Vielen Dank! 🎉
+
+Möchten Sie den Eintrag im Repository ansehen?`);
+        
+        if (viewInRepo && result.nodeId) {
+          const repoUrl = `${environment.repository.baseUrl}/components/render/${result.nodeId}`;
+          window.open(repoUrl, '_blank');
+        }
+        
+        // Optional: Reset after success
+        if (confirm('Möchten Sie einen weiteren Vorschlag einreichen?')) {
+          this.reset();
+        }
+      } else if (result.duplicate) {
+        // DUPLICATE
+        const viewInRepo = confirm(`⚠️ Diese URL existiert bereits im Repository!
+
+${result.error}
+
+📋 Node-ID: ${result.nodeId}
+
+Möchten Sie den vorhandenen Eintrag im Repository ansehen?`);
+        
+        if (viewInRepo && result.nodeId) {
+          const repoUrl = `${environment.repository.baseUrl}/components/render/${result.nodeId}`;
+          window.open(repoUrl, '_blank');
+        }
+      } else {
+        // ERROR
+        alert(`❌ Fehler beim Einreichen:
+
+${result.error || 'Unbekannter Fehler'}
+
+Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.`);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert(`❌ Fehler beim Einreichen
+
+Ein technischer Fehler ist aufgetreten.
+Bitte versuchen Sie es später erneut.
+
+Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
+    } finally {
+      this.isSubmitting = false;
+      this.cdr.detectChanges();
+    }
   }
 
   /**

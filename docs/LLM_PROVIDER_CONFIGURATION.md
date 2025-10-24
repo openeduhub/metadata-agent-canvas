@@ -41,7 +41,7 @@ export const environment = {
   
   // Provider B Configuration
   providerB: {
-    apiKey: 'bb6cdf84-...', // Dein Provider B API Key
+    apiKey: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', // Dein Provider B API Key
     baseUrl: 'https://b-api.staging.openeduhub.net/api/v1/llm/openai',
     model: 'gpt-4.1-mini',
     temperature: 0.3,
@@ -77,7 +77,7 @@ Füge folgende Variablen hinzu:
 OPENAI_API_KEY=sk-proj-...
 
 # Für Provider B
-B_API_KEY=bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc
+B_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
 ### Provider wechseln
@@ -118,7 +118,7 @@ POST https://api.openai.com/v1/chat/completions
 // Request Headers
 {
   'Content-Type': 'application/json',
-  'X-API-KEY': 'bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc'
+  'X-API-KEY': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
 }
 
 // API Endpoint
@@ -130,9 +130,9 @@ POST https://b-api.staging.openeduhub.net/api/v1/llm/openai/chat/completions
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc",
+    api_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     base_url="https://b-api.staging.openeduhub.net/api/v1/llm/openai",
-    default_headers={"X-API-KEY": "bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc"}
+    default_headers={"X-API-KEY": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}
 )
 
 response = client.chat.completions.create(

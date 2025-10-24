@@ -2,8 +2,11 @@
 
 Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit paralleler Verarbeitung und Canvas-basierter UI für Inline-Editing.
 
+**✨ Multi-Mode Integration:** Läuft als Standalone-App, Bookmarklet-Overlay oder integriert im Browser-Plugin!
+
 ## 🎯 Features
 
+### Core Features
 - ⚡ **Schnell**: Parallele Feld-Extraktion (6-10s statt 40-50s)
 - 🎨 **Canvas-UI**: Alle Felder gleichzeitig sichtbar und bearbeitbar mit Baum-Hierarchie für verschachtelte Felder
 - 📊 **Live-Updates**: Echtzeit-Streaming während der Extraktion
@@ -14,6 +17,13 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 - ✅ **Validierung**: Pflichtfelder, Vokabulare, Datentypen
 - 🔒 **Sicher**: API-Key wird nie im Code gespeichert (Production)
 - 🔌 **Multi-Provider Support**: OpenAI, B-API OpenAI, B-API AcademicCloud (DeepSeek-R1)
+
+### Integration Modes
+- 🌐 **Standalone**: Direkter Zugriff auf deployed URL
+- 🔖 **Bookmarklet**: Als Overlay auf beliebigen Webseiten
+- 🧩 **Browser-Plugin**: Integriert in WLO Browser Extension
+- 🔄 **Auto-Detection**: Erkennt automatisch den Betriebsmodus
+- 📤 **Smart Submit**: Mode-abhängige Daten-Submission (Netlify Functions oder postMessage)
 
 ---
 
@@ -159,12 +169,17 @@ http://localhost:4200
 ### Für Production Build:
 
 ```bash
-# Build erstellen
+# Sicherer Build mit automatischem Security Check (empfohlen)
+npm run build:safe
+
+# Oder: Standard Build ohne Check
 npm run build
 
 # Output in dist/ Verzeichnis
 # Bereit für Deployment auf Netlify/Vercel
 ```
+
+**💡 Tipp:** `build:safe` validiert, dass keine API-Keys im Bundle landen!
 
 ---
 
@@ -319,7 +334,7 @@ npm run proxy
 ```
 🚀 Starting local OpenAI proxy server...
 📡 Proxy listening on: http://localhost:3001
-🔑 Using API Key: sk-proj-fGvdFrf8ZApf...
+🔑 Using API Key: sk-proj-xxxxxxxx...
 ✅ Proxy server ready!
 
 📋 Next steps:
@@ -377,23 +392,46 @@ http://localhost:4200
 
 ### Build für Netlify/Vercel
 
+**Standard Build:**
 ```bash
 npm run build
 ```
 
-**Ausgabe:**
+**🔒 Sicherer Build mit Security Check (empfohlen):**
+```bash
+npm run build:safe
 ```
-✅ Environment processing complete
+
+Dieser Befehl:
+1. ✅ Validiert Environment Files (keine API-Keys im Code)
+2. ✅ Erstellt Production Build
+3. ✅ Scannt Bundle nach API-Keys
+4. ✅ Garantiert sicheres Deployment
+
+**Bundle-Security-Check (nach Build):**
+```bash
+npm run check-bundle
+```
+
+Scannt das fertige Bundle in `dist/` nach versehentlich inkludierten API-Keys.
+
+**Ausgabe (Build + Security Check):**
+```
+🔒 SECURE Environment Configuration Validator
+═══════════════════════════════════════════════
+✅ Security check PASSED: No API keys in code
+✅ Validation COMPLETE - Environment files are secure!
+
 √ Browser application bundle generation complete.
-√ Copying assets complete.
-√ Index html generation complete.
-
 Initial chunk files  | Names      | Raw size | Estimated transfer size
-main.*.js            | main       | 968 kB   | 220 kB
+main.*.js            | main       | 438 kB   | 107 kB
 styles.*.css         | styles     | 89 kB    | 7.5 kB
-polyfills.*.js       | polyfills  | 35 kB    | 11 kB
 
-Build at: 2025-10-15 - Time: 8169ms
+🔒 Bundle Security Check
+═══════════════════════════════════════════════
+📊 Files scanned: 5
+✅ SUCCESS: No API keys found in bundle!
+🎉 Bundle is secure and ready for deployment.
 ```
 
 **Build-Artefakte:** `dist/` Verzeichnis
@@ -439,6 +477,160 @@ Nach dem Deployment:
   🚀 Production mode: Using Netlify Function proxy
   ```
 - API-Key ist **nicht** im Code sichtbar ✅
+
+---
+
+## 🔄 Integration Modes
+
+Die Canvas-Komponente unterstützt **drei Betriebsmodi** und erkennt automatisch, in welchem Modus sie läuft:
+
+### 1. 🌐 Standalone Mode
+
+**Wann:** Direkter Zugriff auf die deployed URL (z.B. `https://your-site.netlify.app`)
+
+**Features:**
+- ✅ Vollständige Canvas-UI
+- ✅ Manuelle Text-Eingabe
+- ✅ Submit zu Netlify Functions (Repository API)
+- ✅ JSON-Download
+- ❌ Kein Close-Button (volle Seite)
+
+**Use Case:** Testing, manuelle Metadaten-Erstellung
+
+---
+
+### 2. 🔖 Bookmarklet Mode
+
+**Wann:** Canvas wird als **iframe** auf einer Webseite eingeblendet (via Bookmarklet-Script)
+
+**Features:**
+- ✅ Canvas als Overlay (rechts, 600px)
+- ✅ Close-Button (×)
+- ✅ Mode-Badge: "Bookmarklet"
+- ✅ URL automatisch übergeben via postMessage
+- ✅ Submit zu Netlify Functions
+- ✅ Automatisches Schließen nach Submit
+
+**Workflow:**
+```
+Bookmarklet-Script ausführen
+  ↓
+Canvas öffnet als iframe
+  ↓
+postMessage: SET_PAGE_DATA (URL, Text)
+  ↓
+User extrahiert Metadaten
+  ↓
+Submit → Netlify Functions → Repository
+  ↓
+Canvas schließt sich
+```
+
+**Integration:** Siehe `src/assets/canvas-integration.js` für Bookmarklet-Code
+
+---
+
+### 3. 🧩 Browser-Plugin Mode
+
+**Wann:** Canvas wird vom **WLO Browser Extension** geöffnet
+
+**Features:**
+- ✅ Canvas als iframe im Plugin (Sidebar, 600px)
+- ✅ Close-Button (×)
+- ✅ Mode-Badge: "Browser Extension"
+- ✅ User-Badge: "Gast" oder "Username"
+- ✅ **Vollständige Seiten-Extraktion** (HTML, Text, Meta-Tags, Structured Data)
+- ✅ **Generischer Crawler-Daten** (optional)
+- ✅ Submit via **postMessage** zurück an Plugin
+- ❌ **KEIN** direkter Repository-Call (Plugin übernimmt!)
+
+**Workflow:**
+```
+Browser-Plugin: "Werk vorschlagen"
+  ↓
+content-extractor.js extrahiert Seite
+  ↓
+Optional: Generischer Crawler API Call
+  ↓
+Plugin öffnet Canvas in iframe
+  ↓
+postMessage: PLUGIN_PAGE_DATA
+  (url, html, text, metadata, crawlerData)
+  ↓
+Canvas empfängt & füllt Textarea
+  ↓
+User: "Generate" → LLM extrahiert Felder
+  ↓
+User bearbeitet Felder
+  ↓
+Submit: postMessage zurück an Plugin
+  (CANVAS_METADATA_READY)
+  ↓
+Plugin: Repository API
+  ↓
+Success Notification
+  ↓
+Canvas schließt sich
+```
+
+**Integration:** Siehe `../metadata-browser-plugin/` für Plugin-Code
+
+---
+
+### 🔍 Automatische Mode-Detection
+
+**Service:** `src/app/services/integration-mode.service.ts`
+
+**Detection-Prioritäten:**
+```typescript
+1. URL-Parameter (?mode=browser-extension)
+   ↓
+2. iframe Check (window !== window.parent)
+   → Lokal: "browser-extension"
+   → Deployed: "bookmarklet" (default)
+   ↓
+3. postMessage Mode-Update
+   → event.data.mode überschreibt
+   ↓
+4. Standalone (wenn nicht im iframe)
+```
+
+**Console Output (Beispiele):**
+```
+🖥️ Mode: Standalone (local development)
+🌐 Mode: Standalone (deployed, direct access)
+🔖 Mode: Bookmarklet (iframe, deployed)
+🔌 Mode: Browser Extension (iframe, local)
+```
+
+---
+
+### 📤 Mode-abhängiges Submit
+
+**TypeScript:** `src/app/components/canvas-view/canvas-view.component.ts`
+
+```typescript
+async submitAsGuest() {
+  const metadata = this.canvasService.getMetadataJson();
+  
+  // BROWSER-EXTENSION: postMessage an Plugin
+  if (this.integrationMode.isBrowserExtension()) {
+    this.integrationMode.sendMetadataToParent(metadata);
+    this.integrationMode.requestClose();
+    return;  // Kein Repository-Call!
+  }
+  
+  // STANDALONE/BOOKMARKLET: Netlify Functions
+  const result = await this.guestSubmission.submitAsGuest(metadata);
+  // ... Repository-Submission
+}
+```
+
+**Vorteile:**
+- ✅ Ein Codebase für alle Modi
+- ✅ Automatische Mode-Erkennung
+- ✅ Korrekte Daten-Submission je Modus
+- ✅ UI passt sich automatisch an
 
 ---
 
@@ -1096,19 +1288,68 @@ BATCH_DELAY_MS = 100;      // Pause zwischen Batches (Rate-Limit)
 
 ## 🔨 Build & Deployment
 
+### Verfügbare NPM Scripts
+
+| Script | Beschreibung |
+|--------|--------------|
+| `npm start` | Development Server (localhost:4200) mit Pre-Build Security Check |
+| `npm run proxy` | Startet lokalen Universal Proxy (localhost:3001) |
+| `npm run start:all` | Startet Proxy + Angular parallel (empfohlen für lokal) |
+| `npm run dev` | Netlify Dev Server mit Functions |
+| `npm run build` | Production Build mit Pre-Build Validation |
+| `npm run build:safe` | 🔒 Build + Bundle Security Check (empfohlen) |
+| `npm run check-bundle` | Scannt Bundle nach API-Keys (nach Build) |
+| `npm test` | Unit Tests |
+| `npm run lint` | Code Linting |
+
+**💡 Empfohlen für Production:** `npm run build:safe`
+
 ### Development
 
 ```bash
-npm start  # Läuft auf http://localhost:4200
+# Terminal 1: Proxy starten
+npm run proxy
+
+# Terminal 2: App starten
+npm start
+
+# Oder beides zusammen:
+npm run start:all
 ```
+
+Läuft auf: `http://localhost:4200`
 
 ### Production Build
 
+**Sicherer Build (empfohlen):**
+```bash
+npm run build:safe
+```
+
+Führt aus:
+1. ✅ Pre-Build Security Validation
+2. ✅ Production Build
+3. ✅ Post-Build Bundle Scan
+
+**Standard Build:**
 ```bash
 npm run build
 ```
 
 Build-Artefakte in: `dist/`
+
+### Security Checks
+
+**Vor Build:**
+- `validate-env.js` prüft `environment.ts`/`environment.prod.ts`
+- Schlägt fehl wenn API-Keys gefunden
+
+**Nach Build:**
+```bash
+npm run check-bundle
+```
+- Scannt `dist/**/*.js` nach Keys
+- Garantiert sicheres Bundle
 
 ### Environment-Konfiguration
 

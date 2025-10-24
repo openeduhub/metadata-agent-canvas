@@ -50,6 +50,17 @@
     </div>
   </div>
   
+  <!-- Geo Button (for fields with coordinates) -->
+  <button 
+    *ngIf="hasGeoCoordinates()" 
+    class="geo-button"
+    [title]="'Auf OpenStreetMap anzeigen'"
+    (click)="openInOpenStreetMap()"
+    type="button"
+  >
+    🗺️
+  </button>
+  
   <!-- Info Button (only for parent fields, not sub-fields) -->
   <button 
     *ngIf="field.description && !field.parentFieldId" 
@@ -107,6 +118,17 @@
           rows="1"
         ></textarea>
       </div>
+      
+      <!-- Geo Button for sub-fields with coordinates -->
+      <button 
+        *ngIf="subFieldHasGeoCoordinates(subField)" 
+        class="geo-button sub-field-geo-button"
+        [title]="'Auf OpenStreetMap anzeigen'"
+        (click)="openSubFieldInOpenStreetMap(subField)"
+        type="button"
+      >
+        🗺️
+      </button>
     </div>
   </div>
 </div>

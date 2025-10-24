@@ -6,9 +6,9 @@ export const environment = {
   
   // OpenAI Configuration
   openai: {
-    apiKey: '',
+    apiKey: '', // NOT USED - API key is kept server-side for security
     baseUrl: '', // Optional: Custom OpenAI-compatible endpoint (leave empty for default)
-    proxyUrl: '', // Optional: Custom proxy URL (leave empty to use /.netlify/functions/openai-proxy)
+    proxyUrl: 'http://localhost:3001/llm', // Local dev proxy
     model: 'gpt-4.1-mini',
     temperature: 0.3,
     
@@ -21,9 +21,9 @@ export const environment = {
   
   // B-API OpenAI Configuration (OpenAI-compatible endpoint)
   bApiOpenai: {
-    apiKey: '', // Set B_API_KEY in environment variable
+    apiKey: '', // NOT USED - API key is kept server-side for security
     baseUrl: 'https://b-api.staging.openeduhub.net/api/v1/llm/openai',
-    proxyUrl: '', // Optional: Custom proxy URL
+    proxyUrl: 'http://localhost:3001/llm', // Local dev proxy
     model: 'gpt-4.1-mini',
     temperature: 0.3,
     requiresCustomHeader: true, // Send X-API-KEY header
@@ -37,9 +37,9 @@ export const environment = {
   
   // B-API AcademicCloud Configuration (AcademicCloud endpoint)
   bApiAcademicCloud: {
-    apiKey: '', // Set B_API_KEY in environment variable
+    apiKey: '', // NOT USED - API key is kept server-side for security
     baseUrl: 'https://b-api.staging.openeduhub.net/api/v1/llm/academiccloud',
-    proxyUrl: '', // Optional: Custom proxy URL
+    proxyUrl: 'http://localhost:3001/llm', // Local dev proxy
     model: 'deepseek-r1',
     temperature: 0.3,
     requiresCustomHeader: true, // Send X-API-KEY header
@@ -49,5 +49,16 @@ export const environment = {
   canvas: {
     maxWorkers: 10, // Number of parallel field extractions (5-20 recommended)
     timeout: 30000 // Timeout per field extraction in milliseconds
+  },
+  
+  // Geocoding API Configuration (Photon)
+  geocoding: {
+    proxyUrl: 'http://localhost:3001/geocoding'
+  },
+  
+  // Repository API Configuration (edu-sharing)
+  repository: {
+    proxyUrl: 'http://localhost:3001/repository',
+    baseUrl: 'https://repository.staging.openeduhub.net/edu-sharing'
   }
 };

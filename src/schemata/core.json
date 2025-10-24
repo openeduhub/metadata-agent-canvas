@@ -94,7 +94,7 @@
         "uri": "ccm:wwwurl",
         "datatype": "uri",
         "multiple": false,
-        "required": false,
+        "required": true,
         "ask_user": true,
         "ai_fillable": true,
         "index": { "keyword": true },
@@ -420,7 +420,7 @@
       "group_label": "Bildungskontext",
       "prompt": {
         "label": "Fach",
-        "description": "Schulfach/Disziplin (SKOS). Mehrfachauswahl möglich."
+        "description": "Schulfach/Disziplin (SKOS). Mehrfachauswahl möglich. Labels in der Originalbezeichnung und ohne Ergänzungen ausgeben."
       },
       "system": {
         "path": "ccm:taxonid",

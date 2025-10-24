@@ -164,6 +164,38 @@
     }
   }
 
+  .geo-button,
+  .info-button {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(33, 150, 243, 0.1);
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  .geo-button {
+    &:hover {
+      background: rgba(76, 175, 80, 0.1);
+    }
+  }
+
   .info-icon {
     flex: 0 0 24px;
     background: none;
@@ -315,7 +347,8 @@
     .sub-field-right {
       flex: 1;
       display: flex;
-      align-items: stretch;
+      align-items: center;
+      gap: 8px;
       padding: 4px 8px;
 
       .field-input-container {

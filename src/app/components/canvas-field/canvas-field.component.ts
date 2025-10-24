@@ -427,4 +427,151 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
 
     return 'Noch keine Daten';
   }
+
+  /**
+   * Check if field has geo-coordinates (latitude and longitude)
+   */
+  hasGeoCoordinates(): boolean {
+    if (!this.field.subFields || this.field.subFields.length === 0) {
+      return false;
+    }
+
+    const latField = this.field.subFields.find(f => 
+      f.path?.toLowerCase().includes('geo.latitude') && 
+      f.value !== null && f.value !== undefined && f.value !== ''
+    );
+    const lonField = this.field.subFields.find(f => 
+      f.path?.toLowerCase().includes('geo.longitude') && 
+      f.value !== null && f.value !== undefined && f.value !== ''
+    );
+
+    return !!(latField && lonField);
+  }
+
+  /**
+   * Get OpenStreetMap URL for the field's geo-coordinates
+   */
+  getOpenStreetMapUrl(): string | null {
+    if (!this.field.subFields || this.field.subFields.length === 0) {
+      return null;
+    }
+
+    // Get coordinates
+    const latField = this.field.subFields.find(f => f.path?.toLowerCase().includes('geo.latitude'));
+    const lonField = this.field.subFields.find(f => f.path?.toLowerCase().includes('geo.longitude'));
+
+    if (!latField?.value || !lonField?.value) {
+      return null;
+    }
+
+    const lat = Number(latField.value);
+    const lon = Number(lonField.value);
+
+    if (isNaN(lat) || isNaN(lon)) {
+      return null;
+    }
+
+    // Build address query for search
+    const addressParts: string[] = [];
+    const streetField = this.field.subFields.find(f => f.path?.toLowerCase().includes('address.streetaddress'));
+    const postalField = this.field.subFields.find(f => f.path?.toLowerCase().includes('address.postalcode'));
+    const cityField = this.field.subFields.find(f => f.path?.toLowerCase().includes('address.addresslocality'));
+
+    if (streetField?.value) addressParts.push(String(streetField.value));
+    if (postalField?.value) addressParts.push(String(postalField.value));
+    if (cityField?.value) addressParts.push(String(cityField.value));
+
+    const query = addressParts.length > 0 ? addressParts.join(' ') : `${lat},${lon}`;
+
+    // Calculate bounding box (approximately 200m x 200m)
+    const latDelta = 0.0018; // ~200m in latitude
+    const lonDelta = 0.0045; // ~200m in longitude (at ~50° latitude)
+    
+    const minLat = lat - latDelta;
+    const maxLat = lat + latDelta;
+    const minLon = lon - lonDelta;
+    const maxLon = lon + lonDelta;
+
+    // Build OpenStreetMap URL with search query and bounding box
+    return `https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}&zoom=18&minlon=${minLon}&minlat=${minLat}&maxlon=${maxLon}&maxlat=${maxLat}#map=19/${lat}/${lon}`;
+  }
+
+  /**
+   * Open location in OpenStreetMap
+   */
+  openInOpenStreetMap(): void {
+    const url = this.getOpenStreetMapUrl();
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
+
+  /**
+   * Check if a specific sub-field has geo-coordinates
+   */
+  subFieldHasGeoCoordinates(subField: CanvasFieldState): boolean {
+    if (!subField.subFields || subField.subFields.length === 0) {
+      return false;
+    }
+
+    const latField = subField.subFields.find(f => 
+      f.path?.toLowerCase().includes('geo.latitude') && 
+      f.value !== null && f.value !== undefined && f.value !== ''
+    );
+    const lonField = subField.subFields.find(f => 
+      f.path?.toLowerCase().includes('geo.longitude') && 
+      f.value !== null && f.value !== undefined && f.value !== ''
+    );
+
+    return !!(latField && lonField);
+  }
+
+  /**
+   * Open sub-field location in OpenStreetMap
+   */
+  openSubFieldInOpenStreetMap(subField: CanvasFieldState): void {
+    if (!subField.subFields || subField.subFields.length === 0) {
+      return;
+    }
+
+    // Get coordinates
+    const latField = subField.subFields.find(f => f.path?.toLowerCase().includes('geo.latitude'));
+    const lonField = subField.subFields.find(f => f.path?.toLowerCase().includes('geo.longitude'));
+
+    if (!latField?.value || !lonField?.value) {
+      return;
+    }
+
+    const lat = Number(latField.value);
+    const lon = Number(lonField.value);
+
+    if (isNaN(lat) || isNaN(lon)) {
+      return;
+    }
+
+    // Build address query for search
+    const addressParts: string[] = [];
+    const streetField = subField.subFields.find(f => f.path?.toLowerCase().includes('address.streetaddress'));
+    const postalField = subField.subFields.find(f => f.path?.toLowerCase().includes('address.postalcode'));
+    const cityField = subField.subFields.find(f => f.path?.toLowerCase().includes('address.addresslocality'));
+
+    if (streetField?.value) addressParts.push(String(streetField.value));
+    if (postalField?.value) addressParts.push(String(postalField.value));
+    if (cityField?.value) addressParts.push(String(cityField.value));
+
+    const query = addressParts.length > 0 ? addressParts.join(' ') : `${lat},${lon}`;
+
+    // Calculate bounding box (approximately 200m x 200m)
+    const latDelta = 0.0018; // ~200m in latitude
+    const lonDelta = 0.0045; // ~200m in longitude (at ~50° latitude)
+    
+    const minLat = lat - latDelta;
+    const maxLat = lat + latDelta;
+    const minLon = lon - lonDelta;
+    const maxLon = lon + lonDelta;
+
+    // Build and open OpenStreetMap URL
+    const url = `https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}&zoom=18&minlon=${minLon}&minlat=${minLat}&maxlon=${maxLon}&maxlat=${maxLat}#map=19/${lat}/${lon}`;
+    window.open(url, '_blank');
+  }
 }

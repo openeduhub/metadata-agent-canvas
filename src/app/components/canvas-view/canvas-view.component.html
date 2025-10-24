@@ -1,4 +1,27 @@
 <div class="canvas-container">
+  <!-- Header with User Info (for integration modes) -->
+  <div class="canvas-header" *ngIf="integrationMode.isBrowserExtension() || integrationMode.isBookmarklet()">
+    <div class="header-left">
+      <span class="mode-badge edu-badge edu-badge-primary">
+        {{ integrationMode.getModeDisplayName() }}
+      </span>
+      <span class="user-info">
+        <span [class.guest-badge]="!integrationMode.isLoggedIn()" 
+              [class.user-badge]="integrationMode.isLoggedIn()"
+              class="edu-badge"
+              [class.edu-badge-secondary]="!integrationMode.isLoggedIn()"
+              [class.edu-badge-success]="integrationMode.isLoggedIn()">
+          {{ integrationMode.isLoggedIn() ? '👤' : '👥' }}
+          {{ integrationMode.getUserInfo().username }}
+        </span>
+        <span class="edu-badge edu-badge-secondary" *ngIf="integrationMode.getUserInfo().systemName">
+          {{ integrationMode.getUserInfo().systemName }}
+        </span>
+      </span>
+    </div>
+    <button class="btn-close" (click)="closeCanvas()" title="Schließen">×</button>
+  </div>
+
   <!-- Input Section -->
   <div class="input-section">
     <textarea
@@ -136,15 +159,66 @@
       </span>
       <div class="provider-info">{{ llmProvider }} ({{ llmModel }})</div>
     </div>
-    <div class="footer-actions">
+    <div class="footer-actions" [class.multi-button]="integrationMode.isBookmarklet() || integrationMode.isStandalone()">
+      <!-- Bookmarklet Mode: Beide Buttons -->
+      <ng-container *ngIf="integrationMode.isBookmarklet()">
+        <button 
+          class="btn-success btn-large edu-btn edu-btn-primary"
+          (click)="submitAsGuest()"
+          [disabled]="!allRequiredFieldsFilled() || isSubmitting"
+          title="Als Gast zur Prüfung einreichen"
+        >
+          <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">📮 Vorschlag einreichen</span>
+          <span *ngIf="isSubmitting">⏳ Wird eingereicht...</span>
+          <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+        </button>
+        
+        <button 
+          class="btn-secondary btn-large edu-btn edu-btn-outline"
+          (click)="downloadJson()"
+          [disabled]="!allRequiredFieldsFilled()"
+          title="Als JSON-Datei herunterladen"
+        >
+          <span *ngIf="allRequiredFieldsFilled()">💾 JSON herunterladen</span>
+          <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder fehlen</span>
+        </button>
+      </ng-container>
+      
+      <!-- Standalone: Beide Buttons (wie Bookmarklet) -->
+      <ng-container *ngIf="integrationMode.isStandalone()">
+        <button 
+          class="btn-success btn-large edu-btn edu-btn-primary"
+          (click)="submitAsGuest()"
+          [disabled]="!allRequiredFieldsFilled() || isSubmitting"
+          title="Als Gast zur Prüfung einreichen"
+        >
+          <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">📮 Vorschlag einreichen</span>
+          <span *ngIf="isSubmitting">⏳ Wird eingereicht...</span>
+          <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+        </button>
+        
+        <button 
+          class="btn-secondary btn-large edu-btn edu-btn-outline"
+          (click)="downloadJson()"
+          [disabled]="!allRequiredFieldsFilled()"
+          title="Als JSON-Datei herunterladen"
+        >
+          <span *ngIf="allRequiredFieldsFilled()">💾 JSON herunterladen</span>
+          <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder fehlen</span>
+        </button>
+      </ng-container>
+      
+      <!-- Browser Extension: Ein Button -->
       <button 
-        class="btn-success btn-large"
-        (click)="confirmAndExport()"
-        [disabled]="!allRequiredFieldsFilled()"
-        [title]="!allRequiredFieldsFilled() ? 'Bitte füllen Sie alle Pflichtfelder aus' : 'JSON herunterladen'"
+        *ngIf="integrationMode.isBrowserExtension()"
+        class="btn-success btn-large edu-btn edu-btn-primary edu-btn-block"
+        (click)="submitAsGuest()"
+        [disabled]="!allRequiredFieldsFilled() || isSubmitting"
+        [title]="!allRequiredFieldsFilled() ? 'Bitte füllen Sie alle Pflichtfelder aus' : 'An Browser-Plugin senden'"
       >
-        <span *ngIf="allRequiredFieldsFilled()">✅ Bestätigen & JSON herunterladen</span>
-        <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder ausfüllen ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+        <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">💾 An Plugin senden</span>
+        <span *ngIf="isSubmitting">⏳ Wird gesendet...</span>
+        <span *ngIf="!isSubmitting && !allRequiredFieldsFilled()">⚠️ Pflichtfelder ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
       </button>
     </div>
   </div>
