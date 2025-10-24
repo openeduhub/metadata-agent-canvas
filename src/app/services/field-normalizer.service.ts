@@ -10,6 +10,7 @@ import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { CanvasFieldState } from '../models/canvas-models';
 import { environment } from '../../environments/environment';
+import { PlatformDetectionService } from './platform-detection.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,20 +19,23 @@ export class FieldNormalizerService {
   // Use environment-based proxy URL (same as OpenAI Proxy Service)
   private apiUrl: string;
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private platformDetection: PlatformDetectionService
+  ) {
     // Get proxy URL from environment config (same pattern as openai-proxy.service)
     const provider = environment.llmProvider || 'b-api-openai';
     const providerConfig = (environment as any)[this.getProviderConfigKey(provider)];
     
     if (environment.production) {
-      // Production: Use Netlify Function
-      this.apiUrl = providerConfig?.proxyUrl || '/.netlify/functions/openai-proxy';
+      // Production: Use Platform Detection (works for Vercel AND Netlify)
+      this.apiUrl = providerConfig?.proxyUrl || this.platformDetection.getOpenAIProxyUrl();
+      console.log(`🔧 FieldNormalizerService: ${this.platformDetection.getPlatformName()} → ${this.apiUrl}`);
     } else {
       // Local: Use local proxy
       this.apiUrl = providerConfig?.proxyUrl || 'http://localhost:3001/llm';
+      console.log('🔧 FieldNormalizerService: Local development → http://localhost:3001/llm');
     }
-    
-    console.log('🔧 FieldNormalizerService initialized with proxy:', this.apiUrl);
   }
   
   /**
@@ -98,6 +102,7 @@ export class FieldNormalizerService {
 
     // Use OpenAI-compatible format (works with all proxies)
     return this.http.post<any>(this.apiUrl, {
+      provider: provider,  // Tell proxy which LLM provider to use
       model: model,  // Required by API
       messages: [
         { role: 'system', content: 'You are a data normalization assistant. Return ONLY the normalized value without any explanation, parentheses, or additional text.' },

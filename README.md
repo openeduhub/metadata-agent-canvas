@@ -40,7 +40,47 @@ cd metadata-agent-canvas/webkomponente-canvas
 npm install
 ```
 
-### 3. API-Key & Provider konfigurieren
+### 3. Environment konfigurieren (.env File)
+
+**Erstellen Sie eine `.env` Datei:**
+
+```bash
+cp .env.example .env
+```
+
+**Wichtige Environment Variables:**
+
+```bash
+# ⚠️ WICHTIG: Deployment Platform (steuert API-Endpunkte)
+# Optionen: local, vercel, netlify, auto
+DEPLOYMENT_PLATFORM=local
+
+# LLM Provider (openai, b-api-openai, b-api-academiccloud)
+LLM_PROVIDER=b-api-openai
+
+# API Keys
+B_API_KEY=your-uuid-key-here
+OPENAI_API_KEY=sk-your-key-here
+```
+
+#### 🎯 DEPLOYMENT_PLATFORM - Nur für lokale Entwicklung!
+
+Diese Variable ist nur für **lokale Entwicklung** relevant:
+
+| Wert | Endpunkte | Verwendung |
+|------|-----------|------------|
+| `local` | `http://localhost:3001/*` | Lokale Entwicklung (Standard) |
+| `vercel` | `/api/*` | Lokales Testen der Vercel-Config |
+| `netlify` | `/.netlify/functions/*` | Lokales Testen der Netlify-Config |
+
+**⚠️ Für Production/Deployment:**
+- ✅ **Auto-Detection** (Runtime) - Erkennt Platform automatisch
+- ✅ Funktioniert für **Vercel UND Netlify** ohne Config
+- ✅ Kein Setup nötig - Just deploy!
+
+---
+
+### 4. API-Key & Provider konfigurieren
 
 **NEU: Multi-Provider Support** 🎉
 
@@ -245,9 +285,62 @@ npm install
 
 ---
 
-### Schritt 3: API-Key konfigurieren
+### Schritt 3: Environment-Datei erstellen (.env)
 
-#### Option A: Direkt in environment.ts (Lokal)
+**Erstellen Sie eine `.env` Datei im Projekt-Root:**
+
+```bash
+cp .env.example .env
+```
+
+**Editieren Sie `.env` mit Ihren Werten:**
+
+```bash
+# ═══════════════════════════════════════════════════════
+# Deployment Platform Configuration
+# ═══════════════════════════════════════════════════════
+# ⚠️ WICHTIG: Steuert welche API-Endpunkte verwendet werden
+#
+# Priorität (höchste zuerst):
+# 1. Environment Variable (Vercel/Netlify Dashboard)
+# 2. Diese .env Datei (lokale Entwicklung)
+# 3. Hardcoded Fallback (nur als Sicherheitsnetz)
+#
+# Optionen:
+# - local:   Verwendet http://localhost:3001/* (lokale Entwicklung)
+# - vercel:  Verwendet /api/* (Vercel Deployment)
+# - netlify: Verwendet /.netlify/functions/* (Netlify Deployment)  
+# - auto:    Automatische Erkennung basierend auf Hostname (Fallback)
+
+DEPLOYMENT_PLATFORM=local
+
+# ═══════════════════════════════════════════════════════
+# LLM Provider & API Keys
+# ═══════════════════════════════════════════════════════
+
+# LLM Provider (openai, b-api-openai, b-api-academiccloud)
+LLM_PROVIDER=b-api-openai
+
+# B-API Key (für b-api-openai und b-api-academiccloud)
+B_API_KEY=your-uuid-key-here
+
+# OpenAI API Key (nur für direkten OpenAI Provider)
+OPENAI_API_KEY=sk-your-api-key-here
+```
+
+**⚠️ Wichtig:** Die `.env` Datei ist in `.gitignore` und wird **nicht** committet!
+
+**Warum `.env`?**
+- ✅ Sicher: Keys nicht im Code
+- ✅ Flexibel: Jeder Entwickler eigene Keys
+- ✅ Platform-Control: `DEPLOYMENT_PLATFORM` steuert API-Routing
+- ✅ Einfach: Änderung ohne Code-Edit
+
+---
+
+### Schritt 4: API-Key konfigurieren (Alternative)
+
+#### Option A: Direkt in environment.ts (Nicht empfohlen)
 
 **Datei öffnen:** `src/environments/environment.ts`
 
@@ -438,16 +531,49 @@ styles.*.css         | styles     | 89 kB    | 7.5 kB
 
 ---
 
+### 🌐 Universal Deployment - Netlify & Vercel
+
+Die Canvas-App funktioniert auf **beiden** Plattformen automatisch dank **Platform-Detection**!
+
+#### ✨ Auto-Detection Features
+
+- ✅ **Netlify:** `/.netlify/functions/openai-proxy`
+- ✅ **Vercel:** `/api/openai-proxy`
+- ✅ **Lokal:** `http://localhost:3001/llm`
+- ✅ **Kein Code-Wechsel** nötig beim Platform-Wechsel
+
+---
+
 ### Deployment auf Netlify
 
-#### 1. Environment Variable setzen
+#### 1. Environment Variables setzen
 
 **Netlify Dashboard → Ihr Site → Site Settings → Environment Variables**
 
+**Erforderliche Variables:**
+
 ```
-Key:   OPENAI_API_KEY
-Value: sk-proj-...
+# ⚠️ DEPLOYMENT_PLATFORM wird NICHT benötigt!
+# Die App nutzt Auto-Detection zur Runtime (hostname-basiert)
+# Funktioniert automatisch für Netlify (.netlify.app) und Vercel (.vercel.app)
+
+# API Keys
+Key:   B_API_KEY (oder OPENAI_API_KEY)
+Value: your-api-key
 Scope: Production
+Mark as secret: ✅
+
+# Optional: LLM Provider
+Key:   LLM_PROVIDER
+Value: b-api-openai
+Scope: Production
+```
+
+**Oder via Netlify CLI:**
+
+```bash
+netlify env:set B_API_KEY "your-uuid-key" --secret
+netlify env:set LLM_PROVIDER "b-api-openai"
 ```
 
 #### 2. Deployen
@@ -474,9 +600,86 @@ Nach dem Deployment:
 - Öffnen Sie Ihre Netlify-URL
 - Browser-Konsole sollte zeigen:
   ```
-  🚀 Production mode: Using Netlify Function proxy
+  ◆ Platform: Netlify
+  🚀 Production: B-API-OPENAI via Netlify → /.netlify/functions/openai-proxy
   ```
 - API-Key ist **nicht** im Code sichtbar ✅
+
+---
+
+### Deployment auf Vercel
+
+#### 1. Environment Variables setzen
+
+**Vercel Dashboard → Settings → Environment Variables**
+
+**Erforderliche Variables:**
+
+```
+# ⚠️ DEPLOYMENT_PLATFORM wird NICHT benötigt!
+# Die App nutzt Auto-Detection zur Runtime (hostname-basiert)
+# Funktioniert automatisch für Vercel (.vercel.app) und Netlify (.netlify.app)
+# Siehe DUAL_DEPLOYMENT_GUIDE.md für Details
+
+# API Keys
+Name:  B_API_KEY (oder OPENAI_API_KEY)
+Value: your-api-key
+Apply to: Production, Preview
+
+# Optional: LLM Provider
+Name:  LLM_PROVIDER
+Value: b-api-openai
+Apply to: Production, Preview
+```
+
+#### 2. Vercel CLI installieren (optional)
+
+```bash
+npm i -g vercel
+vercel login
+```
+
+#### 3. Build & Deploy
+
+**Option A: Git Push (empfohlen)**
+```bash
+git add .
+git commit -m "Deploy: Production ready"
+git push origin main
+```
+
+Vercel baut automatisch.
+
+**Option B: Vercel CLI**
+```bash
+npm run build
+vercel --prod
+```
+
+#### 4. Testen
+
+Nach dem Deployment:
+- Öffnen Sie Ihre Vercel-URL
+- Browser-Konsole sollte zeigen:
+  ```
+  ▲ Platform: Vercel
+  🚀 Production: B-API-OPENAI via Vercel → /api/openai-proxy
+  ```
+- Alles funktioniert automatisch! ✅
+
+---
+
+### Platform-Kompatibilität
+
+| Feature | Netlify | Vercel | Lokal |
+|---------|---------|--------|-------|
+| **LLM Proxy** | ✅ | ✅ | ✅ |
+| **Geocoding** | ✅ | ✅ | ✅ |
+| **Browser-Plugin** | ✅ | ✅ | ✅ |
+| **Auto-Detection** | ✅ | ✅ | ✅ |
+| **Zero Config** | ✅ | ✅ | ✅ |
+
+**Tipp:** Dual-Deployment möglich - deploye auf beide Plattformen für Redundanz!
 
 ---
 

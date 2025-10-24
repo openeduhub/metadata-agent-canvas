@@ -1,6 +1,10 @@
 export const environment = {
   production: false,
   
+  // Deployment Platform (auto-detect if not set)
+  // Options: 'vercel', 'netlify', 'local', 'auto'
+  deploymentPlatform: 'local',
+  
   // LLM Provider Selection ('openai', 'b-api-openai', or 'b-api-academiccloud')
   llmProvider: 'b-api-openai', // Switch between providers
   

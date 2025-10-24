@@ -387,28 +387,16 @@ Vielen Dank! 🎉`);
       console.log('📤 Submitting as guest to repository...');
       const result = await this.guestSubmission.submitAsGuest(metadata);
       
-      if (result.success) {
-        // SUCCESS
-        const viewInRepo = confirm(`✅ Ihr Vorschlag wurde erfolgreich eingereicht!
-
-📋 Node-ID: ${result.nodeId}
-🔍 Status: Wird geprüft
-📊 Repository: WLO Staging
-
-Ihr Beitrag wird nun von unserem Team geprüft.
-Vielen Dank! 🎉
-
-Möchten Sie den Eintrag im Repository ansehen?`);
-        
-        if (viewInRepo && result.nodeId) {
-          const repoUrl = `${environment.repository.baseUrl}/components/render/${result.nodeId}`;
-          window.open(repoUrl, '_blank');
-        }
+      if (result.success && result.nodeId) {
+        // SUCCESS - Show custom dialog with clickable link
+        this.showSuccessDialog(result.nodeId);
         
         // Optional: Reset after success
-        if (confirm('Möchten Sie einen weiteren Vorschlag einreichen?')) {
-          this.reset();
-        }
+        setTimeout(() => {
+          if (confirm('Möchten Sie einen weiteren Vorschlag einreichen?')) {
+            this.reset();
+          }
+        }, 500);
       } else if (result.duplicate) {
         // DUPLICATE
         const viewInRepo = confirm(`⚠️ Diese URL existiert bereits im Repository!
@@ -457,6 +445,47 @@ Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
     link.download = 'metadata.json';
     link.click();
     window.URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Show success dialog with clickable link to repository
+   */
+  showSuccessDialog(nodeId: string): void {
+    const repoUrl = `${environment.repository.baseUrl}/components/render/${nodeId}`;
+    
+    // Create modal HTML
+    const dialogHTML = `
+      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+        <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <h2 style="margin: 0 0 20px 0; color: #28a745;">✅ Erfolgreich eingereicht!</h2>
+          
+          <p style="margin-bottom: 15px;">Ihr Vorschlag wurde erfolgreich eingereicht!</p>
+          
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+            <p style="margin: 0 0 10px 0;"><strong>📋 Node-ID:</strong></p>
+            <a href="${repoUrl}" target="_blank" style="color: #007bff; text-decoration: none; word-break: break-all; font-family: monospace;">${nodeId}</a>
+            <p style="margin: 15px 0 0 0;"><strong>🔍 Status:</strong> Wird geprüft</p>
+            <p style="margin: 10px 0 0 0;"><strong>📊 Repository:</strong> WLO Staging</p>
+          </div>
+          
+          <p style="margin-bottom: 20px;">Ihr Beitrag wird nun von unserem Team geprüft. Vielen Dank! 🎉</p>
+          
+          <div style="display: flex; gap: 10px;">
+            <a href="${repoUrl}" target="_blank" style="flex: 1; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; text-align: center;">
+              🔍 Im Repository ansehen
+            </a>
+            <button onclick="this.closest('[style*=\\'position: fixed\\']').remove()" style="flex: 1; background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+              Schließen
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert dialog into DOM
+    const dialogElement = document.createElement('div');
+    dialogElement.innerHTML = dialogHTML;
+    document.body.appendChild(dialogElement.firstElementChild!);
   }
 
   /**

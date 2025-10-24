@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { PlatformDetectionService } from './platform-detection.service';
 
 /**
  * Geocoding service using Photon API from Komoot
@@ -12,15 +13,19 @@ export class GeocodingService {
   private readonly RATE_LIMIT_MS = 1000; // 1 request per second
   private lastRequestTime = 0;
 
+  constructor(private platformDetection: PlatformDetectionService) {}
+
   /**
-   * Get the appropriate Photon API URL based on environment
-   * - Local development: From environment.geocoding.proxyUrl
-   * - Netlify production: /.netlify/functions/photon
+   * Get the appropriate Photon API URL based on platform
+   * - Local development: http://localhost:3001/geocoding
+   * - Netlify: /.netlify/functions/geocode-proxy
+   * - Vercel: /api/geocode-proxy
    */
   private getPhotonUrl(): string {
     if (environment.production) {
-      console.log('🗺️ Using Netlify Photon proxy');
-      return '/.netlify/functions/photon';
+      const proxyUrl = (environment as any).geocoding?.proxyUrl || this.platformDetection.getGeocodingProxyUrl();
+      console.log(`🗺️ Using ${this.platformDetection.getPlatformName()} geocoding proxy: ${proxyUrl}`);
+      return proxyUrl;
     }
     
     // Development: Use URL from environment config

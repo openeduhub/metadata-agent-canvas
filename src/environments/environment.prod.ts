@@ -1,6 +1,12 @@
 export const environment = {
   production: true,
   
+  // Deployment Platform
+  // 'auto' = Runtime hostname detection (recommended for dual-deployment)
+  // Works for both Vercel and Netlify from same codebase
+  // Options: 'vercel', 'netlify', 'auto'
+  deploymentPlatform: 'auto',
+  
   // LLM Provider Selection ('openai', 'b-api-openai', or 'b-api-academiccloud')
   // NOTE: In production, switch provider via environment variable or build config
   llmProvider: 'b-api-openai', // Switch between providers

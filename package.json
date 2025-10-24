@@ -11,12 +11,13 @@
     "start:all": "concurrently \"npm run proxy\" \"npm start\" --names \"PROXY,ANGULAR\" --prefix-colors \"cyan,green\"",
     "dev": "node validate-env.js && netlify dev",
     "start:ssl": "node validate-env.js && ng serve --ssl",
-    "build": "node validate-env.js && ng build --configuration production",
-    "build:prod": "node validate-env.js && ng build --configuration production",
-    "build:dev": "ng build",
+    "build": "node build-with-platform.js",
+    "build:prod": "ng build --configuration production",
+    "build:dev": "ng build --configuration development",
     "build:safe": "npm run build && npm run check-bundle",
     "check-bundle": "node check-bundle-security.js",
     "test": "ng test",
+    "test:priority": "node test-priority.js",
     "lint": "ng lint"
   },
   "dependencies": {

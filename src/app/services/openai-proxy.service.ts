@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { PlatformDetectionService } from './platform-detection.service';
 
 export interface OpenAIMessage {
   role: string;
@@ -35,7 +36,7 @@ export class OpenAIProxyService {
   private provider: string;
   private providerConfig: any;
 
-  constructor() {
+  constructor(private platformDetection: PlatformDetectionService) {
     // Select provider from environment
     this.provider = (environment as any).llmProvider || 'openai';
     
@@ -50,28 +51,24 @@ export class OpenAIProxyService {
     
     console.log('🧭 Provider configuration loaded:', {
       provider: this.provider,
-      proxyUrl: this.providerConfig?.proxyUrl,
-      baseUrl: this.providerConfig?.baseUrl,
+      platform: this.platformDetection.getPlatformName(),
       production: environment.production
     });
 
-    // Determine proxy URL based on environment
+    // Determine proxy URL based on platform (Netlify/Vercel/Local)
     if (environment.production) {
-      // Production: Use Netlify Function
-      this.proxyUrl = this.providerConfig.proxyUrl || '/.netlify/functions/openai-proxy';
+      // Production: Auto-detect platform and use correct proxy
+      this.proxyUrl = this.providerConfig.proxyUrl || this.platformDetection.getOpenAIProxyUrl();
+      console.log(`🚀 Production: ${this.provider.toUpperCase()} via ${this.platformDetection.getPlatformName()} → ${this.proxyUrl}`);
     } else {
-      // Development: Use universal proxy /llm endpoint
+      // Development: Use local proxy
       this.proxyUrl = this.providerConfig.proxyUrl || 'http://localhost:3001/llm';
+      console.log(`🔧 Development: ${this.provider.toUpperCase()} via proxy → ${this.proxyUrl}`);
     }
     
     // SECURITY: Always use proxy to keep API keys server-side
     // Direct API access is disabled for security - keys must never be in frontend code
     this.useDirectAccess = false;
-    
-    // Log proxy configuration (only in development for debugging)
-    if (!environment.production) {
-      console.log(`🔧 Development: ${this.provider.toUpperCase()} via proxy → ${this.proxyUrl}`);
-    }
   }
 
   async invoke(messages: OpenAIMessage[]): Promise<OpenAIResponse> {

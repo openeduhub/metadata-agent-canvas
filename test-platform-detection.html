@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Platform Detection Test</title>
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    .pass { color: green; }
+    .fail { color: red; }
+    pre { background: #f5f5f5; padding: 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Platform Detection Test</h1>
+  <p>Diese Seite testet die Platform-Detection-Logik</p>
+  
+  <h2>Aktuelle Umgebung:</h2>
+  <pre id="env"></pre>
+  
+  <h2>Detection-Logik Test:</h2>
+  <div id="results"></div>
+  
+  <script>
+    const hostname = window.location.hostname;
+    const fullUrl = window.location.href;
+    
+    document.getElementById('env').textContent = 
+      `Hostname: ${hostname}\n` +
+      `Full URL: ${fullUrl}\n` +
+      `Contains 'vercel': ${hostname.includes('vercel')}\n` +
+      `Contains 'netlify': ${hostname.includes('netlify')}`;
+    
+    // Simulate detection logic
+    let platform = 'unknown';
+    let endpoint = '';
+    
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      platform = 'local';
+      endpoint = 'http://localhost:3001/llm';
+    } else if (hostname.includes('vercel.app') || hostname.includes('vercel.com') || fullUrl.includes('vercel')) {
+      platform = 'vercel';
+      endpoint = '/api/openai-proxy';
+    } else if (hostname.includes('netlify.app')) {
+      platform = 'netlify';
+      endpoint = '/.netlify/functions/openai-proxy';
+    } else {
+      platform = 'vercel (fallback)';
+      endpoint = '/api/openai-proxy';
+    }
+    
+    const isCorrect = 
+      (hostname.includes('vercel') && platform.includes('vercel')) ||
+      (hostname.includes('netlify') && platform === 'netlify') ||
+      (hostname.includes('localhost') && platform === 'local');
+    
+    document.getElementById('results').innerHTML = `
+      <p class="${isCorrect ? 'pass' : 'fail'}">
+        <strong>Detected Platform:</strong> ${platform}<br>
+        <strong>API Endpoint:</strong> ${endpoint}<br>
+        <strong>Status:</strong> ${isCorrect ? '✅ CORRECT' : '❌ WRONG'}
+      </p>
+      
+      <h3>Expected Results:</h3>
+      <ul>
+        <li>On Vercel (*.vercel.app): Should detect "vercel" → /api/openai-proxy</li>
+        <li>On Netlify (*.netlify.app): Should detect "netlify" → /.netlify/functions/openai-proxy</li>
+        <li>On localhost: Should detect "local" → http://localhost:3001/llm</li>
+      </ul>
+      
+      <h3>Console Commands:</h3>
+      <pre>
+// Check manually:
+console.log('Hostname:', window.location.hostname);
+console.log('Contains vercel:', window.location.hostname.includes('vercel'));
+console.log('Should use:', window.location.hostname.includes('vercel') ? '/api/openai-proxy' : '/.netlify/functions/openai-proxy');
+      </pre>
+    `;
+  </script>
+</body>
+</html>

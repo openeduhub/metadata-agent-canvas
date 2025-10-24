@@ -1,27 +1,35 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { PlatformDetectionService } from './platform-detection.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GuestSubmissionService {
   
-  // Use Netlify Function as proxy to avoid CORS issues
-  private readonly PROXY_URL = this.getProxyUrl();
+  // Use platform-specific proxy to avoid CORS issues
+  private readonly PROXY_URL: string;
+  
+  constructor(private platformDetection: PlatformDetectionService) {
+    this.PROXY_URL = this.getProxyUrl();
+  }
   
   /**
-   * Get proxy URL based on environment
-   * - Local development: From environment.repository.proxyUrl
-   * - Production: /.netlify/functions/repository-proxy
+   * Get proxy URL based on environment and platform
+   * - Local development: http://localhost:3001/repository
+   * - Production: Auto-detect (Vercel or Netlify)
    */
   private getProxyUrl(): string {
     if (environment.production) {
-      return '/.netlify/functions/repository-proxy';
+      // Use Platform Detection for correct endpoint
+      const proxyUrl = this.platformDetection.getRepositoryProxyUrl();
+      console.log(`📦 Repository proxy (${this.platformDetection.getPlatformName()}): ${proxyUrl}`);
+      return proxyUrl;
     }
     
     // Development: Use URL from environment config
     const proxyUrl = (environment as any).repository?.proxyUrl || 'http://localhost:3001/repository';
-    console.log(`📦 Using repository proxy: ${proxyUrl}`);
+    console.log(`📦 Repository proxy (local): ${proxyUrl}`);
     return proxyUrl;
   }
   
