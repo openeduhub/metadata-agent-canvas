@@ -11,7 +11,8 @@ export enum FieldStatus {
 
 export interface VocabularyConcept {
   label: string;
-  label_en?: string;
+  label_de?: string;  // Preserved German label for cross-language matching
+  label_en?: string;  // Preserved English label for cross-language matching
   uri?: string;
   altLabels?: string[];
   schema_file?: string;
@@ -23,6 +24,18 @@ export interface ValidationRules {
   pattern?: string;
   minLength?: number;
   maxLength?: number;
+  min?: number;
+  max?: number;
+  integer?: boolean;
+  enum?: string[];
+}
+
+export interface NormalizationRules {
+  trim?: boolean;
+  deduplicate?: boolean;
+  map_labels_to_uris?: boolean;
+  lowercase?: boolean;
+  case?: 'uppercase' | 'lowercase';
 }
 
 export interface VocabularyInfo {
@@ -35,6 +48,7 @@ export interface CanvasFieldState {
   uri: string;  // URI from schema system.uri
   label: string;
   description: string;
+  prompt?: string; // Optional additional instruction from schema prompt field
   group: string;
   groupLabel: string;
   groupOrder: number;  // Position in schema's groups array
@@ -48,9 +62,11 @@ export interface CanvasFieldState {
   multiple: boolean;
   vocabulary?: VocabularyInfo;
   validation?: ValidationRules;
+  normalization?: NormalizationRules;
   extractionError?: string;
   shape?: any;  // Expected structure for complex objects (from schema items.shape)
   examples?: any[];  // Examples from schema prompt.examples
+  promptInstructions?: Record<string, any>;  // Structured instructions from schema
   
   // Nested/Sub-field support for complex objects
   isParent?: boolean;  // True if this field has sub-fields (complex object)
@@ -87,6 +103,8 @@ export interface FieldExtractionTask {
   field: CanvasFieldState;
   userText: string;
   priority: number; // Required fields have higher priority
+  retryAttempt?: number;
+  promptModifier?: string;
 }
 
 export interface ExtractionResult {

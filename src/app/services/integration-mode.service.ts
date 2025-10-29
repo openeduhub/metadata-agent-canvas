@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { I18nService } from './i18n.service';
 
 export type IntegrationMode = 'standalone' | 'browser-extension' | 'bookmarklet';
 
@@ -28,7 +29,7 @@ export class IntegrationModeService {
     username: 'Gast'
   };
   
-  constructor() {
+  constructor(private i18n: I18nService) {
     this.detectMode();
   }
   
@@ -275,12 +276,18 @@ export class IntegrationModeService {
    */
   getSubmitButtonText(): string {
     if (this.isLoggedIn()) {
-      return '📤 Veröffentlichen';
-    } else if (this.isBookmarklet()) {
-      return '📮 Vorschlag einreichen';
-    } else {
-      return '💾 JSON herunterladen';
+      return this.i18n.instant('FOOTER.SUBMIT_LOGGED_IN');
     }
+
+    if (this.isBrowserExtension()) {
+      return this.i18n.instant('FOOTER.SEND_TO_PLUGIN');
+    }
+
+    if (this.isBookmarklet()) {
+      return this.i18n.instant('FOOTER.SUBMIT_GUEST');
+    }
+
+    return this.i18n.instant('FOOTER.DOWNLOAD_JSON');
   }
   
   /**
@@ -289,11 +296,11 @@ export class IntegrationModeService {
   getModeDisplayName(): string {
     switch (this.mode) {
       case 'browser-extension':
-        return 'Browser Extension';
+        return this.i18n.instant('HEADER.MODE.BROWSER_EXTENSION');
       case 'bookmarklet':
-        return 'Bookmarklet';
+        return this.i18n.instant('HEADER.MODE.BOOKMARKLET');
       default:
-        return 'Standalone';
+        return this.i18n.instant('HEADER.MODE.STANDALONE');
     }
   }
 }

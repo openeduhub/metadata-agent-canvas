@@ -1,19 +1,24 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { EduSharingLlmService } from 'ngx-edu-sharing-b-api';
 import { CanvasService } from '../../services/canvas.service';
 import { SchemaLoaderService } from '../../services/schema-loader.service';
 import { IntegrationModeService } from '../../services/integration-mode.service';
 import { GuestSubmissionService } from '../../services/guest-submission.service';
+import { I18nService } from '../../services/i18n.service';
 import { CanvasState, FieldGroup, FieldStatus } from '../../models/canvas-models';
 import { CanvasFieldComponent } from '../canvas-field/canvas-field.component';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-canvas-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, CanvasFieldComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, CanvasFieldComponent, LanguageSwitcherComponent],
   templateUrl: './canvas-view.component.html',
   styleUrls: ['./canvas-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -35,13 +40,20 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     private canvasService: CanvasService,
     private schemaLoader: SchemaLoaderService,
     private cdr: ChangeDetectorRef,
+    private eduSharingLlmService: EduSharingLlmService,
     public integrationMode: IntegrationModeService,
-    private guestSubmission: GuestSubmissionService
+    private guestSubmission: GuestSubmissionService,
+    public i18n: I18nService
   ) {
     this.state = this.canvasService.getCurrentState();
   }
 
   ngOnInit(): void {
+    console.log('🚀 CanvasView ngOnInit started');
+    
+    // Pre-load core schema (non-blocking - runs in background)
+    this.canvasService.ensureCoreSchemaLoaded();
+    
     // Subscribe to state changes
     this.canvasService.state$
       .pipe(takeUntil(this.destroy$))
@@ -49,6 +61,49 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         this.state = state;
         // Manually trigger change detection with OnPush strategy
         this.cdr.markForCheck();
+      });
+    
+    console.log('📡 Setting up language change subscription...');
+    
+    // Subscribe to language changes to re-localize fields
+    this.i18n.currentLanguage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async (language) => {
+        console.log(`🔔 Language Observable fired: ${language}`);
+
+        console.log(`🌐 Language changed to: ${language}, re-localizing fields...`);
+        
+        // Re-localize all fields
+        await this.relocalizeFields(language);
+        
+        // Explicitly get updated state (important for OnPush)
+        const newState = this.canvasService.getCurrentState();
+        
+        console.log(`📝 Updating component state with new field references...`);
+        console.log(`   Core field 0 label: ${newState.coreFields[0]?.label}`);
+        console.log(`   Group 0 label: ${newState.fieldGroups[0]?.label}`);
+        console.log(`   Group 0 field 0 label: ${newState.fieldGroups[0]?.fields[0]?.label}`);
+        
+        // Force Angular to recognize the change by reassigning
+        this.state = {
+          ...newState,
+          coreFields: [...newState.coreFields],
+          specialFields: [...newState.specialFields],
+          fieldGroups: newState.fieldGroups.map(g => ({
+            ...g,
+            fields: [...g.fields]
+          }))
+        };
+        
+        // Update content type dropdown options
+        this.updateContentTypeOptions();
+        
+        // Use setTimeout to ensure change detection runs after state assignment
+        setTimeout(() => {
+          console.log(`🔄 Triggering change detection...`);
+          this.cdr.detectChanges();
+          console.log(`✅ UI updated with ${language} labels`);
+        }, 0);
       });
     
     // Listen for postMessage from parent window (test integration)
@@ -200,7 +255,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    */
   async startExtraction(): Promise<void> {
     if (!this.userText.trim()) {
-      alert('Bitte geben Sie einen Text ein.');
+      alert(this.i18n.instant('ALERTS.INPUT_REQUIRED'));
       return;
     }
 
@@ -302,7 +357,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   confirmAndExport(): void {
     if (!this.allRequiredFieldsFilled()) {
       const status = this.getRequiredFieldsStatus();
-      alert(`Bitte füllen Sie alle Pflichtfelder aus. (${status.filled}/${status.total} erfüllt)`);
+      alert(this.i18n.instant('ALERTS.REQUIRED_FIELDS_STATUS', { filled: status.filled, total: status.total }));
       return;
     }
 
@@ -331,8 +386,8 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     
     // Show success message
     alert(this.integrationMode.isLoggedIn() 
-      ? '✅ Metadaten werden veröffentlicht...'
-      : '✅ Vorschlag wird eingereicht...');
+      ? this.i18n.instant('ALERTS.METADATA_SENT')
+      : this.i18n.instant('ALERTS.SUGGESTION_SUBMITTED'));
   }
   
   /**
@@ -347,7 +402,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    */
   async submitAsGuest(): Promise<void> {
     if (!this.allRequiredFieldsFilled()) {
-      alert('Bitte füllen Sie alle Pflichtfelder aus.');
+      alert(this.i18n.instant('ALERTS.FILL_REQUIRED_FIELDS'));
       return;
     }
     
@@ -364,15 +419,20 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         
         // Use Repository-API format (URI strings, not {label, uri} objects)
         const pluginMetadata = this.canvasService.getMetadataForPlugin();
+        
+        // Debug: Log essential fields that Plugin will use for createNode
+        console.log('🔍 Essential fields for createNode:', {
+          'cclom:title': pluginMetadata['cclom:title'],
+          'cclom:general_description': pluginMetadata['cclom:general_description'],
+          'cclom:general_keyword': pluginMetadata['cclom:general_keyword'],
+          'ccm:wwwurl': pluginMetadata['ccm:wwwurl'],
+          'cclom:general_language': pluginMetadata['cclom:general_language']
+        });
+        
         this.integrationMode.sendMetadataToParent(pluginMetadata);
         
         // Show success message
-        alert(`✅ Metadaten an Browser-Plugin gesendet!
-        
-Die Daten wurden erfolgreich an das Browser-Plugin übertragen.
-Das Plugin wird nun die Veröffentlichung im Repository durchführen.
-
-Vielen Dank! 🎉`);
+        alert(this.i18n.instant('ALERTS.PLUGIN.SENT') + '\n\n' + this.i18n.instant('ALERTS.PLUGIN.MESSAGE'));
         
         // Close canvas after short delay
         setTimeout(() => {
@@ -393,19 +453,18 @@ Vielen Dank! 🎉`);
         
         // Optional: Reset after success
         setTimeout(() => {
-          if (confirm('Möchten Sie einen weiteren Vorschlag einreichen?')) {
+          if (confirm(this.i18n.instant('ALERTS.SUBMIT_AGAIN'))) {
             this.reset();
           }
         }, 500);
       } else if (result.duplicate) {
         // DUPLICATE
-        const viewInRepo = confirm(`⚠️ Diese URL existiert bereits im Repository!
-
-${result.error}
-
-📋 Node-ID: ${result.nodeId}
-
-Möchten Sie den vorhandenen Eintrag im Repository ansehen?`);
+        const viewInRepo = confirm(
+          this.i18n.instant('ALERTS.DUPLICATE.TITLE') + '\n\n' + 
+          result.error + '\n\n' + 
+          this.i18n.instant('ALERTS.DUPLICATE.NODE_ID') + ' ' + result.nodeId + '\n\n' + 
+          this.i18n.instant('ALERTS.VIEW_IN_REPO')
+        );
         
         if (viewInRepo && result.nodeId) {
           const repoUrl = `${environment.repository.baseUrl}/components/render/${result.nodeId}`;
@@ -413,20 +472,19 @@ Möchten Sie den vorhandenen Eintrag im Repository ansehen?`);
         }
       } else {
         // ERROR
-        alert(`❌ Fehler beim Einreichen:
-
-${result.error || 'Unbekannter Fehler'}
-
-Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.`);
+        alert(
+          this.i18n.instant('ALERTS.ERROR.SUBMISSION_ERROR') + '\n\n' +
+          (result.error || 'Unknown Error') + '\n\n' +
+          this.i18n.instant('ALERTS.ERROR.TRY_AGAIN')
+        );
       }
     } catch (error) {
       console.error('Submission error:', error);
-      alert(`❌ Fehler beim Einreichen
-
-Ein technischer Fehler ist aufgetreten.
-Bitte versuchen Sie es später erneut.
-
-Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
+      alert(
+        this.i18n.instant('ALERTS.ERROR.TECHNICAL_ERROR') + '\n\n' +
+        this.i18n.instant('ALERTS.ERROR.DETAILS') + ' ' +
+        (error instanceof Error ? error.message : 'Unknown')
+      );
     } finally {
       this.isSubmitting = false;
       this.cdr.detectChanges();
@@ -453,29 +511,29 @@ Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
   showSuccessDialog(nodeId: string): void {
     const repoUrl = `${environment.repository.baseUrl}/components/render/${nodeId}`;
     
-    // Create modal HTML
+    // Create modal HTML with translations
     const dialogHTML = `
       <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;">
         <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          <h2 style="margin: 0 0 20px 0; color: #28a745;">✅ Erfolgreich eingereicht!</h2>
+          <h2 style="margin: 0 0 20px 0; color: #28a745;">${this.i18n.instant('ALERTS.SUCCESS.TITLE')}</h2>
           
-          <p style="margin-bottom: 15px;">Ihr Vorschlag wurde erfolgreich eingereicht!</p>
+          <p style="margin-bottom: 15px;">${this.i18n.instant('ALERTS.SUCCESS.MESSAGE')}</p>
           
           <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-            <p style="margin: 0 0 10px 0;"><strong>📋 Node-ID:</strong></p>
+            <p style="margin: 0 0 10px 0;"><strong>${this.i18n.instant('ALERTS.SUCCESS.NODE_ID')}</strong></p>
             <a href="${repoUrl}" target="_blank" style="color: #007bff; text-decoration: none; word-break: break-all; font-family: monospace;">${nodeId}</a>
-            <p style="margin: 15px 0 0 0;"><strong>🔍 Status:</strong> Wird geprüft</p>
-            <p style="margin: 10px 0 0 0;"><strong>📊 Repository:</strong> WLO Staging</p>
+            <p style="margin: 15px 0 0 0;"><strong>${this.i18n.instant('ALERTS.SUCCESS.STATUS')}</strong></p>
+            <p style="margin: 10px 0 0 0;"><strong>${this.i18n.instant('ALERTS.SUCCESS.REPOSITORY')}</strong></p>
           </div>
           
-          <p style="margin-bottom: 20px;">Ihr Beitrag wird nun von unserem Team geprüft. Vielen Dank! 🎉</p>
+          <p style="margin-bottom: 20px;">${this.i18n.instant('ALERTS.SUCCESS.THANK_YOU')}</p>
           
           <div style="display: flex; gap: 10px;">
             <a href="${repoUrl}" target="_blank" style="flex: 1; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; text-align: center;">
-              🔍 Im Repository ansehen
+              ${this.i18n.instant('ALERTS.SUCCESS.VIEW_IN_REPO_BTN')}
             </a>
             <button onclick="this.closest('[style*=\\'position: fixed\\']').remove()" style="flex: 1; background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
-              Schließen
+              ${this.i18n.instant('HEADER.CLOSE')}
             </button>
           </div>
         </div>
@@ -492,7 +550,7 @@ Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
    * Reset canvas
    */
   reset(): void {
-    if (confirm('Möchten Sie wirklich alle Daten zurücksetzen?')) {
+    if (confirm(this.i18n.instant('ALERTS.RESET_CONFIRM'))) {
       this.userText = '';
       this.canvasService.reset();
     }
@@ -528,7 +586,7 @@ Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
       const schemaFile = this.state.selectedContentType || this.state.detectedContentType;
       return this.schemaLoader.getContentTypeLabel(schemaFile!);
     }
-    return 'Nicht erkannt';
+    return this.i18n.instant('CONTENT_TYPE.NOT_DETECTED');
   }
 
   /**
@@ -702,6 +760,25 @@ Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
   }
   
   /**
+   * Re-localize all fields when language changes
+   */
+  private async relocalizeFields(language: 'de' | 'en'): Promise<void> {
+    // Reload fields with new language
+    await this.canvasService.relocalizeAllFields(language);
+  }
+  
+  /**
+   * Update content type dropdown options with localized labels
+   */
+  private updateContentTypeOptions(): void {
+    const availableSchemas = this.schemaLoader.getAvailableSpecialSchemas();
+    this.contentTypeOptions = availableSchemas.map(schemaFile => ({
+      label: this.schemaLoader.getContentTypeLabel(schemaFile),
+      schemaFile: schemaFile
+    }));
+  }
+  
+  /**
    * Get active LLM model based on provider
    */
   private getActiveLlmModel(): string {
@@ -717,6 +794,7 @@ Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
   
   /**
    * TrackBy function for field groups (performance optimization)
+   * Use only schemaName and id to keep component instance consistent
    */
   trackByGroupId(index: number, group: FieldGroup): string {
     return `${group.schemaName}::${group.id}`;
@@ -724,6 +802,7 @@ Details: ${error instanceof Error ? error.message : 'Unbekannt'}`);
   
   /**
    * TrackBy function for fields (performance optimization)
+   * Use only fieldId to keep component instance, let ngOnChanges handle updates
    */
   trackByFieldId(index: number, field: any): string {
     return field.fieldId;

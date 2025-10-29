@@ -9,20 +9,57 @@
     "inherit": "https://example.org/inheritance/"
   },
   "groups": [
-    { "id": "typing", "label": "Typisierung" },
-    { "id": "linkage", "label": "Quellen-Verknüpfungen" },
-    { "id": "harvesting", "label": "Erschließung (Crawl/Import)" },
-    { "id": "inheritance", "label": "Vererbung (Top-Down/Bottom-Up)" },
-    { "id": "governance", "label": "Verantwortung & Verwaltung" }
+    {
+      "id": "typing",
+      "label": {
+        "de": "Typisierung",
+        "en": "Classification"
+      }
+    },
+    {
+      "id": "linkage",
+      "label": {
+        "de": "Quellen-Verknüpfungen",
+        "en": "Source Links"
+      }
+    },
+    {
+      "id": "harvesting",
+      "label": {
+        "de": "Erschließung (Crawl/Import)",
+        "en": "Indexing (Crawl/Import)"
+      }
+    },
+    {
+      "id": "inheritance",
+      "label": {
+        "de": "Vererbung (Top-Down/Bottom-Up)",
+        "en": "Inheritance (Top-Down/Bottom-Up)"
+      }
+    },
+    {
+      "id": "governance",
+      "label": {
+        "de": "Verantwortung & Verwaltung",
+        "en": "Responsibility & Management"
+      }
+    }
   ],
   "fields": [
     {
       "id": "ccm:source_kind",
       "group": "typing",
-      "group_label": "Typisierung",
+      "label": {
+        "de": "Quellentyp (Untertyp)",
+        "en": "Source Type (Subtype)"
+      },
+      "description": {
+        "de": "Spezifischer Untertyp der Quelle.",
+        "en": "Specific Subtype of the Source."
+      },
       "prompt": {
-        "label": "Quellentyp (Untertyp)",
-        "description": "Spezifischer Untertyp der Quelle."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "ccm:source_kind",
@@ -32,31 +69,88 @@
         "required": true,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
+        "index": {
+          "keyword": true
+        },
         "vocabulary": {
           "type": "closed",
           "concepts": [
-            { "label": "Kollektion/Kanal", "schema_types": ["sdo:CreativeWork", "sdo:Collection"] },
-            { "label": "Wörterbuch", "schema_types": ["sdo:CreativeWork"] },
-            { "label": "Portal", "schema_types": ["sdo:WebSite"] },
-            { "label": "Stream/RSS", "schema_types": ["sdo:DataFeed"] },
-            { "label": "Lexikon/Enzyklopädie", "schema_types": ["sdo:CreativeWork"] },
-            { "label": "Datenbank", "schema_types": ["sdo:DataCatalog", "sdo:Dataset"] },
-            { "label": "Repository", "schema_types": ["sdo:WebSite", "sdo:Service"] },
-            { "label": "Suchmaschine", "schema_types": ["sdo:WebSite", "sdo:Service"] },
-            { "label": "Referatory", "schema_types": ["sdo:WebSite", "sdo:Service"] }
+            {
+              "label": {
+                "de": "Kollektion/Kanal",
+                "en": "Collection/Channel"
+              }
+            },
+            {
+              "label": {
+                "de": "Wörterbuch",
+                "en": "Dictionary"
+              }
+            },
+            {
+              "label": {
+                "de": "Portal",
+                "en": "Portal"
+              }
+            },
+            {
+              "label": {
+                "de": "Stream/RSS",
+                "en": "Stream/RSS"
+              }
+            },
+            {
+              "label": {
+                "de": "Lexikon/Enzyklopädie",
+                "en": "Lexicon/Encyclopedia"
+              }
+            },
+            {
+              "label": {
+                "de": "Datenbank",
+                "en": "Database"
+              }
+            },
+            {
+              "label": {
+                "de": "Repository",
+                "en": "Repository"
+              }
+            },
+            {
+              "label": {
+                "de": "Suchmaschine",
+                "en": "Search Engine"
+              }
+            },
+            {
+              "label": {
+                "de": "Referatory",
+                "en": "Referatory"
+              }
+            }
           ]
         },
-        "normalization": { "trim": true, "deduplicate": true }
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "ccm:schema_types_declared",
       "group": "typing",
-      "group_label": "Typisierung",
+      "label": {
+        "de": "Schema.org-Typen",
+        "en": "Schema.org Types"
+      },
+      "description": {
+        "de": "Explizite schema.org-Typen der Quelle.",
+        "en": "Explicit schema.org Types of the Source."
+      },
       "prompt": {
-        "label": "Schema.org-Typen",
-        "description": "Explizite schema.org-Typen der Quelle."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "ccm:schema_types_declared",
@@ -66,29 +160,76 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
+        "index": {
+          "keyword": true
+        },
         "vocabulary": {
           "type": "closed",
           "concepts": [
-            { "label": "CreativeWork" },
-            { "label": "DataFeed" },
-            { "label": "DataCatalog" },
-            { "label": "Dataset" },
-            { "label": "WebSite" },
-            { "label": "Service" },
-            { "label": "ScholarlyArticle" }
+            {
+              "label": {
+                "de": "CreativeWork",
+                "en": "CreativeWork"
+              }
+            },
+            {
+              "label": {
+                "de": "DataFeed",
+                "en": "DataFeed"
+              }
+            },
+            {
+              "label": {
+                "de": "DataCatalog",
+                "en": "DataCatalog"
+              }
+            },
+            {
+              "label": {
+                "de": "Dataset",
+                "en": "Dataset"
+              }
+            },
+            {
+              "label": {
+                "de": "WebSite",
+                "en": "WebSite"
+              }
+            },
+            {
+              "label": {
+                "de": "Service",
+                "en": "Service"
+              }
+            },
+            {
+              "label": {
+                "de": "ScholarlyArticle",
+                "en": "ScholarlyArticle"
+              }
+            }
           ]
         },
-        "normalization": { "trim": true, "deduplicate": true }
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:sourceOrganization",
       "group": "linkage",
-      "group_label": "Quellen-Verknüpfungen",
+      "label": {
+        "de": "Ursprungsorganisation",
+        "en": "Originating organization"
+      },
+      "description": {
+        "de": "Institution, die die Inhalte ursprünglich erstellt/herausgegeben hat.",
+        "en": "Institution that originally created/published the content."
+      },
       "prompt": {
-        "label": "Ursprungsorganisation",
-        "description": "Institution, die die Inhalte ursprünglich erstellt/herausgegeben hat."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:sourceOrganization",
@@ -99,19 +240,33 @@
         "ask_user": true,
         "ai_fillable": true,
         "shape": {
-          "@type": ["Organization", "EducationalOrganization"],
-          "url": { "type": "uri" }
+          "@type": [
+            "Organization",
+            "EducationalOrganization"
+          ],
+          "url": {
+            "type": "uri"
+          }
         },
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:isBasedOn",
       "group": "linkage",
-      "group_label": "Quellen-Verknüpfungen",
+      "label": {
+        "de": "Basiert auf (Objekt)",
+        "en": "Based on (Object)"
+      },
+      "description": {
+        "de": "Verweis auf Original/Fork/Remix als CreativeWork.",
+        "en": "Reference to original/fork/remix as CreativeWork."
+      },
       "prompt": {
-        "label": "Basiert auf (Objekt)",
-        "description": "Verweis auf Original/Fork/Remix als CreativeWork."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:isBasedOn",
@@ -122,19 +277,34 @@
         "ask_user": true,
         "ai_fillable": true,
         "shape": {
-          "@type": ["CreativeWork", "LearningResource", "WebPage"],
-          "url": { "type": "uri" }
+          "@type": [
+            "CreativeWork",
+            "LearningResource",
+            "WebPage"
+          ],
+          "url": {
+            "type": "uri"
+          }
         },
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:isBasedOnUrl",
       "group": "linkage",
-      "group_label": "Quellen-Verknüpfungen",
+      "label": {
+        "de": "Basiert auf (URL)",
+        "en": "Based on (URL)"
+      },
+      "description": {
+        "de": "URL der Originalquelle/Fundstelle.",
+        "en": "URL of the original source/location."
+      },
       "prompt": {
-        "label": "Basiert auf (URL)",
-        "description": "URL der Originalquelle/Fundstelle."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:isBasedOnUrl",
@@ -144,17 +314,28 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": { "pattern": "^(https?://[^\\s]+)$" },
-        "index": { "keyword": true }
+        "validation": {
+          "pattern": "^(https?://[^\\s]+)$"
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:provider",
       "group": "linkage",
-      "group_label": "Quellen-Verknüpfungen",
+      "label": {
+        "de": "Bereitstellende Plattform (Provider)",
+        "en": "Providing Platform (Provider)"
+      },
+      "description": {
+        "de": "Plattform/Repository/LMS, das Inhalte bereitstellt.",
+        "en": "Platform/Repository/LMS that provides content."
+      },
       "prompt": {
-        "label": "Bereitstellende Plattform (Provider)",
-        "description": "Plattform/Repository/LMS, das Inhalte bereitstellt."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:provider",
@@ -165,19 +346,33 @@
         "ask_user": true,
         "ai_fillable": true,
         "shape": {
-          "@type": ["Organization", "Service"],
-          "url": { "type": "uri" }
+          "@type": [
+            "Organization",
+            "Service"
+          ],
+          "url": {
+            "type": "uri"
+          }
         },
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:publisher",
       "group": "linkage",
-      "group_label": "Quellen-Verknüpfungen",
+      "label": {
+        "de": "Publisher dieser Fassung",
+        "en": "Publisher of this version"
+      },
+      "description": {
+        "de": "Wer veröffentlicht die konkrete Fassung?",
+        "en": "Who publishes the specific version?"
+      },
       "prompt": {
-        "label": "Publisher dieser Fassung",
-        "description": "Wer veröffentlicht die konkrete Fassung?"
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:publisher",
@@ -188,19 +383,33 @@
         "ask_user": true,
         "ai_fillable": true,
         "shape": {
-          "@type": ["Organization", "Person"],
-          "url": { "type": "uri" }
+          "@type": [
+            "Organization",
+            "Person"
+          ],
+          "url": {
+            "type": "uri"
+          }
         },
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:citation",
       "group": "linkage",
-      "group_label": "Quellen-Verknüpfungen",
+      "label": {
+        "de": "Zitierung/Literatur",
+        "en": "Citation/Literature"
+      },
+      "description": {
+        "de": "Formale Quellenangabe(n) oder verlinkte Werke.",
+        "en": "Formal source citation(s) or linked works."
+      },
       "prompt": {
-        "label": "Zitierung/Literatur",
-        "description": "Formale Quellenangabe(n) oder verlinkte Werke."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:citation",
@@ -210,22 +419,43 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "allowed_item_types": ["string", "object"],
+        "allowed_item_types": [
+          "string",
+          "object"
+        ],
         "shape": {
-          "@type": ["CreativeWork", "WebPage"],
-          "url": { "type": "uri" }
+          "@type": [
+            "CreativeWork",
+            "WebPage"
+          ],
+          "url": {
+            "type": "uri"
+          }
         },
-        "index": { "fulltext": true, "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "fulltext": true,
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:mainEntityOfPage",
       "group": "linkage",
-      "group_label": "Quellen-Verknüpfungen",
+      "label": {
+        "de": "Kanonische Detailseite",
+        "en": "Canonical detail page"
+      },
+      "description": {
+        "de": "URL der kanonischen Detailseite des Werks.",
+        "en": "URL of the canonical detail page of the work."
+      },
       "prompt": {
-        "label": "Kanonische Detailseite",
-        "description": "URL der kanonischen Detailseite des Werks."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:mainEntityOfPage",
@@ -235,17 +465,28 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": { "pattern": "^(https?://[^\\s]+)$" },
-        "index": { "keyword": true }
+        "validation": {
+          "pattern": "^(https?://[^\\s]+)$"
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:sameAs",
       "group": "linkage",
-      "group_label": "Quellen-Verknüpfungen",
+      "label": {
+        "de": "Stabile Identifikatoren",
+        "en": "Stable Identifiers"
+      },
+      "description": {
+        "de": "Stabile Referenzen (DOI, Handle, Wikidata, GitHub, …).",
+        "en": "Stable references (DOI, Handle, Wikidata, GitHub, …)."
+      },
       "prompt": {
-        "label": "Stabile Identifikatoren",
-        "description": "Stabile Referenzen (DOI, Handle, Wikidata, GitHub, …)."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:sameAs",
@@ -255,18 +496,32 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": { "pattern": "^(https?://[^\\s]+)$" },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "validation": {
+          "pattern": "^(https?://[^\\s]+)$"
+        },
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "harv:mode",
       "group": "harvesting",
-      "group_label": "Erschließung (Crawl/Import)",
+      "label": {
+        "de": "Erschließungsform",
+        "en": "Access Method"
+      },
+      "description": {
+        "de": "Welcher Spider/Crawler oder manuell erschlossen?",
+        "en": "Which spider/crawler or manually indexed?"
+      },
       "prompt": {
-        "label": "Erschließungsform",
-        "description": "Welcher Spider/Crawler oder manuell erschlossen?"
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "harv:mode",
@@ -279,23 +534,55 @@
         "vocabulary": {
           "type": "closed",
           "concepts": [
-            { "label": "crawler:generic" },
-            { "label": "crawler:rss" },
-            { "label": "crawler:api" },
-            { "label": "manual" }
+            {
+              "label": {
+                "de": "crawler:generic",
+                "en": "crawler:generic"
+              }
+            },
+            {
+              "label": {
+                "de": "crawler:rss",
+                "en": "crawler:rss"
+              }
+            },
+            {
+              "label": {
+                "de": "crawler:api",
+                "en": "crawler:api"
+              }
+            },
+            {
+              "label": {
+                "de": "manual",
+                "en": "Handbuch"
+              }
+            }
           ]
         },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "lowercase": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "lowercase": true
+        }
       }
     },
     {
       "id": "harv:status",
       "group": "harvesting",
-      "group_label": "Erschließung (Crawl/Import)",
+      "label": {
+        "de": "Erschließungsstatus",
+        "en": "access status"
+      },
+      "description": {
+        "de": "Aktueller Status der Erschließung.",
+        "en": "Current status of the indexing."
+      },
       "prompt": {
-        "label": "Erschließungsstatus",
-        "description": "Aktueller Status der Erschließung."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "harv:status",
@@ -308,23 +595,57 @@
         "vocabulary": {
           "type": "closed",
           "concepts": [
-            { "label": "planned" },
-            { "label": "running" },
-            { "label": "succeeded" },
-            { "label": "failed" },
-            { "label": "paused" }
+            {
+              "label": {
+                "de": "planned",
+                "en": "geplant"
+              }
+            },
+            {
+              "label": {
+                "de": "running",
+                "en": "laufend"
+              }
+            },
+            {
+              "label": {
+                "de": "succeeded",
+                "en": "erfolgreich"
+              }
+            },
+            {
+              "label": {
+                "de": "failed",
+                "en": "fehlgeschlagen"
+              }
+            },
+            {
+              "label": {
+                "de": "paused",
+                "en": "pausiert"
+              }
+            }
           ]
         },
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "harv:last_run",
       "group": "harvesting",
-      "group_label": "Erschließung (Crawl/Import)",
+      "label": {
+        "de": "Letzter Lauf",
+        "en": "Last run"
+      },
+      "description": {
+        "de": "Zeitpunkt des letzten Crawl/Imports (ISO-8601).",
+        "en": "Timestamp of the last crawl/import (ISO-8601)."
+      },
       "prompt": {
-        "label": "Letzter Lauf",
-        "description": "Zeitpunkt des letzten Crawl/Imports (ISO-8601)."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "harv:last_run",
@@ -334,16 +655,25 @@
         "required": false,
         "ask_user": false,
         "ai_fillable": true,
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "harv:next_run",
       "group": "harvesting",
-      "group_label": "Erschließung (Crawl/Import)",
+      "label": {
+        "de": "Nächster Lauf",
+        "en": "Next run"
+      },
+      "description": {
+        "de": "Geplanter nächster Crawl/Import (ISO-8601).",
+        "en": "Scheduled next crawl/import (ISO-8601)."
+      },
       "prompt": {
-        "label": "Nächster Lauf",
-        "description": "Geplanter nächster Crawl/Import (ISO-8601)."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "harv:next_run",
@@ -353,16 +683,25 @@
         "required": false,
         "ask_user": false,
         "ai_fillable": true,
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "harv:scope",
       "group": "harvesting",
-      "group_label": "Erschließung (Crawl/Import)",
+      "label": {
+        "de": "Erschließungsumfang",
+        "en": "Scope of indexing"
+      },
+      "description": {
+        "de": "Alle Inhalte oder ausgewählte Teilmengen?",
+        "en": "All content or selected subsets?"
+      },
       "prompt": {
-        "label": "Erschließungsumfang",
-        "description": "Alle Inhalte oder ausgewählte Teilmengen?"
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "harv:scope",
@@ -375,20 +714,39 @@
         "vocabulary": {
           "type": "closed",
           "concepts": [
-            { "label": "all" },
-            { "label": "subset" }
+            {
+              "label": {
+                "de": "all",
+                "en": "alle"
+              }
+            },
+            {
+              "label": {
+                "de": "subset",
+                "en": "Teilmenge"
+              }
+            }
           ]
         },
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "harv:storage_context",
       "group": "harvesting",
-      "group_label": "Erschließung (Crawl/Import)",
+      "label": {
+        "de": "Speicherort",
+        "en": "Storage location"
+      },
+      "description": {
+        "de": "Ablageort der erschlossenen Daten (Kontext/Ordner).",
+        "en": "Location of the accessed data (context/folder)."
+      },
       "prompt": {
-        "label": "Speicherort",
-        "description": "Ablageort der erschlossenen Daten (Kontext/Ordner)."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "harv:storage_context",
@@ -398,17 +756,28 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
       }
     },
     {
       "id": "inherit:topdown_fields",
       "group": "inheritance",
-      "group_label": "Vererbung (Top-Down/Bottom-Up)",
+      "label": {
+        "de": "Top-Down-Vererbung",
+        "en": "Top-Down inheritance"
+      },
+      "description": {
+        "de": "Welche Felder sollen standardmäßig an Inhalte vererbt werden?",
+        "en": "Welche Felder sollen standardmäßig an Inhalte vererbt werden?"
+      },
       "prompt": {
-        "label": "Top-Down-Vererbung",
-        "description": "Welche Felder sollen standardmäßig an Inhalte vererbt werden?"
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "inherit:topdown_fields",
@@ -419,27 +788,69 @@
         "ask_user": true,
         "ai_fillable": true,
         "vocabulary": {
-          "type": "open",
+          "type": "closed",
           "concepts": [
-            { "label": "discipline" },
-            { "label": "keywords" },
-            { "label": "license" },
-            { "label": "ads" },
-            { "label": "cost" },
-            { "label": "login_required" }
+            {
+              "label": {
+                "de": "discipline",
+                "en": "Disziplin"
+              }
+            },
+            {
+              "label": {
+                "de": "keywords",
+                "en": "keywords"
+              }
+            },
+            {
+              "label": {
+                "de": "license",
+                "en": "Lizenz"
+              }
+            },
+            {
+              "label": {
+                "de": "ads",
+                "en": "Anzeigen"
+              }
+            },
+            {
+              "label": {
+                "de": "cost",
+                "en": "Kosten"
+              }
+            },
+            {
+              "label": {
+                "de": "login_required",
+                "en": "Anmeldung erforderlich"
+              }
+            }
           ]
         },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "inherit:bottomup_facets",
       "group": "inheritance",
-      "group_label": "Vererbung (Top-Down/Bottom-Up)",
+      "label": {
+        "de": "Bottom-Up-Aggregation",
+        "en": "Bottom-Up aggregation"
+      },
+      "description": {
+        "de": "Welche Facetten werden aus Inhalten an der Quelle aggregiert angezeigt?",
+        "en": "Welche Facetten werden aus Inhalten an der Quelle aggregiert angezeigt?"
+      },
       "prompt": {
-        "label": "Bottom-Up-Aggregation",
-        "description": "Welche Facetten werden aus Inhalten an der Quelle aggregiert angezeigt?"
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "inherit:bottomup_facets",
@@ -450,28 +861,75 @@
         "ask_user": true,
         "ai_fillable": true,
         "vocabulary": {
-          "type": "open",
+          "type": "closed",
           "concepts": [
-            { "label": "discipline" },
-            { "label": "keywords" },
-            { "label": "license" },
-            { "label": "educationalLevel" },
-            { "label": "audience" },
-            { "label": "cost" },
-            { "label": "login_required" }
+            {
+              "label": {
+                "de": "discipline",
+                "en": "Disziplin"
+              }
+            },
+            {
+              "label": {
+                "de": "keywords",
+                "en": "keywords"
+              }
+            },
+            {
+              "label": {
+                "de": "license",
+                "en": "Lizenz"
+              }
+            },
+            {
+              "label": {
+                "de": "educationalLevel",
+                "en": "Bildungsniveau"
+              }
+            },
+            {
+              "label": {
+                "de": "audience",
+                "en": "Zielgruppe"
+              }
+            },
+            {
+              "label": {
+                "de": "cost",
+                "en": "Kosten"
+              }
+            },
+            {
+              "label": {
+                "de": "login_required",
+                "en": "Anmeldung erforderlich"
+              }
+            }
           ]
         },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "ccm:editorial_owner",
       "group": "governance",
-      "group_label": "Verantwortung & Verwaltung",
+      "label": {
+        "de": "Verantwortliche Redaktion",
+        "en": "Responsible editorial team"
+      },
+      "description": {
+        "de": "Intern verantwortliche Redaktion/Gruppe.",
+        "en": "Internally responsible editorial team/group."
+      },
       "prompt": {
-        "label": "Verantwortliche Redaktion",
-        "description": "Intern verantwortliche Redaktion/Gruppe."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "ccm:editorial_owner",
@@ -481,8 +939,12 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
       }
     }
   ],

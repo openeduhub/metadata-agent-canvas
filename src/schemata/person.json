@@ -8,22 +8,71 @@
     "vcard": "http://www.w3.org/2006/vcard/ns#"
   },
   "groups": [
-    { "id": "identity", "label": "Identität & Namen" },
-    { "id": "contact", "label": "Kontakt & Präsenzen" },
-    { "id": "life", "label": "Lebensdaten" },
-    { "id": "work", "label": "Beruf & Organisation" },
-    { "id": "edu", "label": "Bildung, Expertise & Leistungen" },
-    { "id": "roles", "label": "Rollen (Open-eduHub)" },
-    { "id": "links", "label": "Verknüpfungen & IDs" }
+    {
+      "id": "identity",
+      "label": {
+        "de": "Identität & Namen",
+        "en": "Identity & Names"
+      }
+    },
+    {
+      "id": "contact",
+      "label": {
+        "de": "Kontakt & Präsenzen",
+        "en": "Contact & Presences"
+      }
+    },
+    {
+      "id": "life",
+      "label": {
+        "de": "Lebensdaten",
+        "en": "Life Data"
+      }
+    },
+    {
+      "id": "work",
+      "label": {
+        "de": "Beruf & Organisation",
+        "en": "Profession & Organization"
+      }
+    },
+    {
+      "id": "edu",
+      "label": {
+        "de": "Bildung, Expertise & Leistungen",
+        "en": "Education, Expertise & Achievements"
+      }
+    },
+    {
+      "id": "roles",
+      "label": {
+        "de": "Rollen (Open-eduHub)",
+        "en": "Roles (Open-eduHub)"
+      }
+    },
+    {
+      "id": "links",
+      "label": {
+        "de": "Verknüpfungen & IDs",
+        "en": "Connections & IDs"
+      }
+    }
   ],
   "fields": [
     {
       "id": "schema:name",
       "group": "identity",
-      "group_label": "Identität & Namen",
+      "label": {
+        "de": "Vollständiger Name",
+        "en": "Full Name"
+      },
+      "description": {
+        "de": "Anzeigename (zusammengesetzt aus Namensbestandteilen).",
+        "en": "Display Name (composed of name components)."
+      },
       "prompt": {
-        "label": "Vollständiger Name",
-        "description": "Anzeigename (zusammengesetzt aus Namensbestandteilen)."
+        "de": "",
+        "en": ""
       },
       "system": {
         "path": "schema:name",
@@ -33,15 +82,30 @@
         "required": true,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "collapseWhitespace": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "collapseWhitespace": true
+        }
       }
     },
     {
       "id": "schema:givenName",
       "group": "identity",
-      "group_label": "Identität & Namen",
-      "prompt": { "label": "Vorname" },
+      "label": {
+        "de": "Vorname",
+        "en": "First name"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:givenName",
         "uri": "sdo:givenName",
@@ -50,15 +114,29 @@
         "required": true,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
       }
     },
     {
       "id": "schema:familyName",
       "group": "identity",
-      "group_label": "Identität & Namen",
-      "prompt": { "label": "Nachname" },
+      "label": {
+        "de": "Nachname",
+        "en": "Last name"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:familyName",
         "uri": "sdo:familyName",
@@ -67,15 +145,29 @@
         "required": true,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
       }
     },
     {
       "id": "schema:additionalName",
       "group": "identity",
-      "group_label": "Identität & Namen",
-      "prompt": { "label": "Weitere Namen (Mittel-/Künstlernamen, Pseudonyme)" },
+      "label": {
+        "de": "Weitere Namen (Mittel-/Künstlernamen, Pseudonyme)",
+        "en": "Additional names (middle names/stage names, pseudonyms)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:additionalName",
         "uri": "sdo:additionalName",
@@ -84,15 +176,30 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:honorificPrefix",
       "group": "identity",
-      "group_label": "Identität & Namen",
-      "prompt": { "label": "Vorangestellter Namenszusatz (z. B. Dr.)" },
+      "label": {
+        "de": "Vorangestellter Namenszusatz (z. B. Dr.)",
+        "en": "Prefix (e.g. Dr.)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:honorificPrefix",
         "uri": "sdo:honorificPrefix",
@@ -101,15 +208,29 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
       }
     },
     {
       "id": "schema:honorificSuffix",
       "group": "identity",
-      "group_label": "Identität & Namen",
-      "prompt": { "label": "Nachgestellter Namenszusatz (z. B. PhD)" },
+      "label": {
+        "de": "Nachgestellter Namenszusatz (z. B. PhD)",
+        "en": "Post-nominal title (e.g., PhD)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:honorificSuffix",
         "uri": "sdo:honorificSuffix",
@@ -118,15 +239,29 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
       }
     },
     {
       "id": "schema:email",
       "group": "contact",
-      "group_label": "Kontakt & Präsenzen",
-      "prompt": { "label": "E-Mail" },
+      "label": {
+        "de": "E-Mail",
+        "en": "Email"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:email",
         "uri": "sdo:email",
@@ -135,16 +270,34 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": { "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "lowercase": true, "deduplicate": true }
+        "validation": {
+          "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+        },
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "lowercase": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:telephone",
       "group": "contact",
-      "group_label": "Kontakt & Präsenzen",
-      "prompt": { "label": "Telefonnummer" },
+      "label": {
+        "de": "Telefonnummer",
+        "en": "Phone number"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:telephone",
         "uri": "sdo:telephone",
@@ -153,15 +306,30 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:address",
       "group": "contact",
-      "group_label": "Kontakt & Präsenzen",
-      "prompt": { "label": "Adresse (optional)" },
+      "label": {
+        "de": "Adresse (optional)",
+        "en": "Address (optional)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:address",
         "uri": "sdo:address",
@@ -172,20 +340,43 @@
         "ai_fillable": true,
         "shape": {
           "@type": "PostalAddress",
-          "streetAddress": { "type": "string" },
-          "postalCode": { "type": "string" },
-          "addressLocality": { "type": "string" },
-          "addressRegion": { "type": "string" },
-          "addressCountry": { "type": "string" }
+          "streetAddress": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "addressLocality": {
+            "type": "string"
+          },
+          "addressRegion": {
+            "type": "string"
+          },
+          "addressCountry": {
+            "type": "string"
+          }
         },
-        "index": { "fulltext": false, "keyword": true }
+        "index": {
+          "fulltext": false,
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:contactPoint",
       "group": "contact",
-      "group_label": "Kontakt & Präsenzen",
-      "prompt": { "label": "Kontaktstelle(n)" },
+      "label": {
+        "de": "Kontaktstelle(n)",
+        "en": "Contact point(s)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:contactPoint",
         "uri": "sdo:contactPoint",
@@ -196,21 +387,45 @@
         "ai_fillable": true,
         "shape": {
           "@type": "ContactPoint",
-          "contactType": { "type": "string" },
-          "email": { "type": "string" },
-          "telephone": { "type": "string" },
-          "url": { "type": "uri" },
-          "areaServed": { "type": "string" },
-          "availableLanguage": { "type": "string" }
+          "contactType": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "telephone": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          },
+          "areaServed": {
+            "type": "string"
+          },
+          "availableLanguage": {
+            "type": "string"
+          }
         },
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:url",
       "group": "contact",
-      "group_label": "Kontakt & Präsenzen",
-      "prompt": { "label": "Persönliche Webseite/Profil" },
+      "label": {
+        "de": "Persönliche Webseite/Profil",
+        "en": "Personal website/profile"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:url",
         "uri": "sdo:url",
@@ -219,16 +434,33 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": { "pattern": "^(https?://[^\\s]+)$" },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "validation": {
+          "pattern": "^(https?://[^\\s]+)$"
+        },
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:sameAs",
       "group": "contact",
-      "group_label": "Kontakt & Präsenzen",
-      "prompt": { "label": "Soziale Medien / Externe Profile (sameAs)" },
+      "label": {
+        "de": "Soziale Medien / Externe Profile (sameAs)",
+        "en": "Social Media / External Profiles (sameAs)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:sameAs",
         "uri": "sdo:sameAs",
@@ -237,16 +469,33 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": { "pattern": "^(https?://[^\\s]+)$" },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "validation": {
+          "pattern": "^(https?://[^\\s]+)$"
+        },
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:image",
       "group": "contact",
-      "group_label": "Kontakt & Präsenzen",
-      "prompt": { "label": "Bild der Person (URL)" },
+      "label": {
+        "de": "Bild der Person (URL)",
+        "en": "Image of the person (URL)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:image",
         "uri": "sdo:image",
@@ -255,15 +504,29 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": { "pattern": "^(https?://[^\\s]+\\.(jpg|jpeg|png|webp|gif))$" },
-        "index": { "keyword": true }
+        "validation": {
+          "pattern": "^(https?://[^\\s]+\\.(jpg|jpeg|png|webp|gif))$"
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:birthDate",
       "group": "life",
-      "group_label": "Lebensdaten",
-      "prompt": { "label": "Geburtsdatum (YYYY-MM-DD)" },
+      "label": {
+        "de": "Geburtsdatum (YYYY-MM-DD)",
+        "en": "Date of Birth (YYYY-MM-DD)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:birthDate",
         "uri": "sdo:birthDate",
@@ -277,8 +540,18 @@
     {
       "id": "schema:birthPlace",
       "group": "life",
-      "group_label": "Lebensdaten",
-      "prompt": { "label": "Geburtsort" },
+      "label": {
+        "de": "Geburtsort",
+        "en": "Place of Birth"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:birthPlace",
         "uri": "sdo:birthPlace",
@@ -287,14 +560,26 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:deathDate",
       "group": "life",
-      "group_label": "Lebensdaten",
-      "prompt": { "label": "Sterbedatum (optional)" },
+      "label": {
+        "de": "Sterbedatum (optional)",
+        "en": "Date of death (optional)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:deathDate",
         "uri": "sdo:deathDate",
@@ -308,8 +593,18 @@
     {
       "id": "schema:deathPlace",
       "group": "life",
-      "group_label": "Lebensdaten",
-      "prompt": { "label": "Sterbeort (optional)" },
+      "label": {
+        "de": "Sterbeort (optional)",
+        "en": "Place of death (optional)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:deathPlace",
         "uri": "sdo:deathPlace",
@@ -318,14 +613,26 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:gender",
       "group": "life",
-      "group_label": "Lebensdaten",
-      "prompt": { "label": "Geschlecht (frei oder Schema-URI)" },
+      "label": {
+        "de": "Geschlecht (frei oder Schema-URI)",
+        "en": "Gender (free or schema URI)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:gender",
         "uri": "sdo:gender",
@@ -334,15 +641,29 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
       }
     },
     {
       "id": "schema:nationality",
       "group": "life",
-      "group_label": "Lebensdaten",
-      "prompt": { "label": "Nationalität" },
+      "label": {
+        "de": "Nationalität",
+        "en": "Nationality"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:nationality",
         "uri": "sdo:nationality",
@@ -351,15 +672,30 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:knowsLanguage",
       "group": "life",
-      "group_label": "Lebensdaten",
-      "prompt": { "label": "Sprachkenntnisse (BCP-47, z. B. de, en-US)" },
+      "label": {
+        "de": "Sprachkenntnisse (BCP-47, z. B. de, en-US)",
+        "en": "Language skills (BCP-47, e.g., de, en-US)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:knowsLanguage",
         "uri": "sdo:knowsLanguage",
@@ -368,16 +704,34 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": { "pattern": "^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$" },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "lowercase_lang": true, "deduplicate": true }
+        "validation": {
+          "pattern": "^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$"
+        },
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "lowercase_lang": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:jobTitle",
       "group": "work",
-      "group_label": "Beruf & Organisation",
-      "prompt": { "label": "Berufsbezeichnung / Jobtitel" },
+      "label": {
+        "de": "Berufsbezeichnung / Jobtitel",
+        "en": "Job title"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:jobTitle",
         "uri": "sdo:jobTitle",
@@ -386,15 +740,30 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:hasOccupation",
       "group": "work",
-      "group_label": "Beruf & Organisation",
-      "prompt": { "label": "Beruf (Occupation)" },
+      "label": {
+        "de": "Beruf (Occupation)",
+        "en": "Occupation"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:hasOccupation",
         "uri": "sdo:hasOccupation",
@@ -405,17 +774,33 @@
         "ai_fillable": true,
         "shape": {
           "@type": "Occupation",
-          "name": { "type": "string" },
-          "occupationalCategory": { "type": "string" }
+          "name": {
+            "type": "string"
+          },
+          "occupationalCategory": {
+            "type": "string"
+          }
         },
-        "index": { "keyword": true }
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:worksFor",
       "group": "work",
-      "group_label": "Beruf & Organisation",
-      "prompt": { "label": "Arbeitgeber / Organisation" },
+      "label": {
+        "de": "Arbeitgeber / Organisation",
+        "en": "Employer / Organization"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:worksFor",
         "uri": "sdo:worksFor",
@@ -424,15 +809,35 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": { "@type": "Organization", "name": { "type": "string" }, "url": { "type": "uri" } },
-        "index": { "keyword": true }
+        "shape": {
+          "@type": "Organization",
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          }
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:affiliation",
       "group": "work",
-      "group_label": "Beruf & Organisation",
-      "prompt": { "label": "Zugehörigkeit / Mitgliedschaft" },
+      "label": {
+        "de": "Zugehörigkeit / Mitgliedschaft",
+        "en": "Affiliation / Membership"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:affiliation",
         "uri": "sdo:affiliation",
@@ -441,15 +846,35 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": { "@type": "Organization", "name": { "type": "string" }, "url": { "type": "uri" } },
-        "index": { "keyword": true }
+        "shape": {
+          "@type": "Organization",
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          }
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:alumniOf",
       "group": "work",
-      "group_label": "Beruf & Organisation",
-      "prompt": { "label": "Alumni von (Organisation/Institution)" },
+      "label": {
+        "de": "Alumni von (Organisation/Institution)",
+        "en": "Alumni of (Organization/Institution)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:alumniOf",
         "uri": "sdo:alumniOf",
@@ -458,15 +883,38 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": { "@type": ["EducationalOrganization", "Organization"], "name": { "type": "string" }, "url": { "type": "uri" } },
-        "index": { "keyword": true }
+        "shape": {
+          "@type": [
+            "EducationalOrganization",
+            "Organization"
+          ],
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          }
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "schema:workLocation",
       "group": "work",
-      "group_label": "Beruf & Organisation",
-      "prompt": { "label": "Arbeitsort (Ort/Kontaktpunkt)" },
+      "label": {
+        "de": "Arbeitsort (Ort/Kontaktpunkt)",
+        "en": "Work location (Location/Contact point)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:workLocation",
         "uri": "sdo:workLocation",
@@ -475,15 +923,38 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": { "@type": ["Place", "ContactPoint"], "name": { "type": "string" }, "address": { "type": "string" } },
-        "index": { "keyword": true }
+        "shape": {
+          "@type": [
+            "Place",
+            "ContactPoint"
+          ],
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          }
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "ccm:activity_field",
       "group": "edu",
-      "group_label": "Bildung, Expertise & Leistungen",
-      "prompt": { "label": "Aktivität im Bildungsbereich (Kurztext/Vokabular)" },
+      "label": {
+        "de": "Aktivität im Bildungsbereich (Kurztext/Vokabular)",
+        "en": "Activity in the education sector (Short text/Vocabulary)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:activity_field",
         "uri": "ccm:activity_field",
@@ -492,15 +963,30 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "ccm:expertise_title",
       "group": "edu",
-      "group_label": "Bildung, Expertise & Leistungen",
-      "prompt": { "label": "Titel/Expertise (Stichworte)" },
+      "label": {
+        "de": "Titel/Expertise (Stichworte)",
+        "en": "Title/Expertise (Keywords)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:expertise_title",
         "uri": "ccm:expertise_title",
@@ -509,15 +995,30 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "ccm:focus_areas",
       "group": "edu",
-      "group_label": "Bildung, Expertise & Leistungen",
-      "prompt": { "label": "Arbeitsschwerpunkte" },
+      "label": {
+        "de": "Arbeitsschwerpunkte",
+        "en": "Areas of Focus"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:focus_areas",
         "uri": "ccm:focus_areas",
@@ -526,15 +1027,30 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "ccm:services_offered",
       "group": "edu",
-      "group_label": "Bildung, Expertise & Leistungen",
-      "prompt": { "label": "Angebotene Leistungen (Mentoring, Vorträge, …)" },
+      "label": {
+        "de": "Angebotene Leistungen (Mentoring, Vorträge, …)",
+        "en": "Offered Services (Mentoring, Lectures, …)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:services_offered",
         "uri": "ccm:services_offered",
@@ -543,15 +1059,30 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "ccm:publications",
       "group": "edu",
-      "group_label": "Bildung, Expertise & Leistungen",
-      "prompt": { "label": "Publikationen (Kurztitel oder Objekt/URL)" },
+      "label": {
+        "de": "Publikationen (Kurztitel oder Objekt/URL)",
+        "en": "Publications (Short Titles or Object/URL)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:publications",
         "uri": "schema:citation",
@@ -560,17 +1091,48 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "allowed_item_types": ["string", "object"],
-        "shape": { "@type": ["CreativeWork", "ScholarlyArticle", "WebPage"], "name": { "type": "string" }, "url": { "type": "uri" } },
-        "index": { "fulltext": true, "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "allowed_item_types": [
+          "string",
+          "object"
+        ],
+        "shape": {
+          "@type": [
+            "CreativeWork",
+            "ScholarlyArticle",
+            "WebPage"
+          ],
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          }
+        },
+        "index": {
+          "fulltext": true,
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "ccm:person_kind",
       "group": "roles",
-      "group_label": "Rollen (Open-eduHub)",
-      "prompt": { "label": "Rolle(n) der Person" },
+      "label": {
+        "de": "Rolle(n) der Person",
+        "en": "Role(s) of the person"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:person_kind",
         "uri": "sdo:additionalType",
@@ -579,31 +1141,101 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "index": { "keyword": true },
+        "index": {
+          "keyword": true
+        },
         "vocabulary": {
           "type": "closed",
           "concepts": [
-            { "label": "Berater/in" },
-            { "label": "Bibliothekar/in" },
-            { "label": "E-Learning-Experte" },
-            { "label": "Entwickler/in" },
-            { "label": "Instruktionsdesigner/in" },
-            { "label": "Lehrperson" },
-            { "label": "OER-Befürworter/in" },
-            { "label": "Politische/r Entscheidungsträger/in" },
-            { "label": "Schüler/in" },
-            { "label": "Student/in" },
-            { "label": "Wissenschaftler/in" }
+            {
+              "label": {
+                "de": "Berater/in",
+                "en": "Consultant"
+              }
+            },
+            {
+              "label": {
+                "de": "Bibliothekar/in",
+                "en": "Librarian"
+              }
+            },
+            {
+              "label": {
+                "de": "E-Learning-Experte",
+                "en": "E-Learning expert"
+              }
+            },
+            {
+              "label": {
+                "de": "Entwickler/in",
+                "en": "Developer"
+              }
+            },
+            {
+              "label": {
+                "de": "Instruktionsdesigner/in",
+                "en": "Instructional Designer"
+              }
+            },
+            {
+              "label": {
+                "de": "Lehrperson",
+                "en": "teacher"
+              }
+            },
+            {
+              "label": {
+                "de": "OER-Befürworter/in",
+                "en": "OER Advocate"
+              }
+            },
+            {
+              "label": {
+                "de": "Politische/r Entscheidungsträger/in",
+                "en": "Policy Maker"
+              }
+            },
+            {
+              "label": {
+                "de": "Schüler/in",
+                "en": "Student"
+              }
+            },
+            {
+              "label": {
+                "de": "Student/in",
+                "en": "Student"
+              }
+            },
+            {
+              "label": {
+                "de": "Wissenschaftler/in",
+                "en": "Scientist/Researcher"
+              }
+            }
           ]
         },
-        "normalization": { "trim": true, "deduplicate": true }
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:identifier",
       "group": "links",
-      "group_label": "Verknüpfungen & IDs",
-      "prompt": { "label": "Identifier (z. B. ORCID, UUID, interne ID)" },
+      "label": {
+        "de": "Identifier (z. B. ORCID, UUID, interne ID)",
+        "en": "Identifier (e.g., ORCID, UUID, internal ID)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "schema:identifier",
         "uri": "sdo:identifier",
@@ -612,22 +1244,52 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "allowed_item_types": ["string", "object", "uri"],
+        "allowed_item_types": [
+          "string",
+          "object",
+          "uri"
+        ],
         "shape": {
           "@type": "PropertyValue",
-          "propertyID": { "type": "string", "examples": ["ORCID", "Wikidata", "UUID"] },
-          "value": { "type": "string" },
-          "url": { "type": "uri" }
+          "propertyID": {
+            "type": "string",
+            "examples": [
+              "ORCID",
+              "Wikidata",
+              "UUID"
+            ]
+          },
+          "value": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          }
         },
-        "index": { "keyword": true },
-        "normalization": { "trim": true, "deduplicate": true }
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "ccm:linked_occupation",
       "group": "links",
-      "group_label": "Verknüpfungen & IDs",
-      "prompt": { "label": "Verknüpfte Berufe (URI/Objekt)" },
+      "label": {
+        "de": "Verknüpfte Berufe (URI/Objekt)",
+        "en": "Linked professions (URI/object)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:linked_occupation",
         "uri": "sdo:hasOccupation",
@@ -636,15 +1298,38 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": { "@type": "Occupation", "name": { "type": "string" }, "identifier": { "type": "string" }, "url": { "type": "uri" } },
-        "index": { "keyword": true }
+        "shape": {
+          "@type": "Occupation",
+          "name": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          }
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "ccm:linked_event",
       "group": "links",
-      "group_label": "Verknüpfungen & IDs",
-      "prompt": { "label": "Verknüpfte Veranstaltungen (Teilnahme/Leitung)" },
+      "label": {
+        "de": "Verknüpfte Veranstaltungen (Teilnahme/Leitung)",
+        "en": "Linked events (participation/leadership)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:linked_event",
         "uri": "schema:performerIn",
@@ -653,15 +1338,38 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": { "@type": "Event", "name": { "type": "string" }, "url": { "type": "uri" }, "roleName": { "type": "string" } },
-        "index": { "keyword": true }
+        "shape": {
+          "@type": "Event",
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          },
+          "roleName": {
+            "type": "string"
+          }
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "ccm:linked_organization",
       "group": "links",
-      "group_label": "Verknüpfungen & IDs",
-      "prompt": { "label": "Verknüpfte Organisationen (zusätzlich zu worksFor/affiliation)" },
+      "label": {
+        "de": "Verknüpfte Organisationen (zusätzlich zu worksFor/affiliation)",
+        "en": "Linked Organizations (in addition to worksFor/affiliation)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:linked_organization",
         "uri": "schema:memberOf",
@@ -670,15 +1378,35 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": { "@type": "Organization", "name": { "type": "string" }, "url": { "type": "uri" } },
-        "index": { "keyword": true }
+        "shape": {
+          "@type": "Organization",
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "uri"
+          }
+        },
+        "index": {
+          "keyword": true
+        }
       }
     },
     {
       "id": "ccm:linked_source",
       "group": "links",
-      "group_label": "Verknüpfungen & IDs",
-      "prompt": { "label": "Verknüpfte Quelle (Kanal/Repository)" },
+      "label": {
+        "de": "Verknüpfte Quelle (Kanal/Repository)",
+        "en": "Linked Source (Channel/Repository)"
+      },
+      "description": {
+        "de": "",
+        "en": ""
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
       "system": {
         "path": "ccm:linked_source",
         "uri": "schema:subjectOf",
@@ -687,8 +1415,22 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": { "@type": ["WebSite", "CreativeWork", "Service"], "url": { "type": "uri" }, "name": { "type": "string" } },
-        "index": { "keyword": true }
+        "shape": {
+          "@type": [
+            "WebSite",
+            "CreativeWork",
+            "Service"
+          ],
+          "url": {
+            "type": "uri"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "index": {
+          "keyword": true
+        }
       }
     }
   ],

@@ -1,326 +1,795 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.org/schemas/prompt.schema.json",
-  "title": "Prompt",
-  "description": "Metadaten-Schema für KI-Prompts in Bildungskontexten.",
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "string",
-      "description": "Stabile Identifier/Node-ID",
-      "examples": ["urn:uuid:2c7c2f4c-1b2e-4a51-9c51-6a3b7b7c9d21"]
-    },
-    "url": {
-      "type": "string",
-      "format": "uri",
-      "description": "Öffentliche URL zur Ressource",
-      "x-schemaorg": "url"
-    },
-    "title": {
-      "type": "string",
-      "description": "Titel der Ressource",
-      "x-schemaorg": "name"
-    },
-    "language": {
-      "type": "string",
-      "description": "Sprache der Ressource (BCP-47)",
-      "examples": ["de", "de-DE", "en"],
-      "x-schemaorg": "inLanguage"
-    },
-    "description": {
-      "type": "string",
-      "description": "Kurzbeschreibung",
-      "x-schemaorg": "description"
-    },
-    "thumbnailUrl": {
-      "type": "string",
-      "format": "uri",
-      "description": "Vorschaubild",
-      "x-schemaorg": "thumbnailUrl"
-    },
-    "classification": {
-      "type": "object",
-      "description": "Inhaltliche Einordnung",
-      "properties": {
-        "resourceType": {
-          "const": "Prompt",
-          "description": "Kategorie/Typ des Inhalts (fix: Prompt)"
-        },
-        "subject": {
-          "type": "array",
-          "description": "Fach-/Sachgebiet (kontrolliert oder frei)",
-          "items": { "type": "string" },
-          "x-schemaorg": "about"
-        },
-        "keywords": {
-          "type": "array",
-          "description": "Schlagworte (fest und frei)",
-          "items": { "type": "string" },
-          "x-schemaorg": "keywords"
-        },
-        "educationLevel": {
-          "type": "array",
-          "description": "Bildungsstufe (z. B. Sek I, Hochschule, Berufsausbildung)",
-          "items": { "type": "string" },
-          "x-schemaorg": "educationalLevel"
-        },
-        "typicalAgeRange": {
-          "type": "string",
-          "description": "Typisches Alter (z. B. 10-12)",
-          "x-schemaorg": "typicalAgeRange"
-        },
-        "fsk": {
-          "type": "string",
-          "description": "FSK/Altersfreigabe falls relevant"
-        },
-        "targetAudience": {
-          "type": "array",
-          "description": "Zielgruppe",
-          "items": { "type": "string" },
-          "x-schemaorg": "audience"
-        },
-        "learningObjectives": {
-          "type": "array",
-          "description": "Lernziele / Kompetenzen (AlignmentObjects)",
-          "items": { "$ref": "#/$defs/alignmentObject" },
-          "x-schemaorg": "educationalAlignment"
-        },
-        "curriculumTopics": {
-          "type": "array",
-          "description": "Lehrplanthemen",
-          "items": { "type": "string" }
-        },
-        "languageLevel": {
-          "type": "string",
-          "description": "Sprachniveau (z. B. GER A2)",
-          "x-schemaorg": "educationalLevel"
-        }
-      },
-      "additionalProperties": false
-    },
-    "promptCore": {
-      "type": "object",
-      "description": "Spezielle Metadaten für Prompts",
-      "properties": {
-        "prompt": { "type": "string", "description": "Anweisung / Prompttext" },
-        "negativePrompt": { "type": "string", "description": "Ausschlusskriterien" },
-        "scenario": {
-          "type": "string",
-          "description": "Anwendungsszenario",
-          "enum": [
-            "Aufgaben erstellen", "Prüfung konzipieren", "KI-Tutor",
-            "Korrektur/Feedback", "Metadaten-Generierung", "Rollenspiel/Simulation",
-            "Quiz/Entscheidungsbaum", "Inhalt zusammenfassen", "Klassifizieren"
-          ]
-        },
-        "function": {
-          "type": "string",
-          "description": "Funktion/Capability",
-          "enum": [
-            "Textgenerierung", "Bildgenerierung", "Übersetzung",
-            "Codegenerierung", "Datenauswertung", "Textzusammenfassung",
-            "Klassifizierung", "Extraktion", "Bewertung/Scoring",
-            "Anpassung/Adaptiv", "Chatbot/Interaktiv"
-          ]
-        },
-        "promptType": {
-          "type": "string",
-          "description": "Untertyp",
-          "enum": ["Generativ", "Analytisch", "Adaptiv", "Interaktiv"],
-          "x-schemaorg": "learningResourceType"
-        },
-        "inputType": {
-          "type": "string",
-          "description": "Eingabeformat",
-          "enum": ["text", "image", "video", "audio", "code", "mixed"]
-        },
-        "sourceMedia": {
-          "type": "array",
-          "description": "Eingabequellen/Uploads/URIs",
-          "items": {
-            "type": "string",
-            "description": "URI oder Dateiname"
-          }
-        },
-        "targetOutputFormat": {
-          "type": "string",
-          "description": "Art der Ausgabe",
-          "enum": ["text", "bild", "audio", "video", "code", "struktur"],
-          "x-schemaorg": "encodingFormat"
-        },
-        "testedModels": {
-          "type": "array",
-          "description": "Getestete Modelle",
-          "items": { "type": "string" },
-          "examples": [["gpt-4o", "claude-3-5", "suno"]]
-        }
-      },
-      "required": ["prompt", "function"],
-      "additionalProperties": false
-    },
-    "technical": {
-      "type": "object",
-      "description": "Technische Parameter (API-nah)",
-      "properties": {
-        "max_tokens": { "type": "integer", "minimum": 1, "x-schemaorg": "wordCount" },
-        "temperature": { "type": "number", "minimum": 0, "maximum": 2 },
-        "top_p": { "type": "number", "minimum": 0, "maximum": 1 }
-      },
-      "additionalProperties": true
-    },
-    "legal": {
-      "type": "object",
-      "description": "Rechtliche Bewertung (Prompt und/oder Ergebnis)",
-      "properties": {
-        "criminalLawOk": { "type": "boolean", "description": "Strafrecht unbedenklich" },
-        "copyrightOk": { "type": "boolean", "description": "Urheberrecht geprüft" },
-        "youthProtectionOk": { "type": "boolean", "description": "Jugendschutz geprüft" },
-        "personalityRightsOk": { "type": "boolean", "description": "Persönlichkeitsrechte geprüft" },
-        "dataProtectionOk": { "type": "boolean", "description": "Datenschutz geprüft" },
-        "notes": { "type": "string", "description": "Bemerkungen/Einschränkungen" }
-      },
-      "additionalProperties": false
-    },
-    "quality": {
-      "type": "object",
-      "description": "Qualitätsmerkmale (falls bewertet)",
-      "properties": {
-        "providerReputation": { "type": "string" },
-        "notes": { "type": "string" }
-      },
-      "additionalProperties": true
-    },
-    "access": {
-      "type": "object",
-      "description": "Zugänglichkeit & Nutzung",
-      "properties": {
-        "open": { "type": "boolean", "description": "Offen zugänglich" },
-        "interoperability": { "type": "string" },
-        "advertising": { "type": "boolean" },
-        "costs": { "type": "string" },
-        "loginRequired": { "type": "boolean" },
-        "accessibility": { "type": "string", "description": "Barrierefreiheit" },
-        "usability": { "type": "string" },
-        "itSecurity": { "type": "string" },
-        "findability": { "type": "string" },
-        "availabilityEnd": {
-          "type": "string",
-          "format": "date",
-          "description": "Datum Verfügbarkeitsende"
-        }
-      },
-      "additionalProperties": false
-    },
-    "license": {
-      "type": "object",
-      "description": "Lizenz & Quellen",
-      "properties": {
-        "license": { "type": "string", "x-schemaorg": "license" },
-        "creditLine": { "type": "string", "description": "Namensnennungstext" },
-        "source": { "type": "string", "description": "Herkunft/Bezugsquelle", "x-schemaorg": "isBasedOn" },
-        "contributors": {
-          "type": "array",
-          "description": "Weitere Beteiligte",
-          "items": { "$ref": "#/$defs/contributor" },
-          "x-schemaorg": "contributor"
-        },
-        "creator": { "type": "string", "description": "Urheber:in", "x-schemaorg": "creator" },
-        "publisher": { "type": "string", "description": "Organisation/Anbieter", "x-schemaorg": "publisher" }
-      },
-      "additionalProperties": false
-    },
-    "oer": {
-      "type": "object",
-      "description": "OER-spezifische Angaben",
-      "properties": {
-        "oerPracticeCategories": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      },
-      "additionalProperties": false
-    },
-    "curation": {
-      "type": "object",
-      "description": "Erschließung & Kuratierung",
-      "properties": {
-        "metadataContributors": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/contributor" }
-        },
-        "notes": { "type": "string" }
-      },
-      "additionalProperties": false
-    },
-    "relations": {
-      "type": "object",
-      "description": "Verknüpfungen zu anderen Ressourcentypen",
-      "properties": {
-        "isPartOfDataset": {
-          "type": "string",
-          "description": "Prompt-Katalog/Dataset",
-          "x-schemaorg": "isPartOf"
-        },
-        "relatedMedia": {
-          "type": "array",
-          "description": "Verknüpfte Medienobjekte",
-          "items": { "$ref": "#/$defs/mediaObject" }
-        },
-        "softwareBinding": {
-          "type": "string",
-          "description": "Gebundene Anwendung/Plattform",
-          "x-schemaorg": "softwareRequirements"
-        }
-      },
-      "additionalProperties": false
-    }
+  "profileId": "type:prompt",
+  "version": "1.0.0",
+  "@context": {
+    "schema": "https://schema.org/",
+    "sdo": "https://schema.org/",
+    "ccm": "https://example.org/ccm/"
   },
-  "required": ["title", "promptCore"],
-  "allOf": [
-    { "$ref": "#/$defs/profileBase" }
-  ],
-  "$defs": {
-    "contributor": {
-      "type": "object",
-      "properties": {
-        "name": { "type": "string", "x-schemaorg": "name" },
-        "role": { "type": "string", "x-schemaorg": "roleName" },
-        "type": { "type": "string", "enum": ["Person", "Organization"], "x-schemaorg": "@type" }
-      },
-      "required": ["name"],
-      "additionalProperties": false
+  "groups": [
+    {
+      "id": "core",
+      "label": {
+        "de": "Prompt-Kern",
+        "en": "Prompt Core"
+      }
     },
-    "alignmentObject": {
-      "type": "object",
-      "description": "Kompetenz- oder Lehrplanbezug",
-      "properties": {
-        "targetName": { "type": "string", "x-schemaorg": "targetName" },
-        "targetUrl": { "type": "string", "format": "uri", "x-schemaorg": "targetUrl" },
-        "targetDescription": { "type": "string", "x-schemaorg": "targetDescription" },
-        "alignmentType": { "type": "string", "x-schemaorg": "alignmentType" }
-      },
-      "required": ["targetName"],
-      "additionalProperties": false
+    {
+      "id": "classification",
+      "label": {
+        "de": "Klassifikation",
+        "en": "Classification"
+      }
     },
-    "mediaObject": {
-      "type": "object",
-      "properties": {
-        "url": { "type": "string", "format": "uri", "x-schemaorg": "url" },
-        "contentUrl": { "type": "string", "format": "uri", "x-schemaorg": "contentUrl" },
-        "encodingFormat": { "type": "string", "x-schemaorg": "encodingFormat" },
-        "name": { "type": "string", "x-schemaorg": "name" },
-        "description": { "type": "string", "x-schemaorg": "description" }
-      },
-      "additionalProperties": false
+    {
+      "id": "technical",
+      "label": {
+        "de": "Technische Parameter",
+        "en": "Technical Parameters"
+      }
     },
-    "profileBase": {
-      "type": "object",
-      "properties": {
-        "dateCreated": { "type": "string", "format": "date-time", "x-schemaorg": "dateCreated" },
-        "dateModified": { "type": "string", "format": "date-time", "x-schemaorg": "dateModified" },
-        "datePublished": { "type": "string", "format": "date-time", "x-schemaorg": "datePublished" }
-      },
-      "additionalProperties": false
+    {
+      "id": "usage",
+      "label": {
+        "de": "Nutzung & Lizenz",
+        "en": "Usage & License"
+      }
+    },
+    {
+      "id": "quality",
+      "label": {
+        "de": "Qualität & Rechtliches",
+        "en": "Quality & Legal"
+      }
+    },
+    {
+      "id": "relations",
+      "label": {
+        "de": "Verknüpfungen",
+        "en": "Relations"
+      }
     }
-  }
+  ],
+  "fields": [
+    {
+      "id": "prompt:text",
+      "group": "core",
+      "label": {
+        "de": "Prompt-Text",
+        "en": "Prompt Text"
+      },
+      "description": {
+        "de": "Der eigentliche Prompt-Text / die Anweisung",
+        "en": "The actual prompt text / instruction"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:text",
+        "uri": "prompt:text",
+        "datatype": "string",
+        "multiple": false,
+        "required": true,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "fulltext": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:negativePrompt",
+      "group": "core",
+      "label": {
+        "de": "Negative Prompt",
+        "en": "Negative Prompt"
+      },
+      "description": {
+        "de": "Ausschlusskriterien oder negative Anweisungen",
+        "en": "Exclusion criteria or negative instructions"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:negativePrompt",
+        "uri": "prompt:negativePrompt",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "fulltext": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:scenario",
+      "group": "core",
+      "label": {
+        "de": "Anwendungsszenario",
+        "en": "Application Scenario"
+      },
+      "description": {
+        "de": "In welchem Kontext wird der Prompt verwendet?",
+        "en": "In which context is the prompt used?"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:scenario",
+        "uri": "prompt:scenario",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            {
+              "label": {
+                "de": "Aufgaben erstellen",
+                "en": "Create Tasks"
+              }
+            },
+            {
+              "label": {
+                "de": "Prüfung konzipieren",
+                "en": "Design Assessment"
+              }
+            },
+            {
+              "label": {
+                "de": "KI-Tutor",
+                "en": "AI Tutor"
+              }
+            },
+            {
+              "label": {
+                "de": "Korrektur/Feedback",
+                "en": "Correction/Feedback"
+              }
+            },
+            {
+              "label": {
+                "de": "Metadaten-Generierung",
+                "en": "Metadata Generation"
+              }
+            },
+            {
+              "label": {
+                "de": "Rollenspiel/Simulation",
+                "en": "Role-play/Simulation"
+              }
+            },
+            {
+              "label": {
+                "de": "Quiz/Entscheidungsbaum",
+                "en": "Quiz/Decision Tree"
+              }
+            },
+            {
+              "label": {
+                "de": "Inhalt zusammenfassen",
+                "en": "Summarize Content"
+              }
+            },
+            {
+              "label": {
+                "de": "Klassifizieren",
+                "en": "Classify"
+              }
+            }
+          ]
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:function",
+      "group": "core",
+      "label": {
+        "de": "Funktion",
+        "en": "Function"
+      },
+      "description": {
+        "de": "Hauptfunktion oder Fähigkeit des Prompts",
+        "en": "Main function or capability of the prompt"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:function",
+        "uri": "prompt:function",
+        "datatype": "string",
+        "multiple": false,
+        "required": true,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            {
+              "label": {
+                "de": "Textgenerierung",
+                "en": "Text Generation"
+              }
+            },
+            {
+              "label": {
+                "de": "Bildgenerierung",
+                "en": "Image Generation"
+              }
+            },
+            {
+              "label": {
+                "de": "Übersetzung",
+                "en": "Translation"
+              }
+            },
+            {
+              "label": {
+                "de": "Codegenerierung",
+                "en": "Code Generation"
+              }
+            },
+            {
+              "label": {
+                "de": "Datenauswertung",
+                "en": "Data Analysis"
+              }
+            },
+            {
+              "label": {
+                "de": "Textzusammenfassung",
+                "en": "Text Summarization"
+              }
+            },
+            {
+              "label": {
+                "de": "Klassifizierung",
+                "en": "Classification"
+              }
+            },
+            {
+              "label": {
+                "de": "Extraktion",
+                "en": "Extraction"
+              }
+            },
+            {
+              "label": {
+                "de": "Bewertung/Scoring",
+                "en": "Evaluation/Scoring"
+              }
+            },
+            {
+              "label": {
+                "de": "Anpassung/Adaptiv",
+                "en": "Adaptation/Adaptive"
+              }
+            },
+            {
+              "label": {
+                "de": "Chatbot/Interaktiv",
+                "en": "Chatbot/Interactive"
+              }
+            }
+          ]
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:promptType",
+      "group": "classification",
+      "label": {
+        "de": "Prompt-Typ",
+        "en": "Prompt Type"
+      },
+      "description": {
+        "de": "Untertyp des Prompts",
+        "en": "Subtype of the prompt"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:promptType",
+        "uri": "prompt:promptType",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            {
+              "label": {
+                "de": "Generativ",
+                "en": "Generative"
+              }
+            },
+            {
+              "label": {
+                "de": "Analytisch",
+                "en": "Analytical"
+              }
+            },
+            {
+              "label": {
+                "de": "Adaptiv",
+                "en": "Adaptive"
+              }
+            },
+            {
+              "label": {
+                "de": "Interaktiv",
+                "en": "Interactive"
+              }
+            }
+          ]
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:inputType",
+      "group": "core",
+      "label": {
+        "de": "Eingabeformat",
+        "en": "Input Format"
+      },
+      "description": {
+        "de": "Art der Eingabedaten",
+        "en": "Type of input data"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:inputType",
+        "uri": "prompt:inputType",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            {
+              "label": {
+                "de": "text",
+                "en": "text"
+              }
+            },
+            {
+              "label": {
+                "de": "image",
+                "en": "image"
+              }
+            },
+            {
+              "label": {
+                "de": "video",
+                "en": "video"
+              }
+            },
+            {
+              "label": {
+                "de": "audio",
+                "en": "audio"
+              }
+            },
+            {
+              "label": {
+                "de": "code",
+                "en": "code"
+              }
+            },
+            {
+              "label": {
+                "de": "mixed",
+                "en": "mixed"
+              }
+            }
+          ]
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:outputFormat",
+      "group": "core",
+      "label": {
+        "de": "Ausgabeformat",
+        "en": "Output Format"
+      },
+      "description": {
+        "de": "Art der generierten Ausgabe",
+        "en": "Type of generated output"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:outputFormat",
+        "uri": "prompt:outputFormat",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            {
+              "label": {
+                "de": "text",
+                "en": "text"
+              }
+            },
+            {
+              "label": {
+                "de": "bild",
+                "en": "image"
+              }
+            },
+            {
+              "label": {
+                "de": "audio",
+                "en": "audio"
+              }
+            },
+            {
+              "label": {
+                "de": "video",
+                "en": "video"
+              }
+            },
+            {
+              "label": {
+                "de": "code",
+                "en": "code"
+              }
+            },
+            {
+              "label": {
+                "de": "struktur",
+                "en": "structure"
+              }
+            }
+          ]
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:testedModels",
+      "group": "technical",
+      "label": {
+        "de": "Getestete KI-Modelle",
+        "en": "Tested AI Models"
+      },
+      "description": {
+        "de": "Mit welchen KI-Modellen wurde der Prompt getestet?",
+        "en": "Which AI models was the prompt tested with?"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:testedModels",
+        "uri": "prompt:testedModels",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "prompt:maxTokens",
+      "group": "technical",
+      "label": {
+        "de": "Max. Tokens",
+        "en": "Max. Tokens"
+      },
+      "description": {
+        "de": "Maximale Anzahl von Tokens für die Ausgabe",
+        "en": "Maximum number of tokens for output"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:maxTokens",
+        "uri": "prompt:maxTokens",
+        "datatype": "number",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "validation": {
+          "integer": true,
+          "min": 1
+        },
+        "index": {
+          "keyword": true
+        }
+      }
+    },
+    {
+      "id": "prompt:temperature",
+      "group": "technical",
+      "label": {
+        "de": "Temperature",
+        "en": "Temperature"
+      },
+      "description": {
+        "de": "Kreativitätsparameter (0-2)",
+        "en": "Creativity parameter (0-2)"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:temperature",
+        "uri": "prompt:temperature",
+        "datatype": "number",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "validation": {
+          "min": 0,
+          "max": 2
+        },
+        "index": {
+          "keyword": true
+        }
+      }
+    },
+    {
+      "id": "prompt:topP",
+      "group": "technical",
+      "label": {
+        "de": "Top P",
+        "en": "Top P"
+      },
+      "description": {
+        "de": "Nucleus Sampling Parameter (0-1)",
+        "en": "Nucleus sampling parameter (0-1)"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:topP",
+        "uri": "prompt:topP",
+        "datatype": "number",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "validation": {
+          "min": 0,
+          "max": 1
+        },
+        "index": {
+          "keyword": true
+        }
+      }
+    },
+    {
+      "id": "schema:license",
+      "group": "usage",
+      "label": {
+        "de": "Lizenz",
+        "en": "License"
+      },
+      "description": {
+        "de": "Lizenz unter der der Prompt veröffentlicht ist",
+        "en": "License under which the prompt is published"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "schema:license",
+        "uri": "https://schema.org/license",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "schema:creator",
+      "group": "usage",
+      "label": {
+        "de": "Ersteller:in",
+        "en": "Creator"
+      },
+      "description": {
+        "de": "Person oder Organisation, die den Prompt erstellt hat",
+        "en": "Person or organization that created the prompt"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "schema:creator",
+        "uri": "https://schema.org/creator",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true,
+          "fulltext": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:isPartOfDataset",
+      "group": "relations",
+      "label": {
+        "de": "Teil von Dataset/Katalog",
+        "en": "Part of Dataset/Catalog"
+      },
+      "description": {
+        "de": "Gehört zu einem größeren Prompt-Katalog oder Dataset",
+        "en": "Belongs to a larger prompt catalog or dataset"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:isPartOfDataset",
+        "uri": "https://schema.org/isPartOf",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "prompt:legalCheck",
+      "group": "quality",
+      "label": {
+        "de": "Rechtliche Prüfung",
+        "en": "Legal Review"
+      },
+      "description": {
+        "de": "Status der rechtlichen Überprüfung (Urheberrecht, Jugendschutz, etc.)",
+        "en": "Status of legal review (copyright, youth protection, etc.)"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "prompt:legalCheck",
+        "uri": "prompt:legalCheck",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": false,
+        "index": {
+          "keyword": true
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            {
+              "label": {
+                "de": "Geprüft - Unbedenklich",
+                "en": "Reviewed - OK"
+              }
+            },
+            {
+              "label": {
+                "de": "Geprüft - Einschränkungen",
+                "en": "Reviewed - Restrictions"
+              }
+            },
+            {
+              "label": {
+                "de": "Nicht geprüft",
+                "en": "Not Reviewed"
+              }
+            },
+            {
+              "label": {
+                "de": "Bedenklich",
+                "en": "Problematic"
+              }
+            }
+          ]
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    }
+  ]
 }

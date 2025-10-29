@@ -1,0 +1,28 @@
+<div class="language-switcher">
+  <!-- Current Language Button -->
+  <button 
+    class="language-button"
+    (click)="toggleDropdown()"
+    [title]="'LANGUAGE.CURRENT' | translate"
+  >
+    <span class="flag">{{ currentLanguage.flag }}</span>
+    <span class="language-code">{{ currentLanguage.code.toUpperCase() }}</span>
+  </button>
+
+  <!-- Language Dropdown -->
+  <div *ngIf="showDropdown" class="language-dropdown">
+    <div class="dropdown-overlay" (click)="closeDropdown()"></div>
+    <div class="dropdown-menu">
+      <button
+        *ngFor="let lang of languages"
+        class="dropdown-option"
+        [class.active]="isActive(lang.code)"
+        (click)="selectLanguage(lang.code)"
+      >
+        <span class="flag">{{ lang.flag }}</span>
+        <span class="language-name">{{ lang.name }}</span>
+        <span *ngIf="isActive(lang.code)" class="checkmark">✓</span>
+      </button>
+    </div>
+  </div>
+</div>

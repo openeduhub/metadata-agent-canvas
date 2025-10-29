@@ -7,6 +7,8 @@ import { FieldNormalizerService } from './field-normalizer.service';
 import { OpenAIProxyService } from './openai-proxy.service';
 import { ShapeExpanderService } from './shape-expander.service';
 import { GeocodingService } from './geocoding.service';
+import { I18nService } from './i18n.service';
+import { SchemaLocalizerService } from './schema-localizer.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -22,7 +24,9 @@ export class CanvasService {
     private fieldNormalizer: FieldNormalizerService,
     private openaiProxy: OpenAIProxyService,
     private shapeExpander: ShapeExpanderService,
-    private geocodingService: GeocodingService
+    private geocodingService: GeocodingService,
+    private i18n: I18nService,
+    private localizer: SchemaLocalizerService
   ) {
     // Configure worker pool
     this.workerPool.setMaxWorkers(environment.canvas.maxWorkers);
@@ -120,7 +124,10 @@ export class CanvasService {
     if (!coreSchemaFields) return;
 
     const groups = await this.schemaLoader.getGroups('core.json').toPromise();
-    const groupMap = new Map(groups?.map((g: any) => [g.id, g.label]) || []);
+    const language = this.localizer.getActiveLanguage();
+    const groupMap = new Map(
+      (groups || []).map((g: any) => [g.id, this.localizer.localizeString(g.label, language)])
+    );
     const groupOrderMap = new Map(groups?.map((g: any, index: number) => [g.id, index]) || []);
     
     console.log('📚 Loaded Core groups:', groups);
@@ -135,11 +142,15 @@ export class CanvasService {
       .map((field: any) => {
         const groupId = field.group || 'other';
         // Priorität: 1. field.group_label, 2. groupMap lookup, 3. 'Sonstige'
-        const groupLabel = field.group_label || groupMap.get(groupId) || 'Sonstige';
+        const groupLabel = this.localizer.localizeString(field.group_label, language) 
+          || groupMap.get(groupId) 
+          || this.localizer.getFallbackGroupLabel(language);
         const groupOrder = groupOrderMap.get(groupId) ?? 999;
         
         console.log(`🔍 Field ${field.id}: group="${groupId}", group_label="${field.group_label}", resolved="${groupLabel}", order=${groupOrder}`);
         
+        const localizedField = this.localizer.localizeField(field, language);
+
         return {
           fieldId: field.id,
           uri: field.system?.uri || field.id,
@@ -148,23 +159,20 @@ export class CanvasService {
           groupOrder: groupOrder,
           schemaName: 'Core',
           aiFillable: field.system?.ai_fillable !== false,
-          label: field.prompt?.label || field.label || field.id,
-          description: field.prompt?.description || '',
+          label: localizedField.label,
+          description: localizedField.description,
           value: field.system?.multiple ? [] : null,
           status: FieldStatus.EMPTY,
           confidence: 0,
           isRequired: field.system?.required || field.required || false,
           datatype: field.system?.datatype || field.type || 'string',
           multiple: field.system?.multiple || false,
-          vocabulary: field.system?.vocabulary ? {
-            type: (field.system.vocabulary.type === 'closed' || field.system.vocabulary.type === 'skos') 
-              ? field.system.vocabulary.type 
-              : 'closed',
-            concepts: field.system.vocabulary.concepts || []
-          } : undefined,
+          vocabulary: localizedField.vocabulary,
           validation: field.system?.validation,
           shape: field.system?.items?.shape,  // Extract complex object structure
-          examples: field.prompt?.examples  // Extract examples from prompt section
+          examples: localizedField.examples,
+          prompt: localizedField.prompt,
+          promptInstructions: field.promptInstructions || undefined
         };
       });
 
@@ -227,23 +235,24 @@ export class CanvasService {
         ).join('\n');
       }
 
+      const t = (key: string) => this.i18n.instant(key);
+      const rules = t('AI_PROMPTS.CONTENT_TYPE.REASONING_RULES') as any as string[];
+      
       const prompt = 
-        `Analysiere folgenden Text und bestimme die passendste Inhaltsart.\n\n` +
-        `Text: "${userText}"\n\n` +
-        `Verfügbare Inhaltsarten mit ihren Definitionen:\n${schemaList}\n\n` +
-        `WICHTIG für die Begründung:\n` +
-        `- Beziehe dich explizit auf die Definitionen oben\n` +
-        `- Erkläre, welche Schlüsselmerkmale der Definition im Text erfüllt sind\n` +
-        `- Bei Grenzfällen: Erkläre warum diese Kategorie besser passt als andere\n` +
-        `- Nutze Fachbegriffe aus den Definitionen (z.B. "zeitlich begrenzt", "strukturiertes Lernprogramm", "Kompetenzaufbau")\n\n` +
-        `Antworte NUR mit einem JSON-Objekt im Format:\n` +
+        `${t('AI_PROMPTS.LANGUAGE_INSTRUCTION')}\n\n` +
+        `${t('AI_PROMPTS.CONTENT_TYPE.HEADER')}\n\n` +
+        `${t('AI_PROMPTS.CONTENT_TYPE.TEXT_LABEL')} "${userText}"\n\n` +
+        `${t('AI_PROMPTS.CONTENT_TYPE.AVAILABLE_TYPES')}\n${schemaList}\n\n` +
+        `${t('AI_PROMPTS.CONTENT_TYPE.REASONING_IMPORTANT')}\n` +
+        rules.map(rule => `- ${rule}`).join('\n') + '\n\n' +
+        `${t('AI_PROMPTS.CONTENT_TYPE.RESPONSE_FORMAT')}\n` +
         `{"schema": "<dateiname>.json", "confidence": <0.0-1.0>, "reason": "<definitionsbasierte Begründung>"}\n\n` +
-        `Beispiele:\n` +
+        `${t('AI_PROMPTS.EXTRACTION.EXAMPLES_LABEL')}\n` +
         `- {"schema": "event.json", "confidence": 0.95, "reason": "Zeitlich begrenztes Ereignis mit Termin, Ort und Teilnehmenden (siehe Definition 'Veranstaltung')"}\n` +
         `- {"schema": "education_offer.json", "confidence": 0.88, "reason": "Strukturiertes Lernprogramm mit Lernzielen und Kompetenzaufbau, keine punktuelle Veranstaltung"}\n` +
         `- {"schema": "learning_material.json", "confidence": 0.82, "reason": "Informationsmedium zum direkten Lernen, keine Lernprozess-Struktur"}\n\n` +
-        `Die Begründung sollte max. 15-20 Wörter haben.\n` +
-        `Wenn keine passt: {"schema": "none", "confidence": 0.0, "reason": "Keine passende Kategorie gefunden"}`;
+        `${t('AI_PROMPTS.CONTENT_TYPE.REASON_LENGTH')}\n` +
+        `${t('AI_PROMPTS.CONTENT_TYPE.NO_MATCH')} {"schema": "none", "confidence": 0.0, "reason": "Keine passende Kategorie gefunden"}`;
 
       const response = await this.openaiProxy.invoke([
         { role: 'user', content: prompt }
@@ -281,7 +290,8 @@ export class CanvasService {
       .map(field => ({
         field: field,
         userText: userText,
-        priority: field.isRequired ? 10 : 5
+        priority: field.isRequired ? 10 : 5,
+        retryAttempt: 0
       }));
 
     console.log(`⚡ Extracting ${tasks.length} core fields in parallel...`);
@@ -300,7 +310,10 @@ export class CanvasService {
     if (!specialSchemaFields) return;
 
     const groups = await this.schemaLoader.getGroups(schemaFile).toPromise();
-    const groupMap = new Map(groups?.map((g: any) => [g.id, g.label]) || []);
+    const language = this.localizer.getActiveLanguage();
+    const groupMap = new Map(
+      (groups || []).map((g: any) => [g.id, this.localizer.localizeString(g.label, language)])
+    );
     const groupOrderMap = new Map(groups?.map((g: any, index: number) => [g.id, index]) || []);
     
     console.log(`📚 Loaded ${schemaFile} groups:`, groups);
@@ -320,11 +333,15 @@ export class CanvasService {
       .map((field: any) => {
         const groupId = field.group || 'other';
         // Priorität: 1. field.group_label, 2. groupMap lookup, 3. 'Sonstige'
-        const groupLabel = field.group_label || groupMap.get(groupId) || 'Sonstige';
+        const groupLabel = this.localizer.localizeString(field.group_label, language) 
+          || groupMap.get(groupId) 
+          || this.localizer.getFallbackGroupLabel(language);
         const groupOrder = groupOrderMap.get(groupId) ?? 999;
         
         console.log(`🔍 ${schemaFile} Field ${field.id}: group="${groupId}", group_label="${field.group_label}", resolved="${groupLabel}", order=${groupOrder}`);
         
+        const localizedField = this.localizer.localizeField(field, language);
+
         return {
           fieldId: field.id,
           uri: field.system?.uri || field.id,
@@ -333,23 +350,20 @@ export class CanvasService {
           groupOrder: groupOrder,
           schemaName: schemaName,
           aiFillable: field.system?.ai_fillable !== false,
-          label: field.prompt?.label || field.label || field.id,
-          description: field.prompt?.description || '',
+          label: localizedField.label,
+          description: localizedField.description,
           value: field.system?.multiple ? [] : null,
           status: FieldStatus.EMPTY,
           confidence: 0,
           isRequired: field.system?.required || field.required || false,
           datatype: field.system?.datatype || field.type || 'string',
           multiple: field.system?.multiple || false,
-          vocabulary: field.system?.vocabulary ? {
-            type: (field.system.vocabulary.type === 'closed' || field.system.vocabulary.type === 'skos') 
-              ? field.system.vocabulary.type 
-              : 'closed',
-            concepts: field.system.vocabulary.concepts || []
-          } : undefined,
+          vocabulary: localizedField.vocabulary,
           validation: field.system?.validation,
           shape: field.system?.items?.shape,  // Extract complex object structure
-          examples: field.prompt?.examples  // Extract examples from prompt section
+          examples: localizedField.examples,
+          prompt: localizedField.prompt,
+          promptInstructions: field.promptInstructions || undefined
         };
       });
 
@@ -377,7 +391,8 @@ export class CanvasService {
     const tasks: FieldExtractionTask[] = state.specialFields.map(field => ({
       field: field,
       userText: userText,
-      priority: field.isRequired ? 10 : 5
+      priority: field.isRequired ? 10 : 5,
+      retryAttempt: 0
     }));
 
     console.log(`⚡ Extracting ${tasks.length} special fields in parallel...`);
@@ -390,10 +405,20 @@ export class CanvasService {
    * Extract single field
    */
   private async extractSingleField(task: FieldExtractionTask, isRetry: boolean = false): Promise<void> {
-    this.updateFieldStatus(task.field.fieldId, FieldStatus.EXTRACTING);
+    const effectiveTask = isRetry
+      ? {
+          ...task,
+          retryAttempt: (task.retryAttempt ?? 0) + 1,
+          promptModifier: this.buildRetryPromptModifier(task.field, (task.retryAttempt ?? 0) + 1)
+        }
+      : task;
+
+    const fieldId = effectiveTask.field.fieldId;
+
+    this.updateFieldStatus(fieldId, FieldStatus.EXTRACTING);
 
     try {
-      const result = await this.workerPool.extractField(task);
+      const result = await this.workerPool.extractField(effectiveTask);
 
       if (result.error) {
         this.updateFieldStatus(
@@ -419,12 +444,13 @@ export class CanvasService {
         if (isFilled) {
           // IMPORTANT: Normalize AI-extracted values (same as user inputs)
           // This includes vocabulary matching, fuzzy matching, date/URL normalization
-          await this.normalizeAiExtractedValue(result.fieldId, result.value, result.confidence, task, isRetry);
+          const attemptedRetry = (effectiveTask.retryAttempt ?? 0) > 0;
+          await this.normalizeAiExtractedValue(result.fieldId, result.value, result.confidence, effectiveTask, attemptedRetry);
           
           // Create sub-fields for fields with shape (complex objects)
-          if (task.field.shape) {
+          if (effectiveTask.field.shape) {
             console.log(`🏗️ Creating sub-fields for ${result.fieldId} (has shape)`);
-            const subFields = this.shapeExpander.expandFieldWithShape(task.field, result.value);
+            const subFields = this.shapeExpander.expandFieldWithShape(effectiveTask.field, result.value);
             
             if (subFields.length > 0) {
               // Mark parent as having sub-fields
@@ -455,8 +481,8 @@ export class CanvasService {
         }
       }
     } catch (error) {
-      console.error(`Field extraction error for ${task.field.fieldId}:`, error);
-      this.updateFieldStatus(task.field.fieldId, FieldStatus.ERROR, null, 0, 'Extraction failed');
+      console.error(`Field extraction error for ${fieldId}:`, error);
+      this.updateFieldStatus(fieldId, FieldStatus.ERROR, null, 0, 'Extraction failed');
     }
   }
 
@@ -812,16 +838,35 @@ export class CanvasService {
    * Retry field extraction with stricter vocabulary prompt
    */
   private async retryFieldExtractionWithStricterPrompt(task: FieldExtractionTask): Promise<void> {
-    console.log(`🔄 Retrying field extraction with stricter vocabulary validation: ${task.field.label}`);
+    const nextAttempt = (task.retryAttempt ?? 0) + 1;
+    console.log(`🔄 Retrying field extraction (Versuch ${nextAttempt}) mit strengerem Prompt: ${task.field.label}`);
     
-    // Add vocabulary constraint to field for retry
     if (task.field.vocabulary) {
-      const vocabLabels = task.field.vocabulary.concepts.map(c => c.label).join(', ');
-      console.log(`📋 Available vocabulary: ${vocabLabels}`);
+      const vocabSample = task.field.vocabulary.concepts
+        .slice(0, 10)
+        .map(c => c.label)
+        .join(', ');
+      console.log(`📋 Beispiel erlaubter Labels (Top 10): ${vocabSample}`);
     }
     
-    // Retry extraction (will be marked as retry)
-    await this.extractSingleField(task, true);
+    const retryTask: FieldExtractionTask = {
+      ...task,
+      retryAttempt: nextAttempt,
+      promptModifier: this.buildRetryPromptModifier(task.field, nextAttempt)
+    };
+
+    await this.extractSingleField(retryTask, true);
+  }
+
+  private buildRetryPromptModifier(field: CanvasFieldState, attempt: number): string {
+    const t = (key: string, params?: any) => this.i18n.instant(key, params);
+    
+    const base = t('AI_PROMPTS.EXTRACTION.RETRY.ATTEMPT', {attempt});
+    const vocabularyHint = field.vocabulary
+      ? t('AI_PROMPTS.EXTRACTION.RETRY.VOCABULARY_HINT')
+      : t('AI_PROMPTS.EXTRACTION.RETRY.DEFAULT_HINT');
+    const formatting = t('AI_PROMPTS.EXTRACTION.RETRY.FORMATTING');
+    return `${base} ${vocabularyHint} ${formatting}`;
   }
 
   /**
@@ -1412,6 +1457,195 @@ export class CanvasService {
     } else {
       console.log('\nℹ️ No locations geocoded');
     }
+  }
+
+  /**
+   * Ensure core schema is loaded and cached (call on app init)
+   */
+  async ensureCoreSchemaLoaded(): Promise<void> {
+    // Check if already cached
+    const cached = this.schemaLoader.getCachedSchema('core.json');
+    if (cached) {
+      console.log('✅ Core schema already cached');
+      return;
+    }
+    
+    // Load schema and wait for completion
+    console.log('📥 Pre-loading core.json schema for i18n...');
+    try {
+      const schema = await this.schemaLoader.loadSchema('core.json').toPromise();
+      if (schema) {
+        console.log('✅ Core schema cached successfully');
+      } else {
+        console.warn('⚠️ Core schema loaded but is null/undefined');
+      }
+    } catch (err) {
+      console.error('❌ Failed to pre-load core schema:', err);
+    }
+  }
+
+  /**
+   * Re-localize all fields when language changes
+   */
+  async relocalizeAllFields(language: 'de' | 'en'): Promise<void> {
+    const currentState = this.getCurrentState();
+    
+    // Skip if no fields exist yet (nothing to re-localize)
+    if (currentState.coreFields.length === 0 && currentState.specialFields.length === 0) {
+      return;
+    }
+    
+    console.log(`🌐 Re-localizing all fields to ${language}...`);
+    
+    // Check if core schema is cached
+    const coreSchema = this.schemaLoader.getCachedSchema('core.json');
+    if (!coreSchema) {
+      console.warn('⚠️ Core schema not cached during re-localization. This should not happen if ensureCoreSchemaLoaded() was called.');
+      return;
+    }
+    
+    // Re-localize core fields (create completely new objects for change detection)
+    const localizedCoreFields = currentState.coreFields.map(field => {
+      // Get field definition from cached schema
+      const fieldDef = coreSchema?.fields?.find((f: any) => f.id === field.fieldId);
+      
+      if (fieldDef) {
+        const localized = this.localizer.localizeField(fieldDef, language);
+        // Create new object with all properties (deep copy for nested objects)
+        return {
+          ...field,
+          label: localized.label || field.label,
+          description: localized.description || field.description,
+          vocabulary: localized.vocabulary ? { ...localized.vocabulary, concepts: [...(localized.vocabulary.concepts || [])] } : field.vocabulary,
+          groupLabel: field.group ? this.getLocalizedGroupLabel(field.group, 'core.json', language) : field.groupLabel,
+          subFields: field.subFields ? [...field.subFields] : undefined
+        };
+      }
+      // Return new object even if no localization
+      return { ...field };
+    });
+    
+    // Re-localize special fields (create completely new objects)
+    let localizedSpecialFields = currentState.specialFields.map(field => ({ ...field }));
+    if (currentState.selectedContentType) {
+      const schemaName = currentState.selectedContentType;
+      const schema = this.schemaLoader.getCachedSchema(schemaName);
+      localizedSpecialFields = currentState.specialFields.map(field => {
+        const fieldDef = schema?.fields?.find((f: any) => f.id === field.fieldId);
+        
+        if (fieldDef) {
+          const localized = this.localizer.localizeField(fieldDef, language);
+          // Create new object with all properties (deep copy for nested objects)
+          return {
+            ...field,
+            label: localized.label || field.label,
+            description: localized.description || field.description,
+            vocabulary: localized.vocabulary ? { ...localized.vocabulary, concepts: [...(localized.vocabulary.concepts || [])] } : field.vocabulary,
+            groupLabel: field.group ? this.getLocalizedGroupLabel(field.group, schemaName, language) : field.groupLabel,
+            subFields: field.subFields ? [...field.subFields] : undefined
+          };
+        }
+        // Return new object even if no localization
+        return { ...field };
+      });
+    }
+    
+    // Re-localize field groups (create completely new objects)
+    const localizedFieldGroups = currentState.fieldGroups.map((group, groupIdx) => {
+      // Normalize schema name: add .json if missing, convert to lowercase
+      const normalizedSchemaName = group.schemaName.toLowerCase().endsWith('.json') 
+        ? group.schemaName.toLowerCase() 
+        : `${group.schemaName.toLowerCase()}.json`;
+      
+      const localizedGroupLabel = this.getLocalizedGroupLabel(group.id, normalizedSchemaName, language);
+      
+      return {
+        ...group,
+        label: localizedGroupLabel,
+        fields: group.fields.map((field, fieldIdx) => {
+          const schema = this.schemaLoader.getCachedSchema(normalizedSchemaName);
+          const fieldDef = schema?.fields?.find((f: any) => f.id === field.fieldId);
+          
+          // Debug first group's first field
+          if (groupIdx === 0 && fieldIdx === 0) {
+            console.log(`🔍 Group 0 Field 0 (${field.fieldId}):`, {
+              originalSchemaName: group.schemaName,
+              normalizedSchemaName: normalizedSchemaName,
+              schemaCached: !!schema,
+              fieldDefFound: !!fieldDef,
+              currentLabel: field.label,
+              targetLanguage: language
+            });
+          }
+          
+          if (fieldDef) {
+            const localized = this.localizer.localizeField(fieldDef, language);
+            
+            // Debug first group's first field
+            if (groupIdx === 0 && fieldIdx === 0) {
+              console.log(`   Localized:`, {
+                localizedLabel: localized.label,
+                willUse: localized.label || field.label
+              });
+            }
+            
+            // Create new object with all properties (deep copy for nested objects)
+            return {
+              ...field,
+              label: localized.label || field.label,
+              description: localized.description || field.description,
+              vocabulary: localized.vocabulary ? { ...localized.vocabulary, concepts: [...(localized.vocabulary.concepts || [])] } : field.vocabulary,
+              groupLabel: localizedGroupLabel,  // Use the localized group label
+              subFields: field.subFields ? [...field.subFields] : undefined
+            };
+          }
+          
+          // Debug if field def not found
+          if (groupIdx === 0 && fieldIdx === 0) {
+            console.warn(`   ⚠️ Field definition not found in schema!`);
+          }
+          
+          // Return new object with localized group label even if no field localization
+          return { ...field, groupLabel: localizedGroupLabel };
+        })
+      };
+    });
+    
+    // Update state with NEW array references (important for OnPush change detection)
+    const updatedState: Partial<CanvasState> = {
+      coreFields: [...localizedCoreFields],
+      specialFields: [...localizedSpecialFields],
+      fieldGroups: [...localizedFieldGroups]
+    };
+    
+    this.updateState(updatedState);
+    
+    // Force state emission by getting current state and emitting again
+    const newState = this.getCurrentState();
+    this.stateSubject.next(newState);
+    
+    console.log(`✅ Fields re-localized to ${language}:`, {
+      coreFields: localizedCoreFields.length,
+      specialFields: localizedSpecialFields.length,
+      fieldGroups: localizedFieldGroups.length,
+      sampleCoreField: localizedCoreFields[0]?.label,
+      sampleSpecialField: localizedSpecialFields[0]?.label
+    });
+  }
+  
+  /**
+   * Get localized group label
+   */
+  private getLocalizedGroupLabel(groupId: string, schemaName: string, language: 'de' | 'en'): string {
+    const schema = this.schemaLoader.getCachedSchema(schemaName);
+    const group = schema?.groups?.find((g: any) => g.id === groupId);
+    
+    if (group?.label) {
+      return this.localizer.localizeString(group.label, language) || groupId;
+    }
+    
+    // Fallback: use groupId as label
+    return groupId;
   }
 
   /**

@@ -1,241 +1,395 @@
 {
-  "id": "http://w3id.org/openeduhub/vocabs/occupation/",
-  "type": "ConceptScheme",
-  "title": {
-    "de": "Berufe / Occupation (Open-eduHub Vokabular)"
+  "profileId": "vocab:occupation",
+  "version": "1.0.0",
+  "@context": {
+    "schema": "https://schema.org/",
+    "oeh": "http://w3id.org/openeduhub/vocabs/",
+    "skos": "http://www.w3.org/2004/02/skos/core#"
   },
-  "description": {
-    "de": "Hierarchisches Vokabular für Berufe (Berufsprofile) mit Mappings zu ISCO, ESCO und KldB sowie berufstypischen Anforderungen."
-  },
-  "hasTopConcept": [
+  "groups": [
     {
-      "id": "http://w3id.org/openeduhub/vocabs/occupation/1",
-      "prefLabel": { "de": "Bildungsberufe" },
-      "altLabel": { "de": ["Lehr-/Pädagogische Berufe"] },
-      "definition": { "de": "Berufe mit Schwerpunkt Lehren, Lernen, Beratung, Bildungseinrichtungen." },
-      "narrower": [
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/1-1",
-          "prefLabel": { "de": "Lehrkraft (Schule)" },
-          "altLabel": { "de": ["Lehrer/in", "Lehrperson"] },
-          "definition": { "de": "Unterrichtet Lernende auf schulischen Bildungsstufen." },
-          "notation": [{ "scheme": "ISCO-08", "code": "2341" }, { "scheme": "KldB-2010", "code": "" }],
-          "occupationalCategory": "Bildungsberufe/Schule",
-          "educationRequirements": "Lehramtsstudium und Vorbereitungsdienst (Referendariat)",
-          "experienceRequirements": "Unterrichtspraxis oder Vorbereitungsdienst",
-          "qualifications": "Staatsexamen oder gleichwertige Lehrbefähigung",
-          "skills": ["Didaktik", "Klassenführung", "Fachliche Expertise"],
-          "occupationLocation": "DE",
-          "estimatedSalary": { "@type": "MonetaryAmount", "currency": "EUR", "value": { "@type": "QuantitativeValue", "minValue": null, "maxValue": null } },
-          "exactMatch": [],
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        },
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/1-2",
-          "prefLabel": { "de": "Instruktionsdesigner/in" },
-          "altLabel": { "de": ["Instructional Designer", "Lernarchitekt/in"] },
-          "definition": { "de": "Entwirft Lernangebote, Curricula und digitale Lehr-/Lernmaterialien." },
-          "notation": [{ "scheme": "ESCO", "code": "" }],
-          "occupationalCategory": "Bildungsberufe/Instruktionsdesign",
-          "educationRequirements": "Pädagogik/Instructional Design/Medienpädagogik",
-          "experienceRequirements": "Erfahrung in Didaktik, E-Learning, Autorentools",
-          "qualifications": "Nachweise in ID-Methoden (ADDIE, SAM o. ä.)",
-          "skills": ["Curriculum Design", "Assessment Design", "Lerntechnologien"],
-          "occupationLocation": "EU",
-          "estimatedSalary": { "@type": "MonetaryAmount", "currency": "EUR", "value": { "@type": "QuantitativeValue", "minValue": null, "maxValue": null } },
-          "closeMatch": [],
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        }
-      ]
-    },
-    {
-      "id": "http://w3id.org/openeduhub/vocabs/occupation/2",
-      "prefLabel": { "de": "Gesundheitsberufe" },
-      "definition": { "de": "Berufe in Diagnostik, Therapie, Pflege, Prävention und Gesundheitsmanagement." },
-      "narrower": [
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/2-1",
-          "prefLabel": { "de": "Pflegefachkraft" },
-          "altLabel": { "de": ["Gesundheits- und Krankenpfleger/in"] },
-          "definition": { "de": "Betreut und pflegt Patient/innen in stationären und ambulanten Settings." },
-          "notation": [{ "scheme": "ISCO-08", "code": "2221" }, { "scheme": "KldB-2010", "code": "" }],
-          "occupationalCategory": "Gesundheitsberufe/Pflege",
-          "educationRequirements": "Pflegefachausbildung (staatlich anerkannt)",
-          "experienceRequirements": "Klinische Praxis",
-          "qualifications": "Berufserlaubnis",
-          "skills": ["Pflegeplanung", "Dokumentation", "Patientenkommunikation"],
-          "occupationLocation": "DE",
-          "estimatedSalary": { "@type": "MonetaryAmount", "currency": "EUR", "value": { "@type": "QuantitativeValue", "minValue": null, "maxValue": null } },
-          "exactMatch": [],
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        },
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/2-2",
-          "prefLabel": { "de": "Anästhesietechnische/r Assistent/in (ATA)" },
-          "definition": { "de": "Assistiert in Anästhesie, OP-Vorbereitung und -Nachsorge." },
-          "notation": [{ "scheme": "ESCO", "code": "" }, { "scheme": "KldB-2010", "code": "" }],
-          "occupationalCategory": "Gesundheitsberufe/ATA",
-          "educationRequirements": "ATA-Ausbildung",
-          "experienceRequirements": "OP-Praxis",
-          "qualifications": "Staatliche Anerkennung (ATA)",
-          "skills": ["Narkosevorbereitung", "Monitoringsysteme", "Hygieneprozesse"],
-          "occupationLocation": "DE",
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        }
-      ]
-    },
-    {
-      "id": "http://w3id.org/openeduhub/vocabs/occupation/3",
-      "prefLabel": { "de": "Handwerksberufe" },
-      "narrower": [
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/3-1",
-          "prefLabel": { "de": "Tischler/in" },
-          "altLabel": { "de": ["Schreiner/in"] },
-          "definition": { "de": "Fertigt und montiert Holzprodukte und Innenausbau." },
-          "notation": [{ "scheme": "ISCO-08", "code": "7522" }, { "scheme": "KldB-2010", "code": "" }],
-          "educationRequirements": "Duale Ausbildung Tischlerhandwerk",
-          "experienceRequirements": "Betriebliche Praxis",
-          "skills": ["Holzbearbeitung", "CAD/CAM (optional)", "Montage"],
-          "occupationalCategory": "Handwerk/Holz",
-          "occupationLocation": "DE",
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        }
-      ]
-    },
-    {
-      "id": "http://w3id.org/openeduhub/vocabs/occupation/4",
-      "prefLabel": { "de": "Kreative Berufe" },
-      "narrower": [
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/4-1",
-          "prefLabel": { "de": "Grafikdesigner/in" },
-          "definition": { "de": "Gestaltet visuelle Kommunikation für Print und Digital." },
-          "notation": [{ "scheme": "ISCO-08", "code": "2166" }, { "scheme": "KldB-2010", "code": "" }],
-          "educationRequirements": "Gestaltungsstudium oder Ausbildung",
-          "skills": ["Typografie", "Layout", "Bildbearbeitung"],
-          "occupationalCategory": "Kreativ/Gestaltung",
-          "occupationLocation": "EU",
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        }
-      ]
-    },
-    {
-      "id": "http://w3id.org/openeduhub/vocabs/occupation/5",
-      "prefLabel": { "de": "Naturwissenschaftliche Berufe" },
-      "narrower": [
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/5-1",
-          "prefLabel": { "de": "Research Scientist / Wissenschaftler/in (F&E)" },
-          "definition": { "de": "Führt Forschung durch, entwickelt Methoden und publiziert Ergebnisse." },
-          "notation": [{ "scheme": "ISCO-08", "code": "211" }, { "scheme": "KldB-2010", "code": "" }],
-          "educationRequirements": "Master/Promotion in einschlägigem Fach",
-          "experienceRequirements": "Forschungserfahrung",
-          "qualifications": "Publikationen, Drittmittel, Methodenkompetenz",
-          "skills": ["Studienplanung", "Datenanalyse", "Publizieren"],
-          "occupationalCategory": "Naturwissenschaft/Forschung",
-          "occupationLocation": "global",
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        }
-      ]
-    },
-    {
-      "id": "http://w3id.org/openeduhub/vocabs/occupation/6",
-      "prefLabel": { "de": "Technische Berufe (inkl. IT)" },
-      "narrower": [
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/6-1",
-          "prefLabel": { "de": "Mechatroniker/in" },
-          "definition": { "de": "Montiert, wartet und repariert mechatronische Systeme." },
-          "notation": [{ "scheme": "ISCO-08", "code": "3115" }, { "scheme": "KldB-2010", "code": "" }],
-          "educationRequirements": "Duale Ausbildung Mechatronik",
-          "skills": ["Elektronik", "Mechanik", "Steuerungstechnik"],
-          "occupationalCategory": "Technik/Mechatronik",
-          "occupationLocation": "DE",
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        },
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/6-2",
-          "prefLabel": { "de": "Softwareentwickler/in" },
-          "altLabel": { "de": ["Software Engineer"] },
-          "definition": { "de": "Entwirft, implementiert und testet Softwarelösungen." },
-          "notation": [{ "scheme": "ISCO-08", "code": "2512" }, { "scheme": "KldB-2010", "code": "" }],
-          "educationRequirements": "Informatikstudium oder vergleichbare Qualifikation",
-          "skills": ["Programmierung", "Versionskontrolle", "Softwarearchitektur"],
-          "occupationalCategory": "IT/Software",
-          "occupationLocation": "global",
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        }
-      ]
-    },
-    {
-      "id": "http://w3id.org/openeduhub/vocabs/occupation/7",
-      "prefLabel": { "de": "Wirtschaftsberufe" },
-      "narrower": [
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/7-1",
-          "prefLabel": { "de": "Betriebswirt/in" },
-          "definition": { "de": "Analysiert, plant und steuert betriebswirtschaftliche Prozesse." },
-          "notation": [{ "scheme": "ISCO-08", "code": "2421" }, { "scheme": "KldB-2010", "code": "" }],
-          "educationRequirements": "BWL-Studium oder gleichwertige Qualifikation",
-          "experienceRequirements": "Berufspraxis je nach Rolle",
-          "skills": ["Controlling", "Prozessmanagement", "Datenanalyse"],
-          "occupationalCategory": "Wirtschaft/Betriebswirtschaft",
-          "occupationLocation": "DE/EU",
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        }
-      ]
-    },
-    {
-      "id": "http://w3id.org/openeduhub/vocabs/occupation/8",
-      "prefLabel": { "de": "Öffentlicher Dienst / Beamtenlaufbahn" },
-      "narrower": [
-        {
-          "id": "http://w3id.org/openeduhub/vocabs/occupation/8-1",
-          "prefLabel": { "de": "Amtsanwältin/Amtsanwalt" },
-          "definition": { "de": "Juristische Aufgaben in der Staatsanwaltschaft (mittlerer/gehobener Dienst, je nach Bundesland)." },
-          "notation": [{ "scheme": "ISCO-08", "code": "" }, { "scheme": "KldB-2010", "code": "" }],
-          "educationRequirements": "Juristische Ausbildung gem. Landesrecht",
-          "experienceRequirements": "Verwaltung/Justizpraxis von Vorteil",
-          "skills": ["Rechtsanwendung", "Aktenführung", "Verfahrensrecht"],
-          "occupationalCategory": "ÖD/Justiz",
-          "occupationLocation": "DE",
-          "inScheme": ["http://w3id.org/openeduhub/vocabs/occupation/"]
-        }
-      ]
+      "id": "occupation",
+      "label": {
+        "de": "Berufe",
+        "en": "Occupations"
+      }
     }
   ],
-  "@context": {
-    "@version": 1.1,
-    "id": "@id",
-    "type": "@type",
-    "@vocab": "http://www.w3.org/2004/02/skos/core#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "dct": "http://purl.org/dc/terms/",
-    "schema": "https://schema.org/",
-    "isco": "http://data.europa.eu/esco/isco/",
-    "esco": "http://data.europa.eu/esco/model#",
-    "title": { "@id": "dct:title", "@container": "@language" },
-    "description": { "@id": "dct:description", "@container": "@language" },
-    "issued": { "@id": "dct:issued", "@type": "xsd:date" },
-    "modified": { "@id": "dct:modified", "@type": "xsd:date" },
-    "prefLabel": { "@container": "@language" },
-    "altLabel": { "@container": ["@language", "@set"] },
-    "definition": { "@container": "@language" },
-    "scopeNote": { "@container": "@language" },
-    "notation": { "@container": "@set" },
-    "narrower": { "@container": "@set" },
-    "related": { "@container": "@set" },
-    "hasTopConcept": { "@container": "@set" },
-    "inScheme": { "@container": "@set" },
-    "occupationalCategory": "schema:occupationalCategory",
-    "educationRequirements": "schema:educationRequirements",
-    "experienceRequirements": "schema:experienceRequirements",
-    "qualifications": "schema:qualifications",
-    "skills": "schema:skills",
-    "estimatedSalary": "schema:estimatedSalary",
-    "occupationLocation": "schema:occupationLocation",
-    "exactMatch": { "@id": "skos:exactMatch", "@container": "@set" },
-    "closeMatch": { "@id": "skos:closeMatch", "@container": "@set" }
-  }
+  "fields": [
+    {
+      "id": "oeh:occupation",
+      "group": "occupation",
+      "label": {
+        "de": "Beruf",
+        "en": "Occupation"
+      },
+      "description": {
+        "de": "Hierarchisches Vokabular für Berufe (Berufsprofile) mit Mappings zu ISCO, ESCO und KldB. Nutze ausschließlich die Vokabular-Labels in exakt gleicher Schreibweise, einschließlich Mehrwort-Bezeichnungen oder Klammern.",
+        "en": "Hierarchical vocabulary for occupations (occupational profiles) with mappings to ISCO, ESCO and KldB. Use the vocabulary labels exactly as listed, including multi-word labels and parentheses."
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "promptInstructions": {
+        "labelExactMatch": true
+      },
+      "system": {
+        "path": "oeh:occupation",
+        "uri": "http://w3id.org/openeduhub/vocabs/occupation/",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "vocabulary": {
+          "type": "skos",
+          "scheme": "http://w3id.org/openeduhub/vocabs/occupation/",
+          "hierarchical": true,
+          "concepts": [
+            {
+              "label": {
+                "de": "Bildungsberufe",
+                "en": "Educational professions"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/1"
+            },
+            {
+              "label": {
+                "de": "Lehrkraft (Schule)",
+                "en": "Teacher (School)"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/1-1",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/1"
+            },
+            {
+              "label": {
+                "de": "Instruktionsdesigner/in",
+                "en": "Instructional Designer"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/1-2",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/1"
+            },
+            {
+              "label": {
+                "de": "Gesundheitsberufe",
+                "en": "Health professions"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/2"
+            },
+            {
+              "label": {
+                "de": "Pflegefachkraft",
+                "en": "Nursing professional"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/2-1",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/2"
+            },
+            {
+              "label": {
+                "de": "Anästhesietechnische/r Assistent/in (ATA)",
+                "en": "Anesthesia Technical Assistant (ATA)"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/2-2",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/2"
+            },
+            {
+              "label": {
+                "de": "Handwerksberufe",
+                "en": "Craft professions"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/3"
+            },
+            {
+              "label": {
+                "de": "Tischler/in",
+                "en": "Carpenter"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/3-1",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/3"
+            },
+            {
+              "label": {
+                "de": "Kreative Berufe",
+                "en": "Creative professions"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/4"
+            },
+            {
+              "label": {
+                "de": "Grafikdesigner/in",
+                "en": "Graphic Designer"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/4-1",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/4"
+            },
+            {
+              "label": {
+                "de": "Naturwissenschaftliche Berufe",
+                "en": "Natural science professions"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/5"
+            },
+            {
+              "label": {
+                "de": "Research Scientist / Wissenschaftler/in (F&E)",
+                "en": "Research Scientist (R&D)"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/5-1",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/5"
+            },
+            {
+              "label": {
+                "de": "Technische Berufe (inkl. IT)",
+                "en": "Technical professions (including IT)"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/6"
+            },
+            {
+              "label": {
+                "de": "Mechatroniker/in",
+                "en": "Mechatronics Engineer"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/6-1",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/6"
+            },
+            {
+              "label": {
+                "de": "Softwareentwickler/in",
+                "en": "Software Developer"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/6-2",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/6"
+            },
+            {
+              "label": {
+                "de": "Wirtschaftsberufe",
+                "en": "Business professions"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/7"
+            },
+            {
+              "label": {
+                "de": "Betriebswirt/in",
+                "en": "Business Manager"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/7-1",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/7"
+            },
+            {
+              "label": {
+                "de": "Öffentlicher Dienst / Beamtenlaufbahn",
+                "en": "Public Service / Civil Service Career"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/8"
+            },
+            {
+              "label": {
+                "de": "Amtsanwältin/Amtsanwalt",
+                "en": "Public Prosecutor"
+              },
+              "uri": "http://w3id.org/openeduhub/vocabs/occupation/8-1",
+              "broader": "http://w3id.org/openeduhub/vocabs/occupation/8"
+            }
+          ]
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true,
+          "map_labels_to_uris": true
+        }
+      }
+    },
+    {
+      "id": "oeh:occupationalCategory",
+      "group": "occupation",
+      "label": {
+        "de": "Berufskategorie",
+        "en": "Occupational Category"
+      },
+      "description": {
+        "de": "Kategorisierung des Berufs",
+        "en": "Categorization of the occupation"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "oeh:occupationalCategory",
+        "uri": "https://schema.org/occupationalCategory",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "oeh:educationRequirements",
+      "group": "occupation",
+      "label": {
+        "de": "Bildungsvoraussetzungen",
+        "en": "Education Requirements"
+      },
+      "description": {
+        "de": "Erforderliche Bildung oder Ausbildung",
+        "en": "Required education or training"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "oeh:educationRequirements",
+        "uri": "https://schema.org/educationRequirements",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "fulltext": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "oeh:experienceRequirements",
+      "group": "occupation",
+      "label": {
+        "de": "Erfahrungsanforderungen",
+        "en": "Experience Requirements"
+      },
+      "description": {
+        "de": "Erforderliche Berufserfahrung",
+        "en": "Required professional experience"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "oeh:experienceRequirements",
+        "uri": "https://schema.org/experienceRequirements",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "fulltext": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "oeh:qualifications",
+      "group": "occupation",
+      "label": {
+        "de": "Qualifikationen",
+        "en": "Qualifications"
+      },
+      "description": {
+        "de": "Erforderliche Qualifikationen oder Zertifikate",
+        "en": "Required qualifications or certificates"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "oeh:qualifications",
+        "uri": "https://schema.org/qualifications",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "fulltext": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "oeh:skills",
+      "group": "occupation",
+      "label": {
+        "de": "Fähigkeiten",
+        "en": "Skills"
+      },
+      "description": {
+        "de": "Erforderliche Fähigkeiten und Kompetenzen",
+        "en": "Required skills and competencies"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "oeh:skills",
+        "uri": "https://schema.org/skills",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true,
+          "fulltext": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "oeh:occupationLocation",
+      "group": "occupation",
+      "label": {
+        "de": "Berufsstandort",
+        "en": "Occupation Location"
+      },
+      "description": {
+        "de": "Geografischer Geltungsbereich des Berufs (z.B. DE, EU, global)",
+        "en": "Geographic scope of the occupation (e.g. DE, EU, global)"
+      },
+      "prompt": {
+        "de": "",
+        "en": ""
+      },
+      "system": {
+        "path": "oeh:occupationLocation",
+        "uri": "https://schema.org/occupationLocation",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true
+        }
+      }
+    }
+  ]
 }

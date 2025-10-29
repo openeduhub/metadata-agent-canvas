@@ -1,15 +1,17 @@
 <div class="canvas-field" [ngClass]="getStatusClass()">
-  <!-- Status Icon -->
-  <span class="status-icon" [title]="field.status">{{ getStatusIcon() }}</span>
-  
-  <!-- Label -->
-  <label class="field-label">
-    {{ field.label }}
-    <span *ngIf="field.isRequired" class="required-marker">*</span>
-  </label>
-  
-  <!-- Input Area -->
-  <div class="field-input-container">
+  <!-- Main field row -->
+  <div class="main-field-row">
+    <!-- Status Icon -->
+    <span class="status-icon" [title]="field.status">{{ getStatusIcon() }}</span>
+    
+    <!-- Label -->
+    <label class="field-label">
+      {{ field.label }}
+      <span *ngIf="field.isRequired" class="required-marker">*</span>
+    </label>
+    
+    <!-- Input Area -->
+    <div class="field-input-container">
     <!-- For parent fields with sub-fields: Show preview instead of chips -->
     <div *ngIf="field.isParent && field.subFields && field.subFields.length > 0" class="structured-field-preview">
       <span class="preview-text">{{ getStructuredPreview() }}</span>
@@ -18,7 +20,7 @@
     <!-- Chips for array fields with existing values (but NOT for parent fields) -->
     <div *ngIf="!field.isParent && field.multiple && field.value && field.value.length > 0" class="chip-container">
       <span *ngFor="let item of field.value" class="chip">
-        {{ item }}
+        {{ getVocabularyLabel(item) }}
         <button class="chip-remove" (click)="removeChip(item)" type="button">×</button>
       </span>
     </div>
@@ -54,7 +56,7 @@
   <button 
     *ngIf="hasGeoCoordinates()" 
     class="geo-button"
-    [title]="'Auf OpenStreetMap anzeigen'"
+    [title]="'FIELD.SHOW_ON_MAP' | translate"
     (click)="openInOpenStreetMap()"
     type="button"
   >
@@ -70,65 +72,67 @@
   >
     ℹ️
   </button>
+  </div>
   
   <!-- Error Message -->
   <div *ngIf="field.status === FieldStatus.ERROR && field.extractionError" class="error-message">
     {{ field.extractionError }}
   </div>
-  
-</div>
 
-<!-- Sub-fields (for complex objects with shape) - Tree structure outside main container -->
-<div *ngIf="field.isParent && field.subFields && field.subFields.length > 0" class="sub-fields-tree">
-  <div *ngFor="let subField of field.subFields; let isLast = last" class="sub-field-tree-row">
-    <!-- Left side: Tree branch + Status + Label -->
-    <div class="sub-field-left">
-      <!-- Tree branch connector -->
+  <!-- Sub-fields (for complex objects with shape) -->
+  <div *ngIf="field.isParent && field.subFields && field.subFields.length > 0" class="sub-fields-tree">
+    <div *ngFor="let subField of field.subFields; let isLast = last" class="sub-field-tree-row" [class.sub-field-tree-row-last]="isLast">
       <div class="tree-branch" [class.tree-branch-last]="isLast">
         <span class="tree-line-vertical"></span>
         <span class="tree-line-horizontal"></span>
       </div>
-      
-      <!-- Status Icon -->
-      <span class="status-icon sub-field-status" [title]="subField.status">{{ getStatusIconForField(subField) }}</span>
-      
-      <!-- Label -->
-      <label class="field-label sub-field-label">
-        {{ subField.label }}
-        <span *ngIf="subField.isRequired" class="required-marker">*</span>
-      </label>
-    </div>
-    
-    <!-- Right side: Input field (aligned with parent inputs) -->
-    <div class="sub-field-right">
-      <div class="field-input-container">
-        <!-- Preview for parent fields -->
-        <div *ngIf="subField.isParent && subField.subFields && subField.subFields.length > 0" class="structured-field-preview">
-          <span class="preview-text">{{ getStructuredPreviewForField(subField) }}</span>
+
+      <div class="sub-field-content">
+        <span class="status-icon sub-field-status" [title]="subField.status">{{ getStatusIconForField(subField) }}</span>
+
+        <label class="field-label sub-field-label">
+          {{ subField.label }}
+          <span *ngIf="subField.isRequired" class="required-marker">*</span>
+        </label>
+
+        <div class="field-input-container sub-field-input-container">
+          <div *ngIf="subField.isParent && subField.subFields && subField.subFields.length > 0" class="structured-field-preview">
+            <span class="preview-text">{{ getStructuredPreviewForField(subField) }}</span>
+          </div>
+
+          <textarea
+            *ngIf="!subField.isParent"
+            class="field-input sub-field-input"
+            [(ngModel)]="subField.value"
+            (blur)="onSubFieldValueChange(subField)"
+            [placeholder]="subField.description"
+            [disabled]="subField.status === FieldStatus.EXTRACTING"
+            rows="1"
+          ></textarea>
         </div>
-        
-        <!-- Regular input for non-parent fields -->
-        <textarea
-          *ngIf="!subField.isParent"
-          class="field-input"
-          [(ngModel)]="subField.value"
-          (blur)="onSubFieldValueChange(subField)"
-          [placeholder]="subField.description"
-          [disabled]="subField.status === FieldStatus.EXTRACTING"
-          rows="1"
-        ></textarea>
+
+        <div class="sub-field-buttons">
+          <button 
+            *ngIf="subFieldHasGeoCoordinates(subField)" 
+            class="geo-button sub-field-geo-button"
+            [title]="'FIELD.SHOW_ON_MAP' | translate"
+            (click)="openSubFieldInOpenStreetMap(subField)"
+            type="button"
+          >
+            🗺️
+          </button>
+
+          <button
+            *ngIf="subField.description"
+            class="info-button sub-field-info-button"
+            [title]="getTooltipTextForSubField(subField)"
+            type="button"
+          >
+            ℹ️
+          </button>
+        </div>
       </div>
-      
-      <!-- Geo Button for sub-fields with coordinates -->
-      <button 
-        *ngIf="subFieldHasGeoCoordinates(subField)" 
-        class="geo-button sub-field-geo-button"
-        [title]="'Auf OpenStreetMap anzeigen'"
-        (click)="openSubFieldInOpenStreetMap(subField)"
-        type="button"
-      >
-        🗺️
-      </button>
     </div>
   </div>
+  
 </div>

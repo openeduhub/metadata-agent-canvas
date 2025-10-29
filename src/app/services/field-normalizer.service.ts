@@ -11,6 +11,7 @@ import { map, catchError } from 'rxjs/operators';
 import { CanvasFieldState } from '../models/canvas-models';
 import { environment } from '../../environments/environment';
 import { PlatformDetectionService } from './platform-detection.service';
+import { I18nService } from './i18n.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class FieldNormalizerService {
 
   constructor(
     private http: HttpClient,
-    private platformDetection: PlatformDetectionService
+    private platformDetection: PlatformDetectionService,
+    private i18n: I18nService
   ) {
     // Get proxy URL from environment config (same pattern as openai-proxy.service)
     const provider = environment.llmProvider || 'b-api-openai';
@@ -452,23 +454,27 @@ export class FieldNormalizerService {
    * Build normalization prompt for field
    */
   private buildNormalizationPrompt(field: CanvasFieldState, userInput: any): string {
-    let prompt = `Du bist ein Daten-Normalisierer. Deine Aufgabe ist es, Benutzereingaben in das korrekte Format zu bringen.\n\n`;
+    const t = (key: string, params?: any) => this.i18n.instant(key, params);
     
-    prompt += `**WICHTIG: Du sollst den Wert NICHT neu bewerten oder interpretieren, sondern nur formatieren!**\n\n`;
+    // Add explicit language instruction
+    let prompt = `${t('AI_PROMPTS.LANGUAGE_INSTRUCTION')}\n\n`;
+    prompt += `${t('AI_PROMPTS.NORMALIZATION.HEADER')}\n\n`;
     
-    prompt += `Feld: ${field.label}\n`;
-    prompt += `Beschreibung: ${field.description}\n`;
-    prompt += `Datentyp: ${field.datatype}\n`;
+    prompt += `${t('AI_PROMPTS.NORMALIZATION.IMPORTANT')}\n\n`;
+    
+    prompt += `${t('AI_PROMPTS.NORMALIZATION.FIELD_LABEL')} ${field.label}\n`;
+    prompt += `${t('AI_PROMPTS.NORMALIZATION.DESCRIPTION_LABEL')} ${field.description}\n`;
+    prompt += `${t('AI_PROMPTS.NORMALIZATION.DATATYPE_LABEL')} ${field.datatype}\n`;
     
     // Add datatype-specific instructions
     if (field.datatype === 'boolean') {
-      prompt += `\nFormat-Regeln für Boolean:\n`;
+      prompt += `\n${t('AI_PROMPTS.NORMALIZATION.BOOLEAN_RULES')}\n`;
       prompt += `- "ja", "yes", "wahr" → true\n`;
       prompt += `- "nein", "no", "falsch" → false\n`;
       prompt += `- Nur true oder false zurückgeben (ohne Anführungszeichen)\n`;
       prompt += `- Bei ungültigen Eingaben: null zurückgeben\n`;
     } else if (field.datatype === 'number' || field.datatype === 'integer') {
-      prompt += `\nFormat-Regeln für Zahlen:\n`;
+      prompt += `\n${t('AI_PROMPTS.NORMALIZATION.NUMBER_RULES')}\n`;
       prompt += `- Zahlwörter in Ziffern umwandeln:\n`;
       prompt += `  - "zehn" → 10\n`;
       prompt += `  - "fünfundzwanzig" → 25\n`;
@@ -479,7 +485,7 @@ export class FieldNormalizerService {
       prompt += `- Nur die Zahl zurückgeben, ohne Text und ohne Anführungszeichen\n`;
       prompt += `- Bei ungültigen Eingaben: null zurückgeben\n`;
     } else if (field.datatype === 'date') {
-      prompt += `\nFormat-Regeln für Datum:\n`;
+      prompt += `\n${t('AI_PROMPTS.NORMALIZATION.DATE_RULES')}\n`;
       prompt += `- Immer im Format YYYY-MM-DD zurückgeben (ISO 8601)\n`;
       prompt += `- Verschiedene Eingabeformate erkennen und umwandeln:\n`;
       prompt += `  - "15.9.2026" → "2026-09-15"\n`;
@@ -498,7 +504,7 @@ export class FieldNormalizerService {
       prompt += `- Tag und Monat immer 2-stellig mit führender Null\n`;
       prompt += `- Bei ungültigen oder unklaren Eingaben: null zurückgeben\n`;
     } else if (field.datatype === 'uri' || field.datatype === 'url') {
-      prompt += `\nFormat-Regeln für URLs:\n`;
+      prompt += `\n${t('AI_PROMPTS.NORMALIZATION.URL_RULES')}\n`;
       prompt += `- Muss mit http:// oder https:// beginnen\n`;
       prompt += `- Falls Protokoll fehlt: https:// hinzufügen\n`;
       prompt += `- Beispiele:\n`;
@@ -510,8 +516,8 @@ export class FieldNormalizerService {
     
     // Add vocabulary hints for label matching
     if (field.vocabulary && field.vocabulary.concepts.length > 0) {
-      prompt += `\n**WICHTIG: Dieses Feld hat ein kontrolliertes Vokabular (${field.vocabulary.type} vocabulary)**\n\n`;
-      prompt += `Verfügbare Labels (nutze EXAKT diese Schreibweise):\n`;
+      prompt += `\n${t('AI_PROMPTS.NORMALIZATION.VOCABULARY_HINT', {type: field.vocabulary.type})}\n\n`;
+      prompt += `${t('AI_PROMPTS.NORMALIZATION.AVAILABLE_LABELS')}\n`;
       field.vocabulary.concepts.forEach((concept, idx) => {
         // Clean label: Remove parentheses with explanations like "(auch: ...)"
         const cleanLabel = concept.label.replace(/\s*\(auch:.*?\)/gi, '').trim();
@@ -524,8 +530,8 @@ export class FieldNormalizerService {
       });
       
       if (field.vocabulary.type === 'closed') {
-        prompt += `\n⚠️ **CLOSED VOCABULARY** - NUR diese exakten Labels sind erlaubt!\n\n`;
-        prompt += `**Deine Aufgabe:**\n`;
+        prompt += `\n${t('AI_PROMPTS.NORMALIZATION.CLOSED_VOCABULARY')}\n\n`;
+        prompt += `${t('AI_PROMPTS.NORMALIZATION.TASK_HEADER')}\n`;
         prompt += `1. Analysiere die Benutzereingabe\n`;
         prompt += `2. Finde das ähnlichste Label aus der Liste (ignoriere Groß-/Kleinschreibung)\n`;
         prompt += `3. Gib EXAKT das Label aus der Liste zurück - OHNE Klammern, OHNE Erklärungen!\n`;
@@ -536,13 +542,13 @@ export class FieldNormalizerService {
         prompt += `   - "Erziehungswissenschaften" → "Pädagogik" (erkenne Alternative)\n`;
         prompt += `5. Wenn KEIN passendes Label gefunden werden kann: Gib null zurück\n`;
         prompt += `6. Achte auf semantische Ähnlichkeit, nicht nur Buchstaben-Distanz\n\n`;
-        prompt += `**KRITISCH - Ausgabe-Format:**\n`;
+        prompt += `${t('AI_PROMPTS.NORMALIZATION.CRITICAL_OUTPUT')}\n`;
         prompt += `- Gib NUR das exakte Label zurück (in Anführungszeichen)\n`;
         prompt += `- KEINE eckigen Klammern [Alternativen: ...]\n`;
         prompt += `- KEINE runden Klammern oder Erklärungen\n`;
         prompt += `- KEINE zusätzlichen Texte\n`;
-        prompt += `- Exakte Groß-/Kleinschreibung aus der Liste\n\n`;
-        prompt += `**Beispiele:**\n`;
+        prompt += `- ${t('AI_PROMPTS.NORMALIZATION.EXACT_CASE')}\n\n`;
+        prompt += `${t('AI_PROMPTS.EXTRACTION.EXAMPLES_LABEL')}\n`;
         prompt += `- Eingabe: "cc by-sa" → Ausgabe: "CC BY-SA"\n`;
         prompt += `- Eingabe: "Erziehungswissenschaften" → Ausgabe: "Pädagogik"\n`;
         prompt += `- Eingabe: "Politische Bildung" → Ausgabe: "Politik"\n`;
@@ -565,25 +571,25 @@ export class FieldNormalizerService {
     // Add user input
     prompt += `\n---\n\n`;
     if (Array.isArray(userInput)) {
-      prompt += `**Benutzereingabe (Array):** ${JSON.stringify(userInput)}\n\n`;
-      prompt += `**Aufgabe:** Normalisiere jedes Element des Arrays.\n\n`;
+      prompt += `${t('AI_PROMPTS.NORMALIZATION.USER_INPUT')} (Array)** ${JSON.stringify(userInput)}\n\n`;
+      prompt += `${t('AI_PROMPTS.NORMALIZATION.TASK_NORMALIZE')}\n\n`;
     } else {
-      prompt += `**Benutzereingabe:** "${userInput}"\n\n`;
-      prompt += `**Aufgabe:** Normalisiere diese Eingabe.\n\n`;
+      prompt += `${t('AI_PROMPTS.NORMALIZATION.USER_INPUT')} "${userInput}"\n\n`;
+      prompt += `${t('AI_PROMPTS.NORMALIZATION.TASK_NORMALIZE')}\n\n`;
     }
     
-    prompt += `**WICHTIG - Antwort-Format:**\n`;
-    prompt += `Antworte NUR mit einem JSON-Wert, ohne zusätzlichen Text!\n`;
-    prompt += `Verwende EXAKTE Groß-/Kleinschreibung aus der Vocabulary-Liste!\n\n`;
+    prompt += `${t('AI_PROMPTS.NORMALIZATION.RESPONSE_FORMAT')}\n`;
+    prompt += `${t('AI_PROMPTS.NORMALIZATION.RESPONSE_HINT')}\n`;
+    prompt += `${t('AI_PROMPTS.NORMALIZATION.EXACT_CASE')}\n\n`;
     
     if (Array.isArray(userInput)) {
-      prompt += `Beispiel-Antwort:\n`;
+      prompt += `${t('AI_PROMPTS.NORMALIZATION.EXAMPLE_ANSWER')}\n`;
       prompt += `\`\`\`json\n`;
       prompt += `["Normalisierter Wert 1", "Normalisierter Wert 2"]\n`;
       prompt += `\`\`\`\n`;
     } else {
       if (field.vocabulary) {
-        prompt += `Beispiel-Antworten:\n`;
+        prompt += `${t('AI_PROMPTS.NORMALIZATION.EXAMPLE_ANSWER')}\n`;
         prompt += `\`\`\`json\n`;
         prompt += `"CC BY"\n`;
         prompt += `\`\`\`\n`;
@@ -592,7 +598,7 @@ export class FieldNormalizerService {
         prompt += `null\n`;
         prompt += `\`\`\`\n`;
       } else if (field.datatype === 'boolean') {
-        prompt += `Beispiel-Antworten:\n`;
+        prompt += `${t('AI_PROMPTS.NORMALIZATION.EXAMPLE_ANSWER')}\n`;
         prompt += `\`\`\`json\n`;
         prompt += `true\n`;
         prompt += `\`\`\`\n`;
@@ -601,7 +607,7 @@ export class FieldNormalizerService {
         prompt += `false\n`;
         prompt += `\`\`\`\n`;
       } else if (field.datatype === 'number' || field.datatype === 'integer') {
-        prompt += `Beispiel-Antworten:\n`;
+        prompt += `${t('AI_PROMPTS.NORMALIZATION.EXAMPLE_ANSWER')}\n`;
         prompt += `\`\`\`json\n`;
         prompt += `10\n`;
         prompt += `\`\`\`\n`;
@@ -610,7 +616,7 @@ export class FieldNormalizerService {
         prompt += `250\n`;
         prompt += `\`\`\`\n`;
       } else {
-        prompt += `Beispiel-Antwort:\n`;
+        prompt += `${t('AI_PROMPTS.NORMALIZATION.EXAMPLE_ANSWER')}\n`;
         prompt += `\`\`\`json\n`;
         prompt += `"normalisierter_wert"\n`;
         prompt += `\`\`\`\n`;

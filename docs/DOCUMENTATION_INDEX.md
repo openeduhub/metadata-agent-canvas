@@ -1,7 +1,9 @@
 # 📚 Dokumentationsübersicht - Webkomponente Canvas
 
-**Projekt:** Angular 19 Standalone Web Component für AI-basierte Metadata-Extraktion  
-**Deployment:** Netlify mit Secrets Controller
+**Projekt:** Angular 18 Standalone Web Component für AI-basierte Metadata-Extraktion  
+**Deployment:** Netlify (empfohlen) | Vercel
+
+**Version:** 2.0.0 (Januar 2025) - Vollständig i18n-ready
 
 ---
 
@@ -9,32 +11,35 @@
 
 | Dokument | Zweck | Zeitaufwand |
 |----------|-------|-------------|
-| **QUICKSTART_NETLIFY_SECRETS.md** | 5-Minuten Setup für Netlify Secrets | ⏱️ 5 Min |
-| **START_LOCAL.md** | Lokale Entwicklung starten | ⏱️ 3 Min |
-| **INSTALLATION.md** | Erstmalige Installation | ⏱️ 10 Min |
+| **[GETTING_STARTED.md](./GETTING_STARTED.md)** | Schnellstart-Guide | ⏱️ 5 Min |
+| **[DEPLOYMENT.md](./DEPLOYMENT.md)** | Deployment Guide (Netlify/Vercel) | ⏱️ 10 Min |
+| **[FEATURES.md](./FEATURES.md)** | Alle Features im Überblick | ⏱️ 15 Min |
 
 ---
 
-## 🔐 Sicherheit & Secrets
+## 🔐 Sicherheit
 
 | Dokument | Beschreibung |
 |----------|-------------|
-| **NETLIFY_SECRETS_CONTROLLER.md** | 📖 Vollständiger Guide zu Netlify Secrets Controller (350+ Zeilen) |
-| **SECURITY_ARCHITECTURE.md** | 🏗️ Sicherheitsarchitektur: API-Keys server-side only |
-| **SECURITY_SUMMARY.md** | 📊 Übersicht, Status, Checklists |
-| **SECURITY_CHECKLIST.md** | ✅ Sicherheitschecks vor Deployment |
-| **.env.template** | 📝 Template für lokale `.env` Datei |
+| **[SECURITY_GUIDE.md](./SECURITY_GUIDE.md)** | 🔒 Umfassender Security Guide (API-Keys, Secrets, Best Practices) |
+| **[SECURE_API_KEY_ARCHITECTURE.md](./SECURE_API_KEY_ARCHITECTURE.md)** | 🏗️ Architektur-Dokumentation |
+| **[NETLIFY_SECRETS_CONTROLLER.md](./NETLIFY_SECRETS_CONTROLLER.md)** | 📖 Netlify Secrets Controller Guide |
+| **[SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md)** | 🛡️ Sicherheitsarchitektur Details |
+| **[SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md)** | ✅ Pre-Deployment Security Checklist |
+| **[.env.template](../.env.template)** | 📝 Environment Template |
 
 ---
 
-## 🌐 Deployment & Netlify
+## 🌐 Deployment
 
 | Dokument | Beschreibung |
 |----------|-------------|
-| **ANGULAR_NETLIFY_INTEGRATION.md** | 🅰️ Angular-spezifische Netlify Features (NEU!) |
-| **NETLIFY_DEPLOYMENT.md** | 🚀 Netlify Deployment Guide |
-| **NETLIFY_DEV.md** | 💻 Lokale Entwicklung mit Netlify Dev |
-| **DEPLOY.md** | 📦 Deployment-Prozess |
+| **[DEPLOYMENT.md](./DEPLOYMENT.md)** | 🚀 Multi-Platform Deployment Guide (Netlify/Vercel) |
+| **[PLATFORM_DEPLOYMENT.md](./PLATFORM_DEPLOYMENT.md)** | 🎯 Platform Detection & Configuration |
+| **[NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPLOYMENT.md)** | 📦 Netlify-spezifische Details |
+| **[NETLIFY_DEV.md](./NETLIFY_DEV.md)** | 💻 Lokale Entwicklung mit Netlify Dev |
+| **[ANGULAR_NETLIFY_INTEGRATION.md](./ANGULAR_NETLIFY_INTEGRATION.md)** | 🅰️ Angular on Netlify Best Practices |
+| **[QUICKSTART_NETLIFY_SECRETS.md](./QUICKSTART_NETLIFY_SECRETS.md)** | ⚡ 5-Minuten Secrets Setup |
 
 ---
 
@@ -42,9 +47,9 @@
 
 | Dokument | Beschreibung |
 |----------|-------------|
-| **ENVIRONMENT_VARIABLES.md** | 🔧 Environment Variables Guide (alle Provider) |
-| **ENVIRONMENT_CONFIG.md** | 📋 Environment-Konfiguration |
-| **LLM_PROVIDER_CONFIGURATION.md** | 🤖 LLM Provider Setup (OpenAI, B-API) |
+| **[ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md)** | 🔧 Vollständiger Environment Variables Guide |
+| **[LLM_PROVIDER_CONFIGURATION.md](./LLM_PROVIDER_CONFIGURATION.md)** | 🤖 LLM Provider Setup (OpenAI, B-API) |
+| **[B_API_GUIDE.md](./B_API_GUIDE.md)** | 📘 B-API Spezifische Dokumentation |
 
 ---
 
@@ -52,18 +57,21 @@
 
 | Dokument | Beschreibung |
 |----------|-------------|
-| **LOCAL_DEVELOPMENT.md** | 💻 Lokale Entwicklung & Proxy |
-| **CANVAS_DOCUMENTATION.md** | 🎨 Canvas UI Dokumentation |
-| **PERFORMANCE.md** | ⚡ Performance-Optimierungen |
+| **[DEVELOPMENT.md](./DEVELOPMENT.md)** | 💻 Umfassender Entwickler-Guide |
+| **[LOCAL_DEVELOPMENT.md](./LOCAL_DEVELOPMENT.md)** | 🏠 Lokale Entwicklung & Proxy Setup |
+| **[CANVAS_DOCUMENTATION.md](./CANVAS_DOCUMENTATION.md)** | 🎨 Canvas UI Dokumentation |
+| **[PERFORMANCE.md](./PERFORMANCE.md)** | ⚡ Performance-Optimierungen |
+| **[INSTALLATION.md](./INSTALLATION.md)** | 📦 Installation & Setup |
 
 ---
 
-## 🐛 Troubleshooting
+## 🌐 Internationalisierung (i18n)
 
 | Dokument | Beschreibung |
 |----------|-------------|
-| **CORS_FIX.md** | 🔧 CORS-Probleme beheben |
-| **ANGULAR_NETLIFY_INTEGRATION.md** | 🛠️ Angular-spezifische Probleme (404, Budgets, etc.) |
+| **[INTERNATIONALIZATION.md](./INTERNATIONALIZATION.md)** | 🌍 App-UI i18n (DE/EN) - Vollständiger Guide |
+| **[SCHEMA_I18N.md](./SCHEMA_I18N.md)** | 📋 Schema-Datenstruktur i18n |
+| **[NESTED_FIELDS_STRUCTURE.md](./NESTED_FIELDS_STRUCTURE.md)** | 🌳 Verschachtelte Felder mit i18n |
 
 ---
 
@@ -71,7 +79,17 @@
 
 | Dokument | Beschreibung |
 |----------|-------------|
-| **README.md** | 📘 Haupt-Readme mit Gesamtübersicht |
+| **[README.md](../README.md)** | 📘 Haupt-Readme mit Feature-Übersicht |
+| **[CHANGELOG.md](../CHANGELOG.md)** | 📝 Versionshistorie & Änderungen |
+| **[CONTRIBUTING.md](../CONTRIBUTING.md)** | 🤝 Contributing Guidelines |
+
+---
+
+## 🐛 Troubleshooting
+
+| Dokument | Beschreibung |
+|----------|-------------|
+| **[CORS_FIX.md](./CORS_FIX.md)** | 🔧 CORS-Probleme beheben |
 
 ---
 
@@ -79,30 +97,37 @@
 
 ### 🔐 Sicherheit (API-Keys, Secrets)
 
-1. **Start:** `QUICKSTART_NETLIFY_SECRETS.md` (5 Min)
-2. **Details:** `NETLIFY_SECRETS_CONTROLLER.md`
-3. **Architektur:** `SECURITY_ARCHITECTURE.md`
-4. **Status:** `SECURITY_SUMMARY.md`
+1. **Start:** [SECURITY_GUIDE.md](./SECURITY_GUIDE.md) - Umfassender Guide
+2. **Quick:** [QUICKSTART_NETLIFY_SECRETS.md](./QUICKSTART_NETLIFY_SECRETS.md) - 5 Min Setup
+3. **Architektur:** [SECURE_API_KEY_ARCHITECTURE.md](./SECURE_API_KEY_ARCHITECTURE.md)
+4. **Netlify:** [NETLIFY_SECRETS_CONTROLLER.md](./NETLIFY_SECRETS_CONTROLLER.md)
 
 ### 🚀 Deployment
 
-1. **Angular + Netlify:** `ANGULAR_NETLIFY_INTEGRATION.md` ⭐ **NEU**
-2. **Netlify Deploy:** `NETLIFY_DEPLOYMENT.md`
-3. **Environment Vars:** `ENVIRONMENT_VARIABLES.md`
-4. **Checklist:** `SECURITY_CHECKLIST.md`
+1. **Quick Start:** [DEPLOYMENT.md](./DEPLOYMENT.md) - Multi-Platform Guide
+2. **Platform Config:** [PLATFORM_DEPLOYMENT.md](./PLATFORM_DEPLOYMENT.md)
+3. **Netlify:** [NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPLOYMENT.md)
+4. **Vercel:** [DEPLOYMENT.md](./DEPLOYMENT.md#vercel-deployment)
 
 ### 💻 Lokale Entwicklung
 
-1. **Quick Start:** `START_LOCAL.md`
-2. **Installation:** `INSTALLATION.md`
-3. **Netlify Dev:** `NETLIFY_DEV.md`
-4. **Local Development:** `LOCAL_DEVELOPMENT.md`
+1. **Quick Start:** [GETTING_STARTED.md](./GETTING_STARTED.md) - 5 Min Setup
+2. **Development:** [DEVELOPMENT.md](./DEVELOPMENT.md) - Umfassender Guide
+3. **Netlify Dev:** [NETLIFY_DEV.md](./NETLIFY_DEV.md)
+4. **Proxy Setup:** [LOCAL_DEVELOPMENT.md](./LOCAL_DEVELOPMENT.md)
 
 ### 🤖 LLM Provider
 
-1. **Provider Config:** `LLM_PROVIDER_CONFIGURATION.md`
-2. **Environment Vars:** `ENVIRONMENT_VARIABLES.md`
-3. **Security:** `SECURITY_ARCHITECTURE.md`
+1. **Provider Config:** [LLM_PROVIDER_CONFIGURATION.md](./LLM_PROVIDER_CONFIGURATION.md)
+2. **Environment Vars:** [ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md)
+3. **B-API Guide:** [B_API_GUIDE.md](./B_API_GUIDE.md)
+
+### 🌐 Internationalisierung (i18n)
+
+1. **App-UI i18n:** [INTERNATIONALIZATION.md](./INTERNATIONALIZATION.md) ⭐
+2. **Schema i18n:** [SCHEMA_I18N.md](./SCHEMA_I18N.md) ⭐
+3. **Verschachtelte Felder:** [NESTED_FIELDS_STRUCTURE.md](./NESTED_FIELDS_STRUCTURE.md)
+4. **Language Files:** `src/assets/i18n/de.json`, `en.json`
 
 ---
 
@@ -142,6 +167,11 @@ webkomponente-canvas/
 │   ├── CANVAS_DOCUMENTATION.md
 │   └── PERFORMANCE.md
 │
+├── 🌐 Internationalisierung (i18n)
+│   ├── INTERNATIONALIZATION.md       ⭐ NEU
+│   ├── SCHEMA_I18N.md                ⭐ NEU
+│   └── NESTED_FIELDS_STRUCTURE.md
+│
 ├── 🐛 Troubleshooting
 │   └── CORS_FIX.md
 │
@@ -164,51 +194,73 @@ webkomponente-canvas/
 
 ## 🎯 Typische Workflows
 
-### Workflow 1: Neue Installation
+### Workflow 1: Erste Schritte
 
-1. `INSTALLATION.md` - Abhängigkeiten installieren
+1. [GETTING_STARTED.md](./GETTING_STARTED.md) - Installation & Setup
 2. `.env.template` → `.env` kopieren und Keys eintragen
-3. `START_LOCAL.md` - Entwicklung starten
-4. `NETLIFY_DEPLOYMENT.md` - Deployment Setup
+3. `npm start` - Development Server starten
+4. [FEATURES.md](./FEATURES.md) - Features erkunden
 
-### Workflow 2: Netlify Deployment
+### Workflow 2: Deployment
 
-1. `QUICKSTART_NETLIFY_SECRETS.md` - Secrets einrichten (5 Min)
-2. `ANGULAR_NETLIFY_INTEGRATION.md` - Angular-spezifische Settings
-3. `NETLIFY_DEPLOYMENT.md` - Deploy durchführen
-4. `SECURITY_CHECKLIST.md` - Sicherheitschecks
+1. [DEPLOYMENT.md](./DEPLOYMENT.md) - Platform wählen (Netlify/Vercel)
+2. [SECURITY_GUIDE.md](./SECURITY_GUIDE.md) - API-Keys sicher einrichten
+3. [PLATFORM_DEPLOYMENT.md](./PLATFORM_DEPLOYMENT.md) - Platform konfigurieren
+4. [SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md) - Pre-Deployment Check
 
-### Workflow 3: Lokale Entwicklung
+### Workflow 3: Development
 
-1. `START_LOCAL.md` - Schnellstart
-2. `LOCAL_DEVELOPMENT.md` - Details zu Proxies
-3. `NETLIFY_DEV.md` - Netlify Functions lokal testen
-4. `ENVIRONMENT_VARIABLES.md` - Provider wechseln
+1. [GETTING_STARTED.md](./GETTING_STARTED.md) - Setup
+2. [DEVELOPMENT.md](./DEVELOPMENT.md) - Code schreiben
+3. [NETLIFY_DEV.md](./NETLIFY_DEV.md) - Functions lokal testen
+4. [CONTRIBUTING.md](../CONTRIBUTING.md) - Pull Request erstellen
 
 ### Workflow 4: Troubleshooting
 
-1. `ANGULAR_NETLIFY_INTEGRATION.md` - Angular-spezifische Probleme
-2. `CORS_FIX.md` - CORS-Fehler
-3. `SECURITY_ARCHITECTURE.md` - API-Key Probleme
-4. `NETLIFY_DEPLOYMENT.md` - Deployment-Fehler
+1. [CORS_FIX.md](./CORS_FIX.md) - CORS-Fehler beheben
+2. [SECURITY_GUIDE.md](./SECURITY_GUIDE.md) - API-Key Probleme
+3. [DEPLOYMENT.md](./DEPLOYMENT.md#troubleshooting) - Deployment-Fehler
+4. [ANGULAR_NETLIFY_INTEGRATION.md](./ANGULAR_NETLIFY_INTEGRATION.md) - Angular-spezifisch
 
 ---
 
 ## 🆕 Was ist neu?
 
-### Januar 2025
+### Januar 2025 - Version 2.0.0
 
-- ✅ **ANGULAR_NETLIFY_INTEGRATION.md** - Vollständiger Angular on Netlify Guide
-- ✅ **NETLIFY_SECRETS_CONTROLLER.md** - Secrets Controller Implementation
-- ✅ **QUICKSTART_NETLIFY_SECRETS.md** - 5-Minuten Quick Start
-- ✅ **SECURITY_SUMMARY.md** - Sicherheitsübersicht
-- ✅ **.env.template** - Template für lokale Entwicklung
-- ✅ **DOCUMENTATION_INDEX.md** - Diese Übersicht
+#### 📦 Dokumentations-Cleanup & Konsolidierung
 
-### Kritischer Fix
+**Gelöscht:** 32 veraltete/temporäre Dateien  
+**Neu erstellt:** 8 konsolidierte Guides
 
-- ❌ **Hardcodeter API-Key aus `environment.prod.ts` entfernt**
-- ✅ **Secrets Controller aktiviert** für alle API-Keys
+**Neue Hauptdokumentation:**
+- ✅ **[CHANGELOG.md](../CHANGELOG.md)** - Versionshistorie
+- ✅ **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Schnellstart-Guide
+- ✅ **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Multi-Platform Deployment
+- ✅ **[PLATFORM_DEPLOYMENT.md](./PLATFORM_DEPLOYMENT.md)** - Platform Configuration
+- ✅ **[SECURITY_GUIDE.md](./SECURITY_GUIDE.md)** - Umfassender Security Guide
+- ✅ **[FEATURES.md](./FEATURES.md)** - Alle Features im Detail
+- ✅ **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Entwickler-Guide
+- ✅ **[CONTRIBUTING.md](../CONTRIBUTING.md)** - Contributing Guidelines
+
+#### 🌐 i18n-Implementierung
+
+- ✅ Vollständige Mehrsprachigkeit (DE/EN)
+- ✅ Language Switcher im Header
+- ✅ 11 Schemas vollständig i18n-ready
+- ✅ Cross-Language Value Matching
+- ✅ AI-Prompts lokalisiert
+
+**Dokumentation:**
+- ✅ **[INTERNATIONALIZATION.md](./INTERNATIONALIZATION.md)** - App-UI i18n
+- ✅ **[SCHEMA_I18N.md](./SCHEMA_I18N.md)** - Schema i18n
+
+#### 🔒 Security & Deployment
+
+- ✅ Netlify Secrets Controller
+- ✅ Write-only Secrets
+- ✅ Automatisches Secret Scanning
+- ✅ Multi-Platform Deployment (Netlify/Vercel)
 
 ---
 
@@ -259,24 +311,46 @@ A: `ANGULAR_NETLIFY_INTEGRATION.md` → Redirects
 **Q: ...Bundle Size Probleme?**  
 A: `ANGULAR_NETLIFY_INTEGRATION.md` → Bundle Size & Performance
 
+**Q: ...wie funktioniert i18n in der App?**  
+A: [INTERNATIONALIZATION.md](./INTERNATIONALIZATION.md) - App-UI Mehrsprachigkeit
+
+**Q: ...wie sind Schemas lokalisiert?**  
+A: [SCHEMA_I18N.md](./SCHEMA_I18N.md) - Schema-Datenstruktur mit DE/EN
+
+**Q: ...wie ändere ich die Sprache?**  
+A: Language Switcher im Header (Flaggen-Symbol 🇩🇪 / 🇬🇧)
+
+**Q: ...wie trage ich bei?**  
+A: [CONTRIBUTING.md](../CONTRIBUTING.md) - Contributing Guidelines
+
+**Q: ...wo sehe ich alle Features?**  
+A: [FEATURES.md](./FEATURES.md) - Vollständige Feature-Übersicht
+
 ---
 
 ## 📊 Dokumentations-Status
 
 | Kategorie | Anzahl Dokumente | Status |
 |-----------|------------------|--------|
+| Hauptdokumentation | 3 | ✅ Vollständig |
 | Quick Starts | 3 | ✅ Vollständig |
-| Sicherheit | 5 | ✅ Vollständig |
-| Deployment | 4 | ✅ Vollständig |
+| Sicherheit | 6 | ✅ Vollständig |
+| Deployment | 6 | ✅ Vollständig |
 | Konfiguration | 3 | ✅ Vollständig |
-| Entwicklung | 3 | ✅ Vollständig |
-| Troubleshooting | 2 | ✅ Vollständig |
-| **Gesamt** | **20** | ✅ **100%** |
+| Entwicklung | 5 | ✅ Vollständig |
+| i18n | 3 | ✅ Vollständig ⭐ |
+| Troubleshooting | 1 | ✅ Vollständig |
+| **Gesamt** | **30** | ✅ **100%** |
+
+**Verbesserung:**
+- ❌ **Gelöscht:** 32 veraltete Dateien
+- ✅ **Erstellt:** 8 neue konsolidierte Guides
+- ✅ **Ergebnis:** Klarere Struktur, -39% Dateien
 
 ---
 
 **Stand:** Januar 2025  
-**Letzte Aktualisierung:** Angular on Netlify Integration Guide hinzugefügt
+**Letzte Aktualisierung:** Dokumentations-Cleanup & Konsolidierung
 
 ---
 

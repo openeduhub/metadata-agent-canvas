@@ -7,6 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
 import { SchemaField } from '../models/workflow-models';
+import { SchemaLocalizerService } from './schema-localizer.service';
 
 interface SchemaDefinition {
   fields: Array<{
@@ -31,7 +32,10 @@ export class SchemaLoaderService {
   private schemaBasePath = '/schemata/';
   private schemaCache: Map<string, any> = new Map();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private localizer: SchemaLocalizerService
+  ) {}
 
   /**
    * Load a schema file
@@ -148,21 +152,25 @@ export class SchemaLoaderService {
   }
 
   /**
-   * Get content type label
+   * Get content type label (localized from core.json vocabulary)
    */
   getContentTypeLabel(schemaName: string): string {
-    const labels: Record<string, string> = {
-      'event.json': 'Veranstaltung',
-      'education_offer.json': 'Bildungsangebot',
-      'learning_material.json': 'Lernmaterial',
-      'person.json': 'Person',
-      'organization.json': 'Organisation',
-      'tool_service.json': 'Tool/Service',
-      'occupation.json': 'Beruf',
-      'didactic_planning_tools.json': 'Didaktisches Planungswerkzeug',
-      'source.json': 'Quelle'
-    };
-    return labels[schemaName] || schemaName;
+    // Try to get localized label from core.json vocabulary
+    const concepts = this.getContentTypeConcepts();
+    const language = this.localizer.getActiveLanguage();
+    
+    const concept = concepts.find(c => c.schema_file === schemaName);
+    if (concept && concept.label) {
+      // Label is either string or {de, en}
+      if (typeof concept.label === 'string') {
+        return concept.label;
+      } else if (typeof concept.label === 'object') {
+        return this.localizer.localizeString(concept.label, language) || schemaName;
+      }
+    }
+    
+    // Fallback to schema name without .json
+    return schemaName.replace('.json', '');
   }
 
   /**
@@ -172,7 +180,7 @@ export class SchemaLoaderService {
     const coreSchema = this.schemaCache.get('core.json');
 
     if (!coreSchema?.fields) {
-      console.warn('⚠️ Core schema not cached. Content type descriptions unavailable.');
+      // Silently return empty array - schema might still be loading
       return [];
     }
 

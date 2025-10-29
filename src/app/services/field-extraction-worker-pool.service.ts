@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { CanvasFieldState, ExtractionResult, FieldExtractionTask } from '../models/canvas-models';
 import { environment } from '../../environments/environment';
 import { OpenAIProxyService } from './openai-proxy.service';
+import { I18nService } from './i18n.service';
 
 interface WorkerTask {
   task: FieldExtractionTask;
@@ -17,7 +18,10 @@ export class FieldExtractionWorkerPoolService {
   private activeWorkers = 0;
   private queue: WorkerTask[] = [];
 
-  constructor(private openaiProxy: OpenAIProxyService) {
+  constructor(
+    private openaiProxy: OpenAIProxyService,
+    private i18n: I18nService
+  ) {
     // Set max workers from environment
     this.maxWorkers = environment.canvas.maxWorkers;
   }
@@ -82,7 +86,7 @@ export class FieldExtractionWorkerPoolService {
 
     try {
       // Build extraction prompt
-      const prompt = this.buildExtractionPrompt(field, userText);
+      const prompt = this.buildExtractionPrompt(field, userText, task.promptModifier);
 
       console.log(`🔍 Extracting field: ${field.label} (${field.fieldId})`);
 
@@ -130,39 +134,43 @@ export class FieldExtractionWorkerPoolService {
   /**
    * Build extraction prompt for a single field
    */
-  private buildExtractionPrompt(field: CanvasFieldState, userText: string): string {
-    let prompt = `Extrahiere folgendes Metadatenfeld aus dem Text:\n\n`;
-    prompt += `Text: "${userText}"\n\n`;
-    prompt += `Feld: ${field.fieldId} (${field.label})\n`;
+  private buildExtractionPrompt(field: CanvasFieldState, userText: string, promptModifier?: string): string {
+    const t = (key: string) => this.i18n.instant(key);
+    
+    // Add explicit language instruction
+    let prompt = `${t('AI_PROMPTS.LANGUAGE_INSTRUCTION')}\n\n`;
+    prompt += `${t('AI_PROMPTS.EXTRACTION.HEADER')}\n\n`;
+    prompt += `${t('AI_PROMPTS.EXTRACTION.TEXT_LABEL')} "${userText}"\n\n`;
+    prompt += `${t('AI_PROMPTS.EXTRACTION.FIELD_LABEL')} ${field.fieldId} (${field.label})\n`;
     
     if (field.description) {
-      prompt += `Beschreibung: ${field.description}\n`;
+      prompt += `${t('AI_PROMPTS.EXTRACTION.DESCRIPTION_LABEL')} ${field.description}\n`;
     }
     
-    prompt += `Typ: ${field.datatype}\n`;
+    prompt += `${t('AI_PROMPTS.EXTRACTION.TYPE_LABEL')} ${field.datatype}\n`;
     
     if (field.multiple) {
-      prompt += `Hinweis: Mehrere Werte möglich (Array)\n`;
+      prompt += `${t('AI_PROMPTS.EXTRACTION.MULTIPLE_HINT')}\n`;
     }
 
     // Add structured shape information for complex objects
     if (field.shape) {
-      prompt += `\nERWARTETE STRUKTUR:\n`;
+      prompt += `\n${t('AI_PROMPTS.EXTRACTION.EXPECTED_STRUCTURE')}\n`;
       prompt += `${JSON.stringify(field.shape, null, 2)}\n`;
-      prompt += `\nWICHTIG: Folge exakt dieser Struktur!\n`;
+      prompt += `\n${t('AI_PROMPTS.EXTRACTION.STRUCTURE_HINT')}\n`;
     }
 
     // Add examples if available
     if (field.examples && field.examples.length > 0) {
-      prompt += `\nBEISPIELE:\n`;
+      prompt += `\n${t('AI_PROMPTS.EXTRACTION.EXAMPLES_HEADER')}\n`;
       field.examples.forEach((example, i) => {
-        prompt += `Beispiel ${i + 1}:\n${JSON.stringify(example, null, 2)}\n`;
+        prompt += `${t('AI_PROMPTS.EXTRACTION.EXAMPLES_LABEL')} ${i + 1}:\n${JSON.stringify(example, null, 2)}\n`;
       });
-      prompt += `\nOrientiere dich an diesen Beispielen!\n`;
+      prompt += `\n${t('AI_PROMPTS.EXTRACTION.EXAMPLES_HINT')}\n`;
     }
 
     if (field.vocabulary && field.vocabulary.concepts.length > 0) {
-      prompt += `\nErlaubte Werte (verwende EXAKT diese Labels):\n`;
+      prompt += `\n${t('AI_PROMPTS.EXTRACTION.ALLOWED_VALUES')}\n`;
       field.vocabulary.concepts.forEach(concept => {
         // Clean label: Remove parentheses with explanations like "(auch: ...)"
         const cleanLabel = concept.label.replace(/\s*\(auch:.*?\)/gi, '').trim();
@@ -175,26 +183,30 @@ export class FieldExtractionWorkerPoolService {
       });
     }
 
-    prompt += `\nAntworte NUR mit einem JSON-Objekt im Format: {"${field.fieldId}": <wert>}\n`;
-    prompt += `Verwende null wenn der Wert nicht extrahierbar ist.\n`;
+    if (promptModifier) {
+      prompt += `\n${t('AI_PROMPTS.EXTRACTION.SPECIAL_INSTRUCTION')} ${promptModifier}\n`;
+    }
+
+    prompt += `\n${t('AI_PROMPTS.EXTRACTION.RESPONSE_FORMAT')} {"${field.fieldId}": <wert>}\n`;
+    prompt += `${t('AI_PROMPTS.EXTRACTION.NULL_HINT')}\n`;
     
     if (field.multiple || field.datatype === 'array') {
       if (field.shape) {
-        prompt += `Für mehrere Werte verwende ein Array von Objekten: {"${field.fieldId}": [{...}, {...}]}\n`;
+        prompt += `${t('AI_PROMPTS.EXTRACTION.MULTIPLE_OBJECTS')} {"${field.fieldId}": [{...}, {...}]}\n`;
       } else {
-        prompt += `Für mehrere Werte verwende ein Array: {"${field.fieldId}": ["Wert1", "Wert2"]}\n`;
+        prompt += `${t('AI_PROMPTS.EXTRACTION.MULTIPLE_ARRAY')} {"${field.fieldId}": ["Wert1", "Wert2"]}\n`;
       }
     }
     
     if (field.vocabulary && field.vocabulary.concepts.length > 0) {
-      prompt += `\n**KRITISCH - Verwende NUR die exakten Labels:**\n`;
-      prompt += `- Gib NUR das Label selbst zurück (in Anführungszeichen)\n`;
-      prompt += `- KEINE eckigen Klammern [Alternativen: ...]\n`;
-      prompt += `- KEINE runden Klammern oder Zusätze\n`;
-      prompt += `- Wenn du ein Alternativ-Label erkennst, nutze das Haupt-Label\n\n`;
-      prompt += `Beispiele:\n`;
+      prompt += `\n${t('AI_PROMPTS.EXTRACTION.CRITICAL_EXACT_LABELS')}\n`;
+      const rules = t('AI_PROMPTS.EXTRACTION.EXACT_LABEL_RULES') as any as string[];
+      rules.forEach(rule => {
+        prompt += `- ${rule}\n`;
+      });
+      prompt += `\n${t('AI_PROMPTS.EXTRACTION.EXAMPLES_LABEL')}\n`;
       prompt += `- Wenn Text "Erziehungswissenschaften" enthält → Ausgabe: {"${field.fieldId}": "Pädagogik"}\n`;
-      prompt += `- Wenn Text "Politische Bildung" enthält → Ausgabe: {"${field.fieldId}": "Politik"}\n`;
+      prompt += `- Wenn Text "Hackathon" mit Hinweis auf Wettbewerb enthält → Ausgabe: {"${field.fieldId}": "Hackathon (Wettbewerb)"}\n`;
       prompt += `- ❌ FALSCH: {"${field.fieldId}": "Pädagogik (auch: ...)"}\n`;
       prompt += `- ❌ FALSCH: {"${field.fieldId}": "Pädagogik [Alternativen: ...]"}\n`;
     }

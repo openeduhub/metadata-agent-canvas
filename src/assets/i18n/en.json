@@ -1,0 +1,208 @@
+{
+  "COMMON": {
+    "LOADING": "Loading...",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "CLOSE": "Close",
+    "BACK": "Back",
+    "NEXT": "Next",
+    "CONFIRM": "Confirm",
+    "DELETE": "Delete",
+    "EDIT": "Edit",
+    "SEARCH": "Search",
+    "FILTER": "Filter",
+    "RESET": "Reset",
+    "DOWNLOAD": "Download",
+    "UPLOAD": "Upload"
+  },
+  "HEADER": {
+    "TITLE": "Metadata Agent",
+    "CLOSE": "Close",
+    "MODE": {
+      "BROWSER_EXTENSION": "Browser Extension",
+      "BOOKMARKLET": "Bookmarklet",
+      "STANDALONE": "Standalone"
+    },
+    "USER": {
+      "GUEST": "Guest",
+      "LOGGED_IN": "Logged In"
+    }
+  },
+  "SIDEBAR": {
+    "TITLE": "Sections",
+    "DESCRIPTION": "Description",
+    "TYPING": "Typology",
+    "PEDAGOGICAL": "Pedagogical",
+    "LICENSE": "License & Source",
+    "CURATION": "Curation",
+    "SECTION": "Section {{index}}"
+  },
+  "INPUT": {
+    "PLACEHOLDER": "Describe the resource you want to catalog...",
+    "START_EXTRACTION": "🚀 Start Extraction",
+    "EXTRACTING": "⏳ Extracting...",
+    "RESET": "🔄 Reset"
+  },
+  "CONTENT_TYPE": {
+    "LABEL": "Content Type",
+    "CHANGE": "✏️ CHANGE",
+    "SELECT": "Select Content Type",
+    "NOT_DETECTED": "Not Detected",
+    "CONFIDENCE": "Confidence"
+  },
+  "PROGRESS": {
+    "FIELDS": "Fields",
+    "REQUIRED": "Required",
+    "OPTIONAL": "Optional",
+    "PERCENTAGE": "Percent",
+    "FIELDS_FILLED": "fields filled",
+    "FIELDS_RECOGNIZED": "fields recognized"
+  },
+  "FIELD": {
+    "REQUIRED": "Required Field",
+    "OPTIONAL": "Optional",
+    "FILLED": "Filled",
+    "EMPTY": "Empty",
+    "EXTRACTING": "Extracting",
+    "ERROR": "Error",
+    "ADD_CHIP": "Add",
+    "REMOVE_CHIP": "Remove",
+    "SHOW_ON_MAP": "Show on OpenStreetMap",
+    "FIELD_INFO": "Field Info"
+  },
+  "EMPTY_STATE": {
+    "TITLE": "Ready for Extraction",
+    "MESSAGE": "Enter a description and click \"Start Extraction\""
+  },
+  "FOOTER": {
+    "FIELDS_INFO": "of {{total}} fields filled",
+    "PROVIDER_INFO": "LLM Provider",
+    "SUBMIT_GUEST": "📮 Submit Suggestion",
+    "SUBMIT_LOGGED_IN": "📤 Publish",
+    "SUBMITTING": "⏳ Submitting...",
+    "REQUIRED_FIELDS_MISSING": "⚠️ Required Fields ({{filled}}/{{total}})",
+    "DOWNLOAD_JSON": "💾 Download JSON",
+    "SEND_TO_PLUGIN": "💾 Send to Plugin",
+    "SENDING": "⏳ Sending..."
+  },
+  "VALIDATION": {
+    "REQUIRED_FIELD": "This field is required",
+    "INVALID_FORMAT": "Invalid format",
+    "INVALID_URL": "Invalid URL",
+    "INVALID_EMAIL": "Invalid email address",
+    "MIN_LENGTH": "Minimum length: {{length}} characters",
+    "MAX_LENGTH": "Maximum length: {{length}} characters"
+  },
+  "ALERTS": {
+    "INPUT_REQUIRED": "Please enter text.",
+    "FILL_REQUIRED_FIELDS": "Please fill in all required fields.",
+    "REQUIRED_FIELDS_STATUS": "Please fill in all required fields. ({{filled}}/{{total}} completed)",
+    "METADATA_SENT": "✅ Publishing metadata...",
+    "SUGGESTION_SUBMITTED": "✅ Submitting suggestion...",
+    "RESET_CONFIRM": "Do you really want to reset all data?",
+    "SUBMIT_AGAIN": "Would you like to submit another suggestion?",
+    "VIEW_IN_REPO": "Would you like to view the existing entry in the repository?",
+    "SUCCESS": {
+      "TITLE": "✅ Successfully Submitted!",
+      "MESSAGE": "Your suggestion has been successfully submitted!",
+      "NODE_ID": "📋 Node ID:",
+      "STATUS": "🔍 Status: Under Review",
+      "REPOSITORY": "📊 Repository: WLO Staging",
+      "THANK_YOU": "Your contribution is now being reviewed by our team. Thank you! 🎉",
+      "VIEW_IN_REPO_BTN": "🔍 View in Repository"
+    },
+    "ERROR": {
+      "SUBMISSION_ERROR": "❌ Submission Error:",
+      "TECHNICAL_ERROR": "❌ Submission Error\n\nA technical error has occurred.\nPlease try again later.",
+      "TRY_AGAIN": "Please try again later or contact support.",
+      "DETAILS": "Details:"
+    },
+    "DUPLICATE": {
+      "TITLE": "⚠️ This URL already exists in the repository!",
+      "NODE_ID": "📋 Node ID:"
+    },
+    "PLUGIN": {
+      "SENT": "📤 Metadata sent to browser plugin!",
+      "MESSAGE": "The data has been successfully transferred to the browser plugin.\nThe plugin will now publish to the repository.\n\nThank you! 🎉"
+    }
+  },
+  "LANGUAGE": {
+    "SWITCH_TO_ENGLISH": "Switch to English",
+    "SWITCH_TO_GERMAN": "Zu Deutsch wechseln",
+    "CURRENT": "Language"
+  },
+  "AI_PROMPTS": {
+    "LANGUAGE_INSTRUCTION": "**LANGUAGE:** Respond in English. Generate titles, descriptions and other texts in English (not the labels from the vocabulary - these must be used exactly as given).",
+    "EXTRACTION": {
+      "HEADER": "Extract the following metadata field from the text:",
+      "TEXT_LABEL": "Text:",
+      "FIELD_LABEL": "Field:",
+      "DESCRIPTION_LABEL": "Description:",
+      "TYPE_LABEL": "Type:",
+      "MULTIPLE_HINT": "Note: Multiple values possible (Array)",
+      "EXPECTED_STRUCTURE": "EXPECTED STRUCTURE:",
+      "STRUCTURE_HINT": "IMPORTANT: Follow this structure exactly!",
+      "EXAMPLES_HEADER": "EXAMPLES:",
+      "EXAMPLES_HINT": "Use these examples as a guide!",
+      "ALLOWED_VALUES": "Allowed values (use EXACTLY these labels):",
+      "SPECIAL_INSTRUCTION": "SPECIAL INSTRUCTION:",
+      "RESPONSE_FORMAT": "Respond ONLY with a JSON object in the format:",
+      "NULL_HINT": "Use null if the value cannot be extracted.",
+      "MULTIPLE_OBJECTS": "For multiple values use an array of objects:",
+      "MULTIPLE_ARRAY": "For multiple values use an array:",
+      "CRITICAL_EXACT_LABELS": "**CRITICAL - Use ONLY the exact labels:**",
+      "EXACT_LABEL_RULES": [
+        "Return ONLY the label exactly as given above (in quotes)",
+        "NO additional words, additions or custom additions in brackets",
+        "If the original label contains brackets or hyphens, keep them unchanged",
+        "If you recognize an alternative label, use the main label",
+        "If NONE of the labels fit, return null"
+      ],
+      "EXAMPLES_LABEL": "Examples:",
+      "EXAMPLE_ALTERNATIVES": "[Alternatives: {{alternatives}}]",
+      "RETRY": {
+        "ATTEMPT": "This is attempt {{attempt}}.",
+        "VOCABULARY_HINT": "Choose exactly one of the labels listed above. The label must match exactly, including multi-word terms or additions in brackets.",
+        "DEFAULT_HINT": "Provide a valid value according to the field description.",
+        "FORMATTING": "No additional words, no paraphrasing, only the pure label in the JSON value."
+      }
+    },
+    "NORMALIZATION": {
+      "HEADER": "You are a data normalizer. Your task is to format user input into the correct format.",
+      "IMPORTANT": "**IMPORTANT: You should NOT re-evaluate or interpret the value, only format it!**",
+      "FIELD_LABEL": "Field:",
+      "DESCRIPTION_LABEL": "Description:",
+      "DATATYPE_LABEL": "Data type:",
+      "BOOLEAN_RULES": "Formatting rules for Boolean:",
+      "NUMBER_RULES": "Formatting rules for Numbers:",
+      "DATE_RULES": "Formatting rules for Date:",
+      "URL_RULES": "Formatting rules for URLs:",
+      "VOCABULARY_HINT": "**IMPORTANT: This field has a controlled vocabulary ({{type}} vocabulary)**",
+      "AVAILABLE_LABELS": "Available labels (use EXACTLY this spelling):",
+      "CLOSED_VOCABULARY": "⚠️ **CLOSED VOCABULARY** - ONLY these exact labels are allowed!",
+      "TASK_HEADER": "**Your task:**",
+      "CRITICAL_OUTPUT": "**CRITICAL - Output format:**",
+      "USER_INPUT": "**User input:",
+      "TASK_NORMALIZE": "**Task:** Normalize this input.",
+      "RESPONSE_FORMAT": "**IMPORTANT - Response format:**",
+      "RESPONSE_HINT": "Respond ONLY with a JSON value, without additional text!",
+      "EXACT_CASE": "Use EXACT capitalization from the vocabulary list!",
+      "EXAMPLE_ANSWER": "Example answer:"
+    },
+    "CONTENT_TYPE": {
+      "HEADER": "Analyze the following text and determine the most appropriate content type.",
+      "TEXT_LABEL": "Text:",
+      "AVAILABLE_TYPES": "Available content types with their definitions:",
+      "REASONING_IMPORTANT": "IMPORTANT for the reasoning:",
+      "REASONING_RULES": [
+        "Refer explicitly to the definitions above",
+        "Explain which key features of the definition are met in the text",
+        "For borderline cases: Explain why this category fits better than others",
+        "Use technical terms from the definitions (e.g., \"time-limited\", \"structured learning program\", \"competency development\")"
+      ],
+      "RESPONSE_FORMAT": "Respond ONLY with a JSON object in the format:",
+      "REASON_LENGTH": "The reason should be max. 15-20 words.",
+      "NO_MATCH": "If none fits:"
+    }
+  }
+}

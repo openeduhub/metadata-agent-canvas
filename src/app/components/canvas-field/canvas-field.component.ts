@@ -1,33 +1,61 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { CanvasFieldState, FieldStatus } from '../../models/canvas-models';
+import { I18nService } from '../../services/i18n.service';
 
 @Component({
   selector: 'app-canvas-field',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './canvas-field.component.html',
   styleUrls: ['./canvas-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default  // Changed from OnPush for sub-fields support
 })
-export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
+export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() field!: CanvasFieldState;
   @Output() fieldChange = new EventEmitter<{ fieldId: string; value: any }>();
   @ViewChild('textareaRef') textareaRef?: ElementRef<HTMLTextAreaElement>;
+  
+  private destroy$ = new Subject<void>();
 
   FieldStatus = FieldStatus;
   filteredOptions: string[] = [];
   showAutocomplete = false;
   inputValue = '';  // Collapsed by default
 
-  constructor() {}
+  constructor(
+    public i18n: I18nService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.updateInputValue();
-    
     if (this.field.vocabulary) {
       this.filteredOptions = this.field.vocabulary.concepts.map(c => c.label);
+    }
+  }
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  
+  /**
+   * Update vocabulary labels (called on language change)
+   */
+  private updateVocabularyLabels(): void {
+    if (this.field.vocabulary) {
+      const newOptions = this.field.vocabulary.concepts.map(c => c.label);
+      this.filteredOptions = newOptions;
+      console.log(`   ✅ Updated vocabulary for ${this.field.fieldId}:`, newOptions.length, 'concepts');
+      console.log(`   First: "${newOptions[0]}"`);
+      
+      // Force change detection to re-render chips with new labels
+      this.cdr.detectChanges();
     }
   }
 
@@ -45,12 +73,84 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
         // Resize textarea after value update
         setTimeout(() => this.autoResizeTextarea(), 0);
       }
+      
+      // Update vocabulary options if vocabulary exists (always check on field change)
+      if (currentField.vocabulary) {
+        const newOptions = currentField.vocabulary.concepts.map(c => c.label);
+        const oldFirstOption = this.filteredOptions[0];
+        const newFirstOption = newOptions[0];
+        
+        // Always update options from field (field was re-localized by canvas service)
+        this.filteredOptions = newOptions;
+        
+        // Log if labels actually changed
+        if (oldFirstOption !== newFirstOption) {
+          console.log(`🌐 Field ${this.field.fieldId} vocabulary updated:`, newOptions.length, 'concepts');
+          console.log(`   Changed: "${oldFirstOption}" → "${newFirstOption}"`);
+          
+          // Debug: Show first concept structure
+          const firstConcept = currentField.vocabulary.concepts[0];
+          if (firstConcept) {
+            console.log(`   First concept:`, {
+              label: firstConcept.label,
+              label_de: firstConcept.label_de,
+              label_en: firstConcept.label_en,
+              uri: firstConcept.uri
+            });
+          }
+          
+          // Force change detection to re-render chips
+          this.cdr.detectChanges();
+        }
+      }
+      
+      // Log label changes (for i18n debugging)
+      if (previousField && currentField.label !== previousField.label) {
+        console.log(`🌐 Field ${this.field.fieldId} label changed: "${previousField.label}" → "${currentField.label}"`);
+      }
     }
   }
 
   ngAfterViewInit(): void {
     // Initial resize
     this.autoResizeTextarea();
+  }
+
+  /**
+   * Get vocabulary label for a value (for i18n)
+   */
+  getVocabularyLabel(value: any): string {
+    // If value is already a string, it might be the label or a primitive value
+    if (typeof value === 'string') {
+      // Try to find in vocabulary by label (current language), label_en, label_de, or uri
+      if (this.field.vocabulary) {
+        const concept = this.field.vocabulary.concepts.find(c => {
+          // Match by current label
+          if (c.label === value) return true;
+          // Match by English label (in case value stores English label)
+          if ((c as any).label_en === value) return true;
+          // Match by German label (in case value stores German label)
+          if ((c as any).label_de === value) return true;
+          // Match by URI
+          if (c.uri === value) return true;
+          // Match by ID (if exists)
+          if ((c as any).id === value) return true;
+          return false;
+        });
+        if (concept) {
+          return concept.label;  // Return localized label
+        }
+      }
+      // Return value as-is if no vocabulary match
+      return value;
+    }
+    
+    // If value is an object, try to extract label or name
+    if (typeof value === 'object' && value !== null) {
+      return value.label || value.name || JSON.stringify(value);
+    }
+    
+    return String(value);
   }
 
   /**
@@ -327,15 +427,29 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
    */
   getTooltipText(): string {
     let tooltip = this.field.description || '';
-    
+
     if (this.field.isRequired) {
       tooltip += '\n\n⚠️ Pflichtfeld';
     }
-    
+
     if (this.field.multiple) {
       tooltip += '\nTrennen Sie mehrere Werte mit Enter oder Komma';
     }
-    
+
+    return tooltip;
+  }
+
+  getTooltipTextForSubField(subField: CanvasFieldState): string {
+    let tooltip = subField.description || '';
+
+    if (subField.isRequired) {
+      tooltip += '\n\n⚠️ Pflichtfeld';
+    }
+
+    if (subField.multiple) {
+      tooltip += '\nTrennen Sie mehrere Werte mit Enter oder Komma';
+    }
+
     return tooltip;
   }
 

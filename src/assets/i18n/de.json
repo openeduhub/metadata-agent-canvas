@@ -1,0 +1,208 @@
+{
+  "COMMON": {
+    "LOADING": "Lädt...",
+    "SAVE": "Speichern",
+    "CANCEL": "Abbrechen",
+    "CLOSE": "Schließen",
+    "BACK": "Zurück",
+    "NEXT": "Weiter",
+    "CONFIRM": "Bestätigen",
+    "DELETE": "Löschen",
+    "EDIT": "Bearbeiten",
+    "SEARCH": "Suchen",
+    "FILTER": "Filtern",
+    "RESET": "Zurücksetzen",
+    "DOWNLOAD": "Herunterladen",
+    "UPLOAD": "Hochladen"
+  },
+  "HEADER": {
+    "TITLE": "Metadata Agent",
+    "CLOSE": "Schließen",
+    "MODE": {
+      "BROWSER_EXTENSION": "Browser-Erweiterung",
+      "BOOKMARKLET": "Bookmarklet",
+      "STANDALONE": "Standalone"
+    },
+    "USER": {
+      "GUEST": "Gast",
+      "LOGGED_IN": "Angemeldet"
+    }
+  },
+  "SIDEBAR": {
+    "TITLE": "Arbeitsbereiche",
+    "DESCRIPTION": "Beschreibung",
+    "TYPING": "Typisierung",
+    "PEDAGOGICAL": "Pädagogisches",
+    "LICENSE": "Lizenz & Quelle",
+    "CURATION": "Erschließung",
+    "SECTION": "Bereich {{index}}"
+  },
+  "INPUT": {
+    "PLACEHOLDER": "Beschreiben Sie die Ressource, die Sie erschließen möchten...",
+    "START_EXTRACTION": "🚀 Extraktion starten",
+    "EXTRACTING": "⏳ Extrahiere...",
+    "RESET": "🔄 Zurücksetzen"
+  },
+  "CONTENT_TYPE": {
+    "LABEL": "Inhaltsart",
+    "CHANGE": "✏️ ÄNDERN",
+    "SELECT": "Inhaltsart wählen",
+    "NOT_DETECTED": "Nicht erkannt",
+    "CONFIDENCE": "Konfidenz"
+  },
+  "PROGRESS": {
+    "FIELDS": "Felder",
+    "REQUIRED": "Pflicht",
+    "OPTIONAL": "Optional",
+    "PERCENTAGE": "Prozent",
+    "FIELDS_FILLED": "Felder gefüllt",
+    "FIELDS_RECOGNIZED": "Felder erkannt"
+  },
+  "FIELD": {
+    "REQUIRED": "Pflichtfeld",
+    "OPTIONAL": "Optional",
+    "FILLED": "Ausgefüllt",
+    "EMPTY": "Leer",
+    "EXTRACTING": "Wird extrahiert",
+    "ERROR": "Fehler",
+    "ADD_CHIP": "Hinzufügen",
+    "REMOVE_CHIP": "Entfernen",
+    "SHOW_ON_MAP": "Auf OpenStreetMap anzeigen",
+    "FIELD_INFO": "Feldinfo"
+  },
+  "EMPTY_STATE": {
+    "TITLE": "Bereit für die Extraktion",
+    "MESSAGE": "Geben Sie eine Beschreibung ein und klicken Sie auf \"Extraktion starten\""
+  },
+  "FOOTER": {
+    "FIELDS_INFO": "von {{total}} Feldern gefüllt",
+    "PROVIDER_INFO": "LLM Provider",
+    "SUBMIT_GUEST": "📮 Vorschlag einreichen",
+    "SUBMIT_LOGGED_IN": "📤 Veröffentlichen",
+    "SUBMITTING": "⏳ Wird eingereicht...",
+    "REQUIRED_FIELDS_MISSING": "⚠️ Pflichtfelder ({{filled}}/{{total}})",
+    "DOWNLOAD_JSON": "💾 JSON herunterladen",
+    "SEND_TO_PLUGIN": "💾 An Plugin senden",
+    "SENDING": "⏳ Wird gesendet..."
+  },
+  "VALIDATION": {
+    "REQUIRED_FIELD": "Dieses Feld ist erforderlich",
+    "INVALID_FORMAT": "Ungültiges Format",
+    "INVALID_URL": "Ungültige URL",
+    "INVALID_EMAIL": "Ungültige E-Mail-Adresse",
+    "MIN_LENGTH": "Mindestlänge: {{length}} Zeichen",
+    "MAX_LENGTH": "Maximale Länge: {{length}} Zeichen"
+  },
+  "ALERTS": {
+    "INPUT_REQUIRED": "Bitte geben Sie einen Text ein.",
+    "FILL_REQUIRED_FIELDS": "Bitte füllen Sie alle Pflichtfelder aus.",
+    "REQUIRED_FIELDS_STATUS": "Bitte füllen Sie alle Pflichtfelder aus. ({{filled}}/{{total}} erfüllt)",
+    "METADATA_SENT": "✅ Metadaten werden veröffentlicht...",
+    "SUGGESTION_SUBMITTED": "✅ Vorschlag wird eingereicht...",
+    "RESET_CONFIRM": "Möchten Sie wirklich alle Daten zurücksetzen?",
+    "SUBMIT_AGAIN": "Möchten Sie einen weiteren Vorschlag einreichen?",
+    "VIEW_IN_REPO": "Möchten Sie den vorhandenen Eintrag im Repository ansehen?",
+    "SUCCESS": {
+      "TITLE": "✅ Erfolgreich eingereicht!",
+      "MESSAGE": "Ihr Vorschlag wurde erfolgreich eingereicht!",
+      "NODE_ID": "📋 Node-ID:",
+      "STATUS": "🔍 Status: Wird geprüft",
+      "REPOSITORY": "📊 Repository: WLO Staging",
+      "THANK_YOU": "Ihr Beitrag wird nun von unserem Team geprüft. Vielen Dank! 🎉",
+      "VIEW_IN_REPO_BTN": "🔍 Im Repository ansehen"
+    },
+    "ERROR": {
+      "SUBMISSION_ERROR": "❌ Fehler beim Einreichen:",
+      "TECHNICAL_ERROR": "❌ Fehler beim Einreichen\n\nEin technischer Fehler ist aufgetreten.\nBitte versuchen Sie es später erneut.",
+      "TRY_AGAIN": "Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.",
+      "DETAILS": "Details:"
+    },
+    "DUPLICATE": {
+      "TITLE": "⚠️ Diese URL existiert bereits im Repository!",
+      "NODE_ID": "📋 Node-ID:"
+    },
+    "PLUGIN": {
+      "SENT": "📤 Metadaten an Browser-Plugin gesendet!",
+      "MESSAGE": "Die Daten wurden erfolgreich an das Browser-Plugin übertragen.\nDas Plugin wird nun die Veröffentlichung im Repository durchführen.\n\nVielen Dank! 🎉"
+    }
+  },
+  "LANGUAGE": {
+    "SWITCH_TO_ENGLISH": "Switch to English",
+    "SWITCH_TO_GERMAN": "Zu Deutsch wechseln",
+    "CURRENT": "Sprache"
+  },
+  "AI_PROMPTS": {
+    "LANGUAGE_INSTRUCTION": "**SPRACHE:** Antworte auf Deutsch. Generiere Titel, Beschreibungen und andere Texte auf Deutsch (nicht die Labels aus dem Vokabular - diese müssen exakt übernommen werden).",
+    "EXTRACTION": {
+      "HEADER": "Extrahiere folgendes Metadatenfeld aus dem Text:",
+      "TEXT_LABEL": "Text:",
+      "FIELD_LABEL": "Feld:",
+      "DESCRIPTION_LABEL": "Beschreibung:",
+      "TYPE_LABEL": "Typ:",
+      "MULTIPLE_HINT": "Hinweis: Mehrere Werte möglich (Array)",
+      "EXPECTED_STRUCTURE": "ERWARTETE STRUKTUR:",
+      "STRUCTURE_HINT": "WICHTIG: Folge exakt dieser Struktur!",
+      "EXAMPLES_HEADER": "BEISPIELE:",
+      "EXAMPLES_HINT": "Orientiere dich an diesen Beispielen!",
+      "ALLOWED_VALUES": "Erlaubte Werte (verwende EXAKT diese Labels):",
+      "SPECIAL_INSTRUCTION": "SPEZIELLE ANWEISUNG:",
+      "RESPONSE_FORMAT": "Antworte NUR mit einem JSON-Objekt im Format:",
+      "NULL_HINT": "Verwende null wenn der Wert nicht extrahierbar ist.",
+      "MULTIPLE_OBJECTS": "Für mehrere Werte verwende ein Array von Objekten:",
+      "MULTIPLE_ARRAY": "Für mehrere Werte verwende ein Array:",
+      "CRITICAL_EXACT_LABELS": "**KRITISCH - Verwende NUR die exakten Labels:**",
+      "EXACT_LABEL_RULES": [
+        "Gib NUR das Label exakt wie oben angegeben zurück (in Anführungszeichen)",
+        "KEINE zusätzlichen Wörter, Ergänzungen oder eigenen Klammerzusätze",
+        "Falls das Original-Label Klammern oder Bindestriche enthält, übernimm diese unverändert",
+        "Wenn du ein Alternativ-Label erkennst, nutze das Haupt-Label",
+        "Wenn KEINES der Labels passt, gib null zurück"
+      ],
+      "EXAMPLES_LABEL": "Beispiele:",
+      "EXAMPLE_ALTERNATIVES": "[Alternativen: {{alternatives}}]",
+      "RETRY": {
+        "ATTEMPT": "Dies ist Versuch {{attempt}}.",
+        "VOCABULARY_HINT": "Wähle exakt eines der oben aufgeführten Labels. Das Label muss 1:1 übereinstimmen, inklusive Mehrwort-Bezeichnungen oder Klammerzusätzen.",
+        "DEFAULT_HINT": "Liefere einen gültigen Wert entsprechend der Feldbeschreibung.",
+        "FORMATTING": "Keine zusätzlichen Wörter, keine Umschreibungen, nur das reine Label im JSON-Wert."
+      }
+    },
+    "NORMALIZATION": {
+      "HEADER": "Du bist ein Daten-Normalisierer. Deine Aufgabe ist es, Benutzereingaben in das korrekte Format zu bringen.",
+      "IMPORTANT": "**WICHTIG: Du sollst den Wert NICHT neu bewerten oder interpretieren, sondern nur formatieren!**",
+      "FIELD_LABEL": "Feld:",
+      "DESCRIPTION_LABEL": "Beschreibung:",
+      "DATATYPE_LABEL": "Datentyp:",
+      "BOOLEAN_RULES": "Format-Regeln für Boolean:",
+      "NUMBER_RULES": "Format-Regeln für Zahlen:",
+      "DATE_RULES": "Format-Regeln für Datum:",
+      "URL_RULES": "Format-Regeln für URLs:",
+      "VOCABULARY_HINT": "**WICHTIG: Dieses Feld hat ein kontrolliertes Vokabular ({{type}} vocabulary)**",
+      "AVAILABLE_LABELS": "Verfügbare Labels (nutze EXAKT diese Schreibweise):",
+      "CLOSED_VOCABULARY": "⚠️ **CLOSED VOCABULARY** - NUR diese exakten Labels sind erlaubt!",
+      "TASK_HEADER": "**Deine Aufgabe:**",
+      "CRITICAL_OUTPUT": "**KRITISCH - Ausgabe-Format:**",
+      "USER_INPUT": "**Benutzereingabe:",
+      "TASK_NORMALIZE": "**Aufgabe:** Normalisiere diese Eingabe.",
+      "RESPONSE_FORMAT": "**WICHTIG - Antwort-Format:**",
+      "RESPONSE_HINT": "Antworte NUR mit einem JSON-Wert, ohne zusätzlichen Text!",
+      "EXACT_CASE": "Verwende EXAKTE Groß-/Kleinschreibung aus der Vocabulary-Liste!",
+      "EXAMPLE_ANSWER": "Beispiel-Antwort:"
+    },
+    "CONTENT_TYPE": {
+      "HEADER": "Analysiere folgenden Text und bestimme die passendste Inhaltsart.",
+      "TEXT_LABEL": "Text:",
+      "AVAILABLE_TYPES": "Verfügbare Inhaltsarten mit ihren Definitionen:",
+      "REASONING_IMPORTANT": "WICHTIG für die Begründung:",
+      "REASONING_RULES": [
+        "Beziehe dich explizit auf die Definitionen oben",
+        "Erkläre, welche Schlüsselmerkmale der Definition im Text erfüllt sind",
+        "Bei Grenzfällen: Erkläre warum diese Kategorie besser passt als andere",
+        "Nutze Fachbegriffe aus den Definitionen (z.B. \"zeitlich begrenzt\", \"strukturiertes Lernprogramm\", \"Kompetenzaufbau\")"
+      ],
+      "RESPONSE_FORMAT": "Antworte NUR mit einem JSON-Objekt im Format:",
+      "REASON_LENGTH": "Die Begründung sollte max. 15-20 Wörter haben.",
+      "NO_MATCH": "Wenn keine passt:"
+    }
+  }
+}

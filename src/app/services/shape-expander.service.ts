@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanvasFieldState, FieldStatus } from '../models/canvas-models';
+import { SchemaLocalizerService } from './schema-localizer.service';
 
 /**
  * Service to expand fields with complex shapes into editable sub-fields
@@ -10,20 +11,25 @@ import { CanvasFieldState, FieldStatus } from '../models/canvas-models';
 })
 export class ShapeExpanderService {
 
+  constructor(private localizer: SchemaLocalizerService) {}
+
   /**
    * Expand a field with shape definition into sub-fields
-   * @param parentField The parent field with shape definition
+   * Uses full schema definitions from variants for i18n, validation, normalization
+   * @param parentField The parent field with shape/variants definition
    * @param extractedValue The extracted value (array of objects or single object)
+   * @param schemaFieldDef The full field definition from schema (with variants)
    * @returns Array of sub-fields that can be edited individually
    */
-  expandFieldWithShape(parentField: CanvasFieldState, extractedValue: any): CanvasFieldState[] {
-    if (!parentField.shape) {
+  expandFieldWithShape(parentField: CanvasFieldState, extractedValue: any, schemaFieldDef?: any): CanvasFieldState[] {
+    if (!parentField.shape && !schemaFieldDef?.system?.items?.variants) {
       return [];
     }
 
-    console.log(`🔍 Expanding field ${parentField.fieldId} with shape:`, parentField.shape);
+    console.log(`🔍 Expanding field ${parentField.fieldId} with schema definition:`, schemaFieldDef?.system?.items?.variants);
 
     const subFields: CanvasFieldState[] = [];
+    const language = this.localizer.getActiveLanguage();
 
     // Handle array of objects (e.g., multiple locations)
     if (Array.isArray(extractedValue)) {
@@ -32,7 +38,9 @@ export class ShapeExpanderService {
           parentField,
           item,
           index,
-          parentField.shape
+          parentField.shape || schemaFieldDef,
+          schemaFieldDef,
+          language
         );
         subFields.push(...itemSubFields);
       });
@@ -42,7 +50,9 @@ export class ShapeExpanderService {
         parentField,
         extractedValue,
         0,
-        parentField.shape
+        parentField.shape || schemaFieldDef,
+        schemaFieldDef,
+        language
       );
       subFields.push(...itemSubFields);
     }
@@ -52,71 +62,121 @@ export class ShapeExpanderService {
   }
 
   /**
-   * Create sub-fields from a single object based on shape definition
+   * Create sub-fields from a single object using full schema definitions
    */
   private createSubFieldsFromObject(
     parentField: CanvasFieldState,
     objectValue: any,
     arrayIndex: number,
-    shapeDefinition: any
+    shapeDefinition: any,
+    schemaFieldDef: any,
+    language: 'de' | 'en'
   ): CanvasFieldState[] {
     const subFields: CanvasFieldState[] = [];
 
-    // Handle oneOf (multiple possible schemas)
-    let activeShape = shapeDefinition;
-    if (shapeDefinition.oneOf && Array.isArray(shapeDefinition.oneOf)) {
-      // Determine which shape matches based on @type or available properties
-      const matchedShape = this.findMatchingShape(objectValue, shapeDefinition.oneOf);
-      activeShape = matchedShape || shapeDefinition.oneOf[0];
-    }
-
-    // Create sub-fields for each property in the shape
-    Object.keys(activeShape).forEach(key => {
-      if (key === 'oneOf' || key === '@type') {
-        return; // Skip meta properties
-      }
-
-      const propertyDef = activeShape[key];
-      const propertyValue = objectValue[key];
-
-      // Handle nested objects (e.g., address)
-      if (typeof propertyDef === 'object' && !Array.isArray(propertyDef)) {
-        // Check if it's a nested object definition
-        const nestedKeys = Object.keys(propertyDef);
-        if (nestedKeys.length > 0 && nestedKeys[0] !== 'type') {
-          // It's a nested object - create sub-fields recursively
-          Object.keys(propertyDef).forEach(nestedKey => {
-            const nestedValue = propertyValue && typeof propertyValue === 'object' 
-              ? propertyValue[nestedKey] 
-              : null;
-
-            const subField = this.createSubField(
+    // NEW: Use variants from schema if available (preferred)
+    if (schemaFieldDef?.system?.items?.variants) {
+      const variants = schemaFieldDef.system.items.variants;
+      
+      // Find matching variant based on @type or first variant
+      const matchedVariant = this.findMatchingVariant(objectValue, variants) || variants[0];
+      
+      if (matchedVariant?.fields) {
+        // Use full schema field definitions
+        matchedVariant.fields.forEach((fieldDef: any) => {
+          const fieldValue = objectValue[fieldDef.id];
+          
+          // Handle nested fields (e.g., address with streetAddress, postalCode)
+          if (fieldDef.fields && Array.isArray(fieldDef.fields)) {
+            fieldDef.fields.forEach((nestedFieldDef: any) => {
+              const nestedValue = fieldValue && typeof fieldValue === 'object'
+                ? fieldValue[nestedFieldDef.id]
+                : null;
+              
+              const subField = this.createSubFieldFromSchema(
+                parentField,
+                `${fieldDef.id}.${nestedFieldDef.id}`,
+                nestedFieldDef,
+                nestedValue,
+                arrayIndex,
+                language
+              );
+              subFields.push(subField);
+            });
+          } else {
+            // Simple field
+            const subField = this.createSubFieldFromSchema(
               parentField,
-              `${key}.${nestedKey}`,
-              this.formatLabel(nestedKey),
-              propertyDef[nestedKey],
-              nestedValue,
-              arrayIndex
+              fieldDef.id,
+              fieldDef,
+              fieldValue,
+              arrayIndex,
+              language
             );
             subFields.push(subField);
-          });
-          return;
-        }
+          }
+        });
+      }
+    } else {
+      // FALLBACK: Old logic for backwards compatibility
+      let activeShape = shapeDefinition;
+      if (shapeDefinition.oneOf && Array.isArray(shapeDefinition.oneOf)) {
+        const matchedShape = this.findMatchingShape(objectValue, shapeDefinition.oneOf);
+        activeShape = matchedShape || shapeDefinition.oneOf[0];
       }
 
-      // Create simple sub-field
-      const subField = this.createSubField(
-        parentField,
-        key,
-        this.formatLabel(key),
-        propertyDef,
-        propertyValue,
-        arrayIndex
-      );
-      subFields.push(subField);
-    });
+      Object.keys(activeShape).forEach(key => {
+        if (key === 'oneOf' || key === '@type') return;
+
+        const propertyDef = activeShape[key];
+        const propertyValue = objectValue[key];
+
+        if (typeof propertyDef === 'object' && !Array.isArray(propertyDef)) {
+          const nestedKeys = Object.keys(propertyDef);
+          if (nestedKeys.length > 0 && nestedKeys[0] !== 'type') {
+            Object.keys(propertyDef).forEach(nestedKey => {
+              const nestedValue = propertyValue && typeof propertyValue === 'object' 
+                ? propertyValue[nestedKey] 
+                : null;
+
+              const subField = this.createSubField(
+                parentField,
+                `${key}.${nestedKey}`,
+                this.formatLabel(nestedKey),
+                propertyDef[nestedKey],
+                nestedValue,
+                arrayIndex
+              );
+              subFields.push(subField);
+            });
+            return;
+          }
+        }
+
+        const subField = this.createSubField(
+          parentField,
+          key,
+          this.formatLabel(key),
+          propertyDef,
+          propertyValue,
+          arrayIndex
+        );
+        subFields.push(subField);
+      });
+    }
 
     return subFields;
+  }
+
+  /**
+   * Find which variant matches the object based on @type
+   */
+  private findMatchingVariant(objectValue: any, variants: any[]): any {
+    if (objectValue['@type']) {
+      const match = variants.find(v => v['@type'] === objectValue['@type']);
+      if (match) return match;
+    }
+    return variants[0]; // Default to first variant
   }
 
   /**
@@ -148,7 +208,56 @@ export class ShapeExpanderService {
   }
 
   /**
-   * Create a single sub-field
+   * Create sub-field from full schema definition (NEW)
+   */
+  private createSubFieldFromSchema(
+    parentField: CanvasFieldState,
+    propertyPath: string,
+    fieldDef: any,
+    value: any,
+    arrayIndex: number,
+    language: 'de' | 'en'
+  ): CanvasFieldState {
+    const fullPath = arrayIndex > 0 
+      ? `${parentField.fieldId}[${arrayIndex}].${propertyPath}`
+      : `${parentField.fieldId}.${propertyPath}`;
+
+    // Use schema definitions with i18n
+    const label = this.localizer.localizeString(fieldDef.label, language) || this.formatLabel(fieldDef.id);
+    const description = this.localizer.localizeString(fieldDef.description, language) || '';
+    const datatype = fieldDef.system?.datatype || 'string';
+    const isRequired = fieldDef.system?.required || false;
+    const aiFillable = fieldDef.system?.ai_fillable !== false;
+
+    return {
+      fieldId: fullPath,
+      uri: fieldDef.system?.uri || `${parentField.uri}#${propertyPath}`,
+      label: label,
+      description: description,
+      group: parentField.group,
+      groupLabel: parentField.groupLabel,
+      groupOrder: parentField.groupOrder,
+      schemaName: parentField.schemaName,
+      aiFillable: aiFillable,
+      status: value !== null && value !== undefined ? FieldStatus.FILLED : FieldStatus.EMPTY,
+      value: value,
+      confidence: value !== null && value !== undefined ? 1.0 : 0,
+      isRequired: isRequired,
+      datatype: datatype,
+      multiple: fieldDef.system?.multiple || false,
+      parentFieldId: parentField.fieldId,
+      path: propertyPath,
+      arrayIndex: arrayIndex,
+      // NEW: Add validation, normalization, vocabulary from schema
+      validation: fieldDef.system?.validation,
+      normalization: fieldDef.system?.normalization,
+      vocabulary: fieldDef.system?.vocabulary ? 
+        this.localizer.localizeVocabulary(fieldDef.system.vocabulary, language) : undefined
+    };
+  }
+
+  /**
+   * Create a single sub-field (OLD - for backwards compatibility)
    */
   private createSubField(
     parentField: CanvasFieldState,
@@ -172,11 +281,11 @@ export class ShapeExpanderService {
       groupLabel: parentField.groupLabel,
       groupOrder: parentField.groupOrder,
       schemaName: parentField.schemaName,
-      aiFillable: false, // Sub-fields are not AI-fillable directly
+      aiFillable: false,
       status: value !== null && value !== undefined ? FieldStatus.FILLED : FieldStatus.EMPTY,
       value: value,
       confidence: value !== null && value !== undefined ? 1.0 : 0,
-      isRequired: false, // Could be enhanced from schema
+      isRequired: false,
       datatype: datatype,
       multiple: false,
       parentFieldId: parentField.fieldId,

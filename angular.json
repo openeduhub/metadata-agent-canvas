@@ -17,6 +17,7 @@
             "main": "src/main.ts",
             "polyfills": ["zone.js", "src/polyfills.ts"],
             "tsConfig": "tsconfig.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
               "src/assets", 
               "src/schemata",
@@ -34,6 +35,9 @@
             "styles": ["src/styles.scss"],
             "scripts": ["src/assets/canvas-integration.js"],
             "extractLicenses": false,
+            "optimization": {
+              "fonts": false
+            },
             "allowedCommonJsDependencies": [
               "camelcase",
               "decamelize",
@@ -61,7 +65,11 @@
               "outputHashing": "all"
             },
             "development": {
-              "optimization": false,
+              "optimization": {
+                "scripts": false,
+                "styles": false,
+                "fonts": false
+              },
               "sourceMap": true,
               "extractLicenses": false
             }

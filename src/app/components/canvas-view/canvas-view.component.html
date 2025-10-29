@@ -19,7 +19,15 @@
         </span>
       </span>
     </div>
-    <button class="btn-close" (click)="closeCanvas()" title="Schließen">×</button>
+    <div class="header-right">
+      <app-language-switcher></app-language-switcher>
+      <button class="btn-close" (click)="closeCanvas()" [title]="'HEADER.CLOSE' | translate">×</button>
+    </div>
+  </div>
+
+  <!-- Language Switcher for Standalone Mode (no browser extension header) -->
+  <div class="standalone-language-switcher" *ngIf="!integrationMode.isBrowserExtension() && !integrationMode.isBookmarklet()">
+    <app-language-switcher></app-language-switcher>
   </div>
 
   <!-- Input Section -->
@@ -27,7 +35,7 @@
     <textarea
       class="text-input"
       [(ngModel)]="userText"
-      placeholder="Beschreiben Sie die Ressource, die Sie erschließen möchten..."
+      [placeholder]="'INPUT.PLACEHOLDER' | translate"
       rows="4"
       [disabled]="state.isExtracting"
     ></textarea>
@@ -38,8 +46,8 @@
         (click)="startExtraction()"
         [disabled]="state.isExtracting || !userText.trim()"
       >
-        <span *ngIf="!state.isExtracting">🚀 Extraktion starten</span>
-        <span *ngIf="state.isExtracting">⏳ Extrahiere...</span>
+        <span *ngIf="!state.isExtracting">{{ 'INPUT.START_EXTRACTION' | translate }}</span>
+        <span *ngIf="state.isExtracting">{{ 'INPUT.EXTRACTING' | translate }}</span>
       </button>
       
       <button 
@@ -47,7 +55,7 @@
         (click)="reset()"
         [disabled]="state.isExtracting"
       >
-        🔄 Zurücksetzen
+        {{ 'INPUT.RESET' | translate }}
       </button>
     </div>
   </div>
@@ -70,9 +78,9 @@
         class="btn-change-content-type"
         (click)="changeContentType()"
         [disabled]="state.isExtracting"
-        title="Inhaltsart ändern"
+        [title]="'CONTENT_TYPE.CHANGE' | translate"
       >
-        ✏️ ÄNDERN
+        {{ 'CONTENT_TYPE.CHANGE' | translate }}
       </button>
     </div>
 
@@ -80,11 +88,11 @@
     <div class="progress-section-compact">
       <div class="field-stats">
         <span class="stat-item total">
-          Felder: {{ state.filledFields }}/{{ state.totalFields }} ({{ getProgressPercentage() }}%)
+          {{ 'PROGRESS.FIELDS' | translate }}: {{ state.filledFields }}/{{ state.totalFields }} ({{ getProgressPercentage() }}%)
         </span>
         <span class="stat-separator">|</span>
         <span class="stat-item">
-          Pflicht: {{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }}
+          {{ 'PROGRESS.REQUIRED' | translate }}: {{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }}
         </span>
         <span class="progress-emoji">{{ getProgressEmoji() }}</span>
       </div>
@@ -101,7 +109,7 @@
       <div class="dropdown-overlay" (click)="closeContentTypeDropdown()"></div>
       <div class="dropdown-menu">
         <div class="dropdown-header">
-          <span>Inhaltsart wählen</span>
+          <span>{{ 'CONTENT_TYPE.SELECT' | translate }}</span>
           <button class="btn-close" (click)="closeContentTypeDropdown()">&times;</button>
         </div>
         <div class="dropdown-options">
@@ -129,7 +137,7 @@
         <div class="group-badges">
           <span class="group-badge schema-badge">{{ group.schemaName }}</span>
           <span class="group-badge count-badge">{{ getFilledFieldsCount(group) }} / {{ group.fields.length }}</span>
-          <span class="badge-text">Felder erkannt</span>
+          <span class="badge-text">{{ 'PROGRESS.FIELDS_RECOGNIZED' | translate }}</span>
         </div>
       </div>
       <div class="group-fields">
@@ -146,8 +154,8 @@
   <div *ngIf="state.fieldGroups.length === 0" class="empty-state">
     <div class="empty-state-content">
       <div class="empty-icon">📝</div>
-      <h3>Bereit für die Extraktion</h3>
-      <p>Geben Sie eine Beschreibung ein und klicken Sie auf "Extraktion starten"</p>
+      <h3>{{ 'EMPTY_STATE.TITLE' | translate }}</h3>
+      <p>{{ 'EMPTY_STATE.MESSAGE' | translate }}</p>
     </div>
   </div>
 
@@ -155,7 +163,7 @@
   <div class="canvas-footer" *ngIf="state.totalFields > 0">
     <div class="footer-info">
       <span>
-        <strong>{{ state.filledFields }}</strong> von <strong>{{ state.totalFields }}</strong> Feldern gefüllt
+        <strong>{{ state.filledFields }}</strong> {{ 'FOOTER.FIELDS_INFO' | translate:{ total: state.totalFields } }}
       </span>
       <div class="provider-info">{{ llmProvider }} ({{ llmModel }})</div>
     </div>
@@ -166,21 +174,19 @@
           class="btn-success btn-large edu-btn edu-btn-primary"
           (click)="submitAsGuest()"
           [disabled]="!allRequiredFieldsFilled() || isSubmitting"
-          title="Als Gast zur Prüfung einreichen"
         >
-          <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">📮 Vorschlag einreichen</span>
-          <span *ngIf="isSubmitting">⏳ Wird eingereicht...</span>
-          <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+          <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SUBMIT_GUEST' | translate }}</span>
+          <span *ngIf="isSubmitting">{{ 'FOOTER.SUBMITTING' | translate }}</span>
+          <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
         </button>
         
         <button 
           class="btn-secondary btn-large edu-btn edu-btn-outline"
           (click)="downloadJson()"
           [disabled]="!allRequiredFieldsFilled()"
-          title="Als JSON-Datei herunterladen"
         >
-          <span *ngIf="allRequiredFieldsFilled()">💾 JSON herunterladen</span>
-          <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder fehlen</span>
+          <span *ngIf="allRequiredFieldsFilled()">{{ 'FOOTER.DOWNLOAD_JSON' | translate }}</span>
+          <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
         </button>
       </ng-container>
       
@@ -190,21 +196,19 @@
           class="btn-success btn-large edu-btn edu-btn-primary"
           (click)="submitAsGuest()"
           [disabled]="!allRequiredFieldsFilled() || isSubmitting"
-          title="Als Gast zur Prüfung einreichen"
         >
-          <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">📮 Vorschlag einreichen</span>
-          <span *ngIf="isSubmitting">⏳ Wird eingereicht...</span>
-          <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+          <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SUBMIT_GUEST' | translate }}</span>
+          <span *ngIf="isSubmitting">{{ 'FOOTER.SUBMITTING' | translate }}</span>
+          <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
         </button>
         
         <button 
           class="btn-secondary btn-large edu-btn edu-btn-outline"
           (click)="downloadJson()"
           [disabled]="!allRequiredFieldsFilled()"
-          title="Als JSON-Datei herunterladen"
         >
-          <span *ngIf="allRequiredFieldsFilled()">💾 JSON herunterladen</span>
-          <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder fehlen</span>
+          <span *ngIf="allRequiredFieldsFilled()">{{ 'FOOTER.DOWNLOAD_JSON' | translate }}</span>
+          <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
         </button>
       </ng-container>
       
@@ -214,11 +218,10 @@
         class="btn-success btn-large edu-btn edu-btn-primary edu-btn-block"
         (click)="submitAsGuest()"
         [disabled]="!allRequiredFieldsFilled() || isSubmitting"
-        [title]="!allRequiredFieldsFilled() ? 'Bitte füllen Sie alle Pflichtfelder aus' : 'An Browser-Plugin senden'"
       >
-        <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">💾 An Plugin senden</span>
-        <span *ngIf="isSubmitting">⏳ Wird gesendet...</span>
-        <span *ngIf="!isSubmitting && !allRequiredFieldsFilled()">⚠️ Pflichtfelder ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+        <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SEND_TO_PLUGIN' | translate }}</span>
+        <span *ngIf="isSubmitting">{{ 'FOOTER.SENDING' | translate }}</span>
+        <span *ngIf="!isSubmitting && !allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
       </button>
     </div>
   </div>

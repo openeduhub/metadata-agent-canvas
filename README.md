@@ -17,6 +17,7 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 - ✅ **Validierung**: Pflichtfelder, Vokabulare, Datentypen
 - 🔒 **Sicher**: API-Key wird nie im Code gespeichert (Production)
 - 🔌 **Multi-Provider Support**: OpenAI, B-API OpenAI, B-API AcademicCloud (DeepSeek-R1)
+- 🌐 **Vollständig i18n**: Deutsch/Englisch für UI, Schemas, Vokabulare und KI-Prompts
 
 ### Integration Modes
 - 🌐 **Standalone**: Direkter Zugriff auf deployed URL
@@ -1009,6 +1010,110 @@ Die Geocoding-Funktion ist **standardmäßig aktiviert** und benötigt keine Kon
 
 ---
 
+## 🌐 Internationalisierung (i18n)
+
+Die App unterstützt **vollständige Mehrsprachigkeit** mit Deutsch (DE) und Englisch (EN).
+
+### Features
+
+**✅ Vollständig lokalisiert:**
+- **UI-Elemente**: Buttons, Labels, Placeholder, Meldungen
+- **Schema-Daten**: Feld-Labels, Beschreibungen, Gruppen
+- **Vokabulare**: Alle Konzept-Labels in beiden Sprachen
+- **KI-Prompts**: Extraktion und Normalisierung mehrsprachig
+- **Alerts & Dialogs**: Success, Error, Confirmation
+
+### Language Switcher
+
+**Position:** Rechts oben im Header (Flaggen-Symbol 🇩🇪 / 🇬🇧)
+
+**Funktionen:**
+- Dropdown mit DE/EN Auswahl
+- Persistierung in localStorage
+- Automatische Browser-Erkennung beim ersten Start
+- Echtzeit-Umschaltung ohne Page-Reload
+
+### Sprachwechsel-Verhalten
+
+**Was ändert sich:**
+```
+DE → EN
+  ↓
+✅ UI-Texte (sofort)
+✅ Schema-Feldlabels (sofort)
+✅ Vokabular-Chips (remapping)
+✅ KI-Prompts (nächste Extraktion)
+❌ Bereits extrahierte Werte (bleiben unverändert)
+```
+
+### Schema-i18n-Struktur
+
+**Beispiel:**
+```json
+{
+  "id": "cclom:title",
+  "label": {
+    "de": "Titel",
+    "en": "Title"
+  },
+  "description": {
+    "de": "Aussagekräftiger Titel der Ressource.",
+    "en": "Concise title of the resource."
+  },
+  "examples": {
+    "de": ["Zukunft der Hochschullehre"],
+    "en": ["Future of Higher Education"]
+  }
+}
+```
+
+**Vokabular-Konzepte:**
+```json
+{
+  "concepts": [
+    {
+      "label": {
+        "de": "Elementarbereich",
+        "en": "elementary level"
+      },
+      "uri": "http://w3id.org/openeduhub/vocabs/educationalContext/elementarbereich"
+    }
+  ]
+}
+```
+
+### Cross-Language Value Matching
+
+**Problem:** Wert wurde in DE gespeichert, Sprache wechselt zu EN.
+
+**Lösung:** Vokabulare bewahren beide Sprachen:
+```typescript
+{
+  label: "author",         // Aktuelles Label (EN)
+  label_de: "Autor/in",    // DE für Matching
+  label_en: "author",      // EN für Matching
+  uri: "http://..."
+}
+```
+
+Chips zeigen automatisch das korrekte Label der aktiven Sprache! ✅
+
+### Weitere Infos
+
+**Vollständige Dokumentation:**
+- **[INTERNATIONALIZATION.md](./docs/INTERNATIONALIZATION.md)** - App-UI i18n Details
+- **[SCHEMA_I18N.md](./docs/SCHEMA_I18N.md)** - Schema-Datenstruktur i18n
+
+**Translation Files:**
+- `src/assets/i18n/de.json` - Deutsche Übersetzungen
+- `src/assets/i18n/en.json` - Englische Übersetzungen
+
+**Services:**
+- `I18nService` - UI-Übersetzungen & Sprachwechsel
+- `SchemaLocalizerService` - Schema-Daten-Lokalisierung
+
+---
+
 ## 🌳 Verschachtelte Felder & Baum-Hierarchie
 
 Die App unterstützt **komplexe verschachtelte Felder** mit visueller Baum-Darstellung.
@@ -1084,16 +1189,29 @@ Die App unterstützt **komplexe verschachtelte Felder** mit visueller Baum-Darst
 
 Die Schemata befinden sich in `src/schemata/` und definieren Metadatenfelder.
 
-### Feld-Definition
+**🌐 Alle Schemas unterstützen vollständige i18n (DE/EN)!**
+
+### Feld-Definition (mit i18n)
 
 ```json
 {
   "id": "schema:startDate",
   "group": "schedule",
-  "group_label": "Zeit & Status",
+  "label": {
+    "de": "Start (Datum/Zeit)",
+    "en": "Start (Date/Time)"
+  },
+  "description": {
+    "de": "Startdatum und -zeit der Veranstaltung im ISO 8601-Format",
+    "en": "Start date and time of the event in ISO 8601 format"
+  },
+  "examples": {
+    "de": ["2026-09-15T10:00:00", "2027-01-10"],
+    "en": ["2026-09-15T10:00:00", "2027-01-10"]
+  },
   "prompt": {
-    "label": "Start (Datum/Zeit)",
-    "description": "Start im ISO 8601-Format"
+    "de": "Extrahiere das Startdatum",
+    "en": "Extract the start date"
   },
   "system": {
     "path": "schema:startDate",
@@ -1109,6 +1227,8 @@ Die Schemata befinden sich in `src/schemata/` und definieren Metadatenfelder.
   }
 }
 ```
+
+**💡 Hinweis:** Labels, Beschreibungen und Beispiele sind immer als `{de: "...", en: "..."}` Objekte definiert.
 
 ### Wichtige Feld-Optionen
 
@@ -1190,14 +1310,26 @@ Steuert **Normalisierung** und **Validierung**:
     "type": "closed",  // oder "open", "skos"
     "concepts": [
       {
-        "label": "Grundschule",
+        "label": {
+          "de": "Grundschule",
+          "en": "primary school"
+        },
         "uri": "http://w3id.org/openeduhub/vocabs/educationalContext/grundschule",
-        "altLabels": ["Primary School", "GS"]
+        "description": {
+          "de": "Bildungsstufe für Kinder von 6-10 Jahren",
+          "en": "Education level for children aged 6-10"
+        },
+        "altLabels": {
+          "de": ["Primarstufe", "GS"],
+          "en": ["primary level", "elementary school"]
+        }
       }
     ]
   }
 }
 ```
+
+**🌐 i18n-Support:** Alle Konzepte haben Labels in DE und EN!
 
 **Vocabulary-Typen:**
 
