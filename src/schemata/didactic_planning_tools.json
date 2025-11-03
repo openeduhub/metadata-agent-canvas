@@ -89,6 +89,7 @@
         "required": true,
         "ask_user": true,
         "ai_fillable": true,
+        "repo_field": false,
         "index": {
           "keyword": true
         },
@@ -455,7 +456,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -566,7 +568,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -665,7 +668,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -722,7 +726,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -962,7 +967,8 @@
         },
         "normalization": {
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1025,7 +1031,8 @@
         },
         "normalization": {
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1076,7 +1083,8 @@
         },
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1127,7 +1135,8 @@
         },
         "normalization": {
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1190,7 +1199,8 @@
         },
         "normalization": {
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1250,7 +1260,8 @@
         },
         "normalization": {
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1385,7 +1396,8 @@
         },
         "normalization": {
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1414,7 +1426,8 @@
         "validation": {
           "minimum": 1,
           "maximum": 5
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1474,7 +1487,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1546,7 +1560,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1618,7 +1633,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1684,7 +1700,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1716,7 +1733,8 @@
         "normalization": {
           "trim": true,
           "case": "upper"
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1785,7 +1803,8 @@
         },
         "normalization": {
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1851,7 +1870,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1941,7 +1961,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2001,7 +2022,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2061,7 +2083,8 @@
               }
             }
           ]
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2274,7 +2297,8 @@
         },
         "normalization": {
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     }
   ],
@@ -2289,11 +2313,9 @@
     "dpf:learning_objectives": [],
     "dpf:assessment_purpose": [],
     "dpf:assessment_agent": [],
-    "dpf:assessment_norm": [
-      "KRIT"
-    ],
+    "dpf:assessment_norm": [],
     "dpf:assessment_method": [],
-    "dpf:difficulty": 3,
+    "dpf:difficulty": null,
     "dpf:modality": "",
     "dpf:social_form": "",
     "dpf:support_mode": "",

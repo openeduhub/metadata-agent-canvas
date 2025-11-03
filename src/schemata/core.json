@@ -274,7 +274,7 @@
       }
     },
     {
-      "id": "ccm:author_freetext",
+      "id": "cm:author",
       "group": "publication",
       "label": {
         "de": "Autor:in / Urheber:in",
@@ -289,8 +289,8 @@
         "en": ""
       },
       "system": {
-        "path": "ccm:author_freetext",
-        "uri": "ccm:author_freetext",
+        "path": "cm:author",
+        "uri": "cm:author",
         "datatype": "array",
         "multiple": true,
         "required": false,
@@ -544,7 +544,7 @@
         "required": false,
         "ask_user": false,
         "ai_fillable": false,
-        "repo_field": true,
+        "repo_field": false,
         "index": {
           "keyword": true
         },
@@ -1392,7 +1392,7 @@
     "cclom:general_keyword": [],
     "ccm:wwwurl": "",
     "preview:url": "",
-    "ccm:author_freetext": [],
+    "cm:author": [],
     "ccm:oeh_publisher_combined": "",
     "ccm:custom_license": "",
     "ccm:commonlicense_key": "",

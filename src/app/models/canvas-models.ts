@@ -54,6 +54,7 @@ export interface CanvasFieldState {
   groupOrder: number;  // Position in schema's groups array
   schemaName: string;  // 'Core', 'Event', etc.
   aiFillable: boolean;  // ai_fillable flag from schema
+  repoField: boolean;  // repo_field flag from schema - determines if field should be exported to repository
   status: FieldStatus;
   value: any;
   confidence: number;

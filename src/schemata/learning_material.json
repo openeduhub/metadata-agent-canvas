@@ -89,7 +89,8 @@
           "trim": true,
           "deduplicate": true,
           "map_labels_to_uris": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -130,7 +131,8 @@
           "trim": true,
           "deduplicate": true,
           "map_labels_to_uris": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -168,7 +170,8 @@
           "trim": true,
           "deduplicate": true,
           "map_labels_to_uris": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -222,7 +225,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -288,7 +292,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -322,7 +327,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -356,7 +362,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -388,7 +395,8 @@
         },
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -420,7 +428,8 @@
         },
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -452,7 +461,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -485,7 +495,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -558,7 +569,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -586,7 +598,8 @@
         "ai_fillable": true,
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -618,7 +631,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -709,7 +723,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -764,7 +779,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -824,7 +840,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -855,7 +872,8 @@
         },
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -890,8 +908,30 @@
         "normalization": {
           "trim": true,
           "case": "upper"
-        }
+        },
+        "repo_field": false
       }
     }
-  ]
+  ],
+  "output_template": {
+    "oeh:new_lrt": [],
+    "oeh:study_subjects": [],
+    "oeh:didactic_method": [],
+    "oeh:delivery_mode": "",
+    "oeh:learning_setting": "",
+    "oeh:typical_age_range": "",
+    "oeh:time_required": "",
+    "oeh:group_size_min": null,
+    "oeh:group_size_max": null,
+    "oeh:prerequisites": [],
+    "oeh:required_tools": [],
+    "oeh:assessment_type": [],
+    "oeh:offers_certificate": null,
+    "oeh:certificate_name": "",
+    "oeh:accessibility_features": [],
+    "oeh:accessibility_hazards": [],
+    "oeh:accessibility_conformance": "",
+    "oeh:cost_amount": null,
+    "oeh:cost_currency": ""
+  }
 }

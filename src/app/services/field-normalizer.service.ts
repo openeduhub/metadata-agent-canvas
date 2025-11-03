@@ -841,12 +841,16 @@ export class FieldNormalizerService {
 
   /**
    * Validate single label against vocabulary
+   * Returns URI if vocabulary has URIs, otherwise returns label
    */
   private validateSingleLabel(value: string, concepts: any[], isClosed: boolean): string | null {
     if (!value || typeof value !== 'string') return null;
 
     const valueLower = value.toLowerCase().trim();
     console.log(`🔍 Validating "${value}" against ${concepts.length} concepts (closed: ${isClosed})`);
+    
+    // Check if vocabulary has URIs
+    const hasUris = concepts.some(c => c.uri);
 
     // 1. Check exact match (case-insensitive)
     const exactMatch = concepts.find(c => 
@@ -855,8 +859,9 @@ export class FieldNormalizerService {
     );
 
     if (exactMatch) {
-      console.log(`✅ Exact match: "${value}" → "${exactMatch.label}"`);
-      return exactMatch.label;
+      const returnValue = hasUris && exactMatch.uri ? exactMatch.uri : exactMatch.label;
+      console.log(`✅ Exact match: "${value}" → "${returnValue}" ${hasUris ? '(URI)' : '(label)'}`);
+      return returnValue;
     }
 
     // 2. Normalize value (remove special chars, extra spaces)
@@ -870,8 +875,9 @@ export class FieldNormalizerService {
     });
 
     if (normalizedMatch) {
-      console.log(`✅ Normalized exact match: "${value}" → "${normalizedMatch.label}"`);
-      return normalizedMatch.label;
+      const returnValue = hasUris && normalizedMatch.uri ? normalizedMatch.uri : normalizedMatch.label;
+      console.log(`✅ Normalized exact match: "${value}" → "${returnValue}" ${hasUris ? '(URI)' : '(label)'}`);
+      return returnValue;
     }
 
     // 4. Try fuzzy matching (for closed AND skos vocabularies)
@@ -879,8 +885,9 @@ export class FieldNormalizerService {
     if (isClosed) {
       const fuzzyMatch = this.findFuzzyMatch(normalizedValue, concepts);
       if (fuzzyMatch) {
-        console.log(`🔧 Fuzzy match: "${value}" → "${fuzzyMatch.label}" (distance: ${fuzzyMatch.distance})`);
-        return fuzzyMatch.label;
+        const returnValue = hasUris && fuzzyMatch.uri ? fuzzyMatch.uri : fuzzyMatch.label;
+        console.log(`🔧 Fuzzy match: "${value}" → "${returnValue}" (distance: ${fuzzyMatch.distance}) ${hasUris ? '(URI)' : '(label)'}`);
+        return returnValue;
       }
       
       console.warn(`⚠️ No match in controlled vocabulary for: "${value}"`);
@@ -896,8 +903,8 @@ export class FieldNormalizerService {
    * Find fuzzy match using Levenshtein distance
    * Returns best match if distance is small enough
    */
-  private findFuzzyMatch(value: string, concepts: any[]): { label: string; distance: number } | null {
-    let bestMatch: { label: string; distance: number } | null = null as { label: string; distance: number } | null;
+  private findFuzzyMatch(value: string, concepts: any[]): { label: string; uri?: string; distance: number } | null {
+    let bestMatch: { label: string; uri?: string; distance: number } | null = null as { label: string; uri?: string; distance: number } | null;
 
     concepts.forEach(concept => {
       // Normalize label for comparison (remove special chars)
@@ -919,7 +926,7 @@ export class FieldNormalizerService {
 
       // Keep best match (lowest distance)
       if (!bestMatch || minDistance < bestMatch.distance) {
-        bestMatch = { label: concept.label, distance: minDistance };
+        bestMatch = { label: concept.label, uri: concept.uri, distance: minDistance };
       }
     });
 

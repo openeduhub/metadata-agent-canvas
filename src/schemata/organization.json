@@ -114,7 +114,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -146,7 +147,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -174,7 +176,8 @@
         "ai_fillable": true,
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -593,7 +596,8 @@
           "trim": true,
           "deduplicate": true,
           "map_labels_to_uris": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -625,7 +629,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -650,7 +655,8 @@
         "multiple": false,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "repo_field": false
       }
     },
     {
@@ -675,7 +681,8 @@
         "multiple": false,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "repo_field": false
       }
     },
     {
@@ -700,7 +707,8 @@
         "multiple": false,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "repo_field": false
       }
     },
     {
@@ -729,7 +737,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -760,7 +769,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -791,7 +801,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -823,7 +834,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -854,7 +866,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -885,7 +898,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -913,7 +927,8 @@
         "ai_fillable": true,
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -941,7 +956,8 @@
         "ai_fillable": true,
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -986,7 +1002,8 @@
               "type": "array"
             }
           }
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1028,7 +1045,8 @@
           "addressCountry": {
             "type": "string"
           }
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1070,7 +1088,8 @@
           "addressCountry": {
             "type": "string"
           }
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1713,7 +1732,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1741,7 +1761,8 @@
         "ai_fillable": true,
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1774,7 +1795,8 @@
           "longitude": {
             "type": "number"
           }
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1813,7 +1835,8 @@
           "notes": {
             "type": "string"
           }
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1844,7 +1867,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1876,7 +1900,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1921,7 +1946,8 @@
               "type": "string"
             }
           }
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1946,7 +1972,8 @@
         "multiple": false,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "repo_field": false
       }
     },
     {
@@ -1995,7 +2022,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2026,7 +2054,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2051,7 +2080,8 @@
         "multiple": false,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "repo_field": false
       }
     },
     {
@@ -2094,7 +2124,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2119,7 +2150,8 @@
         "multiple": false,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "repo_field": false
       }
     },
     {
@@ -2162,7 +2194,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2190,7 +2223,8 @@
         "ai_fillable": true,
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2215,7 +2249,8 @@
         "multiple": false,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "repo_field": false
       }
     },
     {
@@ -2247,7 +2282,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2275,7 +2311,8 @@
         "ai_fillable": true,
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2307,7 +2344,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2335,7 +2373,8 @@
         "ai_fillable": true,
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2367,7 +2406,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2399,7 +2439,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2431,7 +2472,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2471,7 +2513,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2503,7 +2546,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2535,7 +2579,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2567,7 +2612,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     }
   ],

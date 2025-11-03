@@ -914,7 +914,8 @@
           "trim": true,
           "deduplicate": true,
           "map_labels_to_uris": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -946,7 +947,8 @@
         },
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -978,7 +980,8 @@
         },
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1010,7 +1013,8 @@
         },
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1051,7 +1055,8 @@
             "scheduleTimezone": "string",
             "duration": "string"
           }
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1086,7 +1091,8 @@
             "validFrom": "string",
             "validThrough": "string"
           }
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1120,7 +1126,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1154,7 +1161,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1185,7 +1193,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1250,7 +1259,8 @@
         "normalization": {
           "trim": true,
           "map_labels_to_uris": false
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1284,7 +1294,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1318,7 +1329,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1375,7 +1387,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1752,7 +1765,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1780,7 +1794,8 @@
         "ai_fillable": true,
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1821,7 +1836,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1868,7 +1884,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1907,7 +1924,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1946,7 +1964,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2002,7 +2021,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2045,7 +2065,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2077,7 +2098,8 @@
         },
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2112,7 +2134,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2147,7 +2170,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2183,7 +2207,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2214,7 +2239,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2249,7 +2275,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2290,7 +2317,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -2326,7 +2354,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     }
   ],

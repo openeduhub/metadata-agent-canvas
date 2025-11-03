@@ -149,7 +149,8 @@
           "trim": true,
           "case": "title",
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -247,7 +248,8 @@
           "trim": true,
           "deduplicate": true,
           "case": "title"
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -320,7 +322,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -353,7 +356,8 @@
           "trim": true,
           "deduplicate": true,
           "uppercase_os": false
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -413,7 +417,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -447,7 +452,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -475,7 +481,8 @@
         "ai_fillable": true,
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -508,7 +515,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -540,7 +548,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -574,7 +583,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -608,7 +618,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -639,7 +650,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -670,7 +682,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -704,7 +717,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -736,7 +750,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -764,7 +779,8 @@
         "ai_fillable": false,
         "index": {
           "keyword": false
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -792,7 +808,8 @@
         "ai_fillable": true,
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -820,7 +837,8 @@
         "ai_fillable": false,
         "index": {
           "keyword": false
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -851,7 +869,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -885,7 +904,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -952,7 +972,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -983,7 +1004,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1011,7 +1033,8 @@
         "ai_fillable": true,
         "index": {
           "keyword": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1043,7 +1066,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1075,7 +1099,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1107,7 +1132,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1140,7 +1166,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -1213,8 +1240,39 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     }
-  ]
+  ],
+  "output_template": {
+    "ccm:tool_schema_types": [],
+    "ccm:application_category": [],
+    "ccm:platform": [],
+    "sdo:operatingSystem": [],
+    "ccm:deployment_model": "",
+    "sdo:softwareVersion": "",
+    "sdo:datePublished": "",
+    "sdo:softwareRequirements": [],
+    "sdo:permissions": [],
+    "sdo:downloadUrl": [],
+    "sdo:installUrl": "",
+    "sdo:provider": "",
+    "sdo:brand": "",
+    "sdo:logo": "",
+    "sdo:areaServed": [],
+    "sdo:hoursAvailable": [],
+    "sdo:isAccessibleForFree": null,
+    "sdo:offers": [],
+    "sdo:termsOfService": "",
+    "ccm:privacy_policy": "",
+    "ccm:data_protection": [],
+    "sdo:contentRating": "",
+    "sdo:isFamilyFriendly": null,
+    "ccm:security": [],
+    "ccm:interoperability": [],
+    "sdo:audience": [],
+    "ccm:use_cases": [],
+    "ccm:modalities": []
+  }
 }

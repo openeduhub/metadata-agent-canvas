@@ -163,6 +163,7 @@ export class CanvasService {
           groupOrder: groupOrder,
           schemaName: 'Core',
           aiFillable: field.system?.ai_fillable !== false,
+          repoField: field.system?.repo_field !== false,  // Default true if not specified
           label: localizedField.label,
           description: localizedField.description,
           value: field.system?.multiple ? [] : null,
@@ -354,6 +355,7 @@ export class CanvasService {
           groupOrder: groupOrder,
           schemaName: schemaName,
           aiFillable: field.system?.ai_fillable !== false,
+          repoField: field.system?.repo_field !== false,  // Default true if not specified
           label: localizedField.label,
           description: localizedField.description,
           value: field.system?.multiple ? [] : null,
@@ -1667,6 +1669,14 @@ export class CanvasService {
     console.log('📂 Importing JSON data...', { detectedSchema });
 
     try {
+      // Filter out _repo_field and _display fields from imported JSON
+      const cleanJsonData: any = {};
+      for (const key of Object.keys(jsonData)) {
+        if (!key.endsWith('_repo_field') && !key.endsWith('_display')) {
+          cleanJsonData[key] = jsonData[key];
+        }
+      }
+      
       // Step 1: Initialize with correct schema
       await this.initializeCoreFields();
 
@@ -1699,7 +1709,7 @@ export class CanvasService {
       const fieldUpdates: { [key: string]: CanvasFieldState } = {};
 
       for (const field of allFields) {
-        const jsonValue = this.findValueInJson(jsonData, field.fieldId);
+        const jsonValue = this.findValueInJson(cleanJsonData, field.fieldId);
         
         if (jsonValue !== undefined && jsonValue !== null) {
           // Check if this field has a shape (complex object with sub-fields)
@@ -1889,6 +1899,7 @@ export class CanvasService {
   exportAsJson(): any {
     const state = this.getCurrentState();
     const allFields = [...state.coreFields, ...state.specialFields];
+    const currentLanguage = this.i18n.getCurrentLanguage();
     
     const metadata: any = {
       metadataset: 'mds_oeh'
@@ -1899,10 +1910,41 @@ export class CanvasService {
       metadata.metadataset = `mds_oeh_${state.selectedContentType}`;
     }
 
-    // Add all filled fields
+    // Add all filled fields with repo_field flag and _display fields for URI-based vocabularies
     for (const field of allFields) {
+      // Always add repo_field flag
+      metadata[`${field.fieldId}_repo_field`] = field.repoField;
+      
       if (field.value !== undefined && field.value !== null && field.value !== '') {
+        // Add the main field value
         metadata[field.fieldId] = field.value;
+        
+        // If field has vocabulary with URIs, add _display field with labels
+        if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
+          const hasUris = field.vocabulary.concepts.some(c => c.uri);
+          
+          if (hasUris) {
+            // Create a map of URI -> label
+            const uriToLabelMap = new Map<string, string>();
+            field.vocabulary.concepts.forEach(concept => {
+              if (concept.uri && concept.label) {
+                uriToLabelMap.set(concept.uri, concept.label);
+              }
+            });
+            
+            // Convert URIs to labels
+            let displayValue: any;
+            if (Array.isArray(field.value)) {
+              displayValue = field.value.map(uri => uriToLabelMap.get(uri) || uri);
+            } else if (typeof field.value === 'string') {
+              displayValue = uriToLabelMap.get(field.value) || field.value;
+            } else {
+              displayValue = field.value;
+            }
+            
+            metadata[`${field.fieldId}_display`] = displayValue;
+          }
+        }
       }
     }
 

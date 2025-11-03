@@ -239,6 +239,7 @@ export class ShapeExpanderService {
       groupOrder: parentField.groupOrder,
       schemaName: parentField.schemaName,
       aiFillable: aiFillable,
+      repoField: parentField.repoField,  // Inherit from parent
       status: value !== null && value !== undefined ? FieldStatus.FILLED : FieldStatus.EMPTY,
       value: value,
       confidence: value !== null && value !== undefined ? 1.0 : 0,
@@ -277,6 +278,7 @@ export class ShapeExpanderService {
       uri: `${parentField.uri}#${propertyPath}`,
       label: label,
       description: `Sub-field of ${parentField.label}`,
+      repoField: parentField.repoField,  // Inherit from parent
       group: parentField.group,
       groupLabel: parentField.groupLabel,
       groupOrder: parentField.groupOrder,

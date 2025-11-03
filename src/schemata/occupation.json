@@ -200,7 +200,8 @@
           "trim": true,
           "deduplicate": true,
           "map_labels_to_uris": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -231,7 +232,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -262,7 +264,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -293,7 +296,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -324,7 +328,8 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -357,7 +362,8 @@
         "normalization": {
           "trim": true,
           "deduplicate": true
-        }
+        },
+        "repo_field": false
       }
     },
     {
@@ -388,8 +394,18 @@
         },
         "normalization": {
           "trim": true
-        }
+        },
+        "repo_field": false
       }
     }
-  ]
+  ],
+  "output_template": {
+    "oeh:occupation": [],
+    "oeh:occupationalCategory": "",
+    "oeh:educationRequirements": "",
+    "oeh:experienceRequirements": "",
+    "oeh:qualifications": "",
+    "oeh:skills": [],
+    "oeh:occupationLocation": ""
+  }
 }
