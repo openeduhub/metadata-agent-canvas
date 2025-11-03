@@ -1,0 +1,93 @@
+.json-loader {
+  position: relative;
+
+  .load-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--md-sys-color-surface);
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: var(--md-sys-shape-corner-small);
+    box-shadow: var(--md-sys-elevation-level1);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    color: var(--md-sys-color-on-surface);
+
+    .icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--md-sys-color-outline);
+      border-top-color: var(--md-sys-color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--md-sys-color-surface-variant);
+      border-color: var(--md-sys-color-primary);
+      box-shadow: var(--md-sys-elevation-level2);
+      transform: scale(1.05);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .error-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+    padding: 12px 16px;
+    border-radius: var(--md-sys-shape-corner-medium);
+    box-shadow: var(--md-sys-elevation-level3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 3000;
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 300px;
+
+    .error-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .error-text {
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,24 @@
+<div class="json-loader">
+  <input 
+    type="file" 
+    id="json-file-input" 
+    accept=".json"
+    (change)="onFileSelected($event)"
+    style="display: none;"
+  />
+  
+  <button 
+    class="load-button"
+    (click)="triggerFileInput()"
+    [disabled]="isLoading"
+    [title]="'JSON laden'"
+  >
+    <span class="icon" *ngIf="!isLoading">📂</span>
+    <span class="spinner" *ngIf="isLoading"></span>
+  </button>
+
+  <div class="error-toast" *ngIf="showError">
+    <span class="error-icon">⚠️</span>
+    <span class="error-text">{{ errorMessage }}</span>
+  </div>
+</div>

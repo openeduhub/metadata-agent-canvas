@@ -74,6 +74,10 @@ export class CanvasService {
   async startExtraction(userText: string): Promise<void> {
     console.log('🚀 Starting canvas extraction...');
 
+    // Get current metadata context for incremental updates
+    const metadataContext = this.getCurrentMetadataContext();
+    const enrichedUserText = userText + metadataContext;
+
     // Update state
     this.updateState({
       userText: userText,
@@ -86,7 +90,7 @@ export class CanvasService {
       await this.initializeCoreFields();
 
       // Step 2: FIRST detect content type (wichtig!)
-      await this.detectContentType(userText);
+      await this.detectContentType(enrichedUserText);
 
       // Step 3: Load special schema if detected
       const stateAfterDetection = this.getCurrentState();
@@ -97,11 +101,11 @@ export class CanvasService {
         this.fillContentTypeField(stateAfterDetection.detectedContentType);
       }
 
-      // Step 4: NOW extract all fields in parallel
+      // Step 4: NOW extract all fields in parallel (with enriched context)
       const state = this.getCurrentState();
       await Promise.all([
-        this.extractCoreFields(userText),
-        state.specialFields.length > 0 ? this.extractSpecialFields(userText) : Promise.resolve()
+        this.extractCoreFields(enrichedUserText),
+        state.specialFields.length > 0 ? this.extractSpecialFields(enrichedUserText) : Promise.resolve()
       ]);
 
       console.log('✅ Canvas extraction complete');
@@ -373,7 +377,7 @@ export class CanvasService {
 
     // Merge template
     const template = await this.schemaLoader.getOutputTemplate(schemaFile).toPromise();
-    const mergedMetadata = { ...state.metadata, ...template };
+    const mergedMetadata = { ...state.metadata, ...(template || {}) };
 
     this.updateState({
       specialFields: specialFields,
@@ -1654,5 +1658,280 @@ export class CanvasService {
   reset(): void {
     this.workerPool.clearQueue();
     this.stateSubject.next(this.getInitialState());
+  }
+
+  /**
+   * Import JSON data and pre-fill fields
+   */
+  async importJsonData(jsonData: any, detectedSchema?: string): Promise<void> {
+    console.log('📂 Importing JSON data...', { detectedSchema });
+
+    try {
+      // Step 1: Initialize with correct schema
+      await this.initializeCoreFields();
+
+      // Step 2: If content type detected, load special schema
+      let contentTypeValue: string | null = null;
+      
+      if (detectedSchema && detectedSchema.includes('event')) {
+        contentTypeValue = 'event';
+        try {
+          await this.loadSpecialSchema('event.json');
+          this.fillContentTypeField('event.json');
+        } catch (error) {
+          console.warn('Could not load event schema, continuing with core only:', error);
+        }
+      } else if (detectedSchema && detectedSchema.includes('tool')) {
+        contentTypeValue = 'tool';
+        try {
+          await this.loadSpecialSchema('tool.json');
+          this.fillContentTypeField('tool.json');
+        } catch (error) {
+          console.warn('Could not load tool schema, continuing with core only:', error);
+        }
+      }
+
+      // Step 3: Map JSON data to fields
+      const state = this.getCurrentState();
+      const allFields = [...state.coreFields, ...state.specialFields];
+      
+      let importedCount = 0;
+      const fieldUpdates: { [key: string]: CanvasFieldState } = {};
+
+      for (const field of allFields) {
+        const jsonValue = this.findValueInJson(jsonData, field.fieldId);
+        
+        if (jsonValue !== undefined && jsonValue !== null) {
+          // Check if this field has a shape (complex object with sub-fields)
+          if (field.shape && (typeof jsonValue === 'object' || Array.isArray(jsonValue))) {
+            console.log(`🏗️ Creating sub-fields for ${field.fieldId} during import (has shape)`);
+            
+            // Use ShapeExpander to create sub-fields from the imported value
+            const subFields = this.shapeExpander.expandFieldWithShape(field, jsonValue);
+            
+            if (subFields.length > 0) {
+              // Mark parent as having sub-fields
+              const updatedField: CanvasFieldState = {
+                ...field,
+                value: jsonValue,
+                status: 'filled' as FieldStatus,
+                isParent: true,
+                subFields: subFields
+              };
+              
+              fieldUpdates[field.fieldId] = updatedField;
+              
+              // Add all sub-fields to updates
+              subFields.forEach(subField => {
+                fieldUpdates[subField.fieldId] = subField;
+              });
+              
+              importedCount++;
+              console.log(`✅ Created ${subFields.length} sub-fields for ${field.fieldId}`);
+            }
+          } else {
+            // Regular field without shape
+            const updatedField: CanvasFieldState = {
+              ...field,
+              value: jsonValue,
+              status: 'filled' as FieldStatus
+            };
+            
+            fieldUpdates[field.fieldId] = updatedField;
+            importedCount++;
+          }
+        }
+      }
+
+      // Step 4: Apply all field updates and collect sub-fields
+      const updatedCoreFields = state.coreFields.map(f => fieldUpdates[f.fieldId] || f);
+      const updatedSpecialFields = state.specialFields.map(f => fieldUpdates[f.fieldId] || f);
+      
+      // Collect all sub-fields from updated fields
+      const allSubFields: CanvasFieldState[] = [];
+      [...updatedCoreFields, ...updatedSpecialFields].forEach(field => {
+        if (field.isParent && field.subFields) {
+          allSubFields.push(...field.subFields);
+        }
+      });
+
+      // Step 5: Update field groups with imported values (including sub-fields for display)
+      const allFieldsWithSubFields = [...updatedCoreFields, ...updatedSpecialFields, ...allSubFields];
+      const updatedFieldGroups = this.groupFields(allFieldsWithSubFields);
+
+      // Count filled fields (only top-level fields, not sub-fields)
+      const topLevelFields = [...updatedCoreFields, ...updatedSpecialFields];
+      const filledCount = topLevelFields
+        .filter(f => f.value !== undefined && f.value !== null && f.value !== '' && 
+                     (!Array.isArray(f.value) || f.value.length > 0)).length;
+
+      // Calculate progress based on filled fields
+      const progress = topLevelFields.length > 0 
+        ? Math.round((filledCount / topLevelFields.length) * 100)
+        : 0;
+
+      this.updateState({
+        coreFields: updatedCoreFields,
+        specialFields: updatedSpecialFields,
+        fieldGroups: updatedFieldGroups,
+        filledFields: filledCount,
+        totalFields: topLevelFields.length,  // Only count top-level fields
+        detectedContentType: contentTypeValue,
+        selectedContentType: contentTypeValue,
+        isExtracting: false,
+        extractionProgress: progress  // Calculate based on actual filled fields
+      });
+
+      console.log(`✅ JSON imported: ${importedCount} fields pre-filled`);
+    } catch (error) {
+      console.error('❌ Error importing JSON:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Find value in JSON by field ID
+   */
+  private findValueInJson(jsonData: any, fieldId: string): any {
+    let value: any = undefined;
+
+    // Direct property match
+    if (jsonData[fieldId] !== undefined) {
+      value = jsonData[fieldId];
+    } else {
+      // Try common namespace prefixes
+      const prefixes = ['ccm:', 'cclom:', 'cm:'];
+      for (const prefix of prefixes) {
+        const key = prefix + fieldId;
+        if (jsonData[key] !== undefined) {
+          value = jsonData[key];
+          break;
+        }
+      }
+
+      // Try without namespace
+      if (value === undefined) {
+        const withoutNamespace = fieldId.replace(/^(ccm:|cclom:|cm:)/, '');
+        if (jsonData[withoutNamespace] !== undefined) {
+          value = jsonData[withoutNamespace];
+        }
+      }
+    }
+
+    // Convert repository format to simple values
+    if (value !== undefined) {
+      value = this.normalizeRepositoryValue(value);
+    }
+
+    return value;
+  }
+
+  /**
+   * Normalize repository format values to simple types
+   * Repository format: {type, key, item_id} or [{type, key, item_id}, ...]
+   * BUT: Preserve complex objects with shape (subfields)
+   */
+  private normalizeRepositoryValue(value: any): any {
+    if (value === null || value === undefined) {
+      return value;
+    }
+
+    // Array of values
+    if (Array.isArray(value)) {
+      const normalized = value.map(item => {
+        // If it's a repository wrapper object (not a complex shape object)
+        if (this.isRepositoryWrapperObject(item)) {
+          // Extract key or item_id
+          return item.key || item.item_id || item;
+        }
+        // Keep complex objects (shapes) as-is
+        return item;
+      });
+      return normalized;
+    }
+
+    // Single repository wrapper object (not a complex shape object)
+    if (this.isRepositoryWrapperObject(value)) {
+      return value.key || value.item_id || value;
+    }
+
+    // Keep complex objects (shapes) as-is
+    return value;
+  }
+
+  /**
+   * Check if value is a repository wrapper object (not a complex shape)
+   * Repository wrappers have: type, key, item_id
+   * Complex shapes have: @type, price, url, etc. (business logic fields)
+   */
+  private isRepositoryWrapperObject(value: any): boolean {
+    if (typeof value !== 'object' || value === null) {
+      return false;
+    }
+
+    // If it has @type (schema.org type), it's a complex shape, not a wrapper
+    if ('@type' in value) {
+      return false;
+    }
+
+    // Check if it looks like a repository wrapper
+    const hasRepositoryKeys = ('key' in value || 'item_id' in value) && 'type' in value;
+    
+    // Make sure it doesn't have business logic fields (shape indicators)
+    const hasShapeFields = 'price' in value || 'url' in value || 'serviceType' in value || 'description' in value;
+    
+    return hasRepositoryKeys && !hasShapeFields;
+  }
+
+  /**
+   * Export current state as JSON
+   */
+  exportAsJson(): any {
+    const state = this.getCurrentState();
+    const allFields = [...state.coreFields, ...state.specialFields];
+    
+    const metadata: any = {
+      metadataset: 'mds_oeh'
+    };
+
+    // Add content type if selected
+    if (state.selectedContentType) {
+      metadata.metadataset = `mds_oeh_${state.selectedContentType}`;
+    }
+
+    // Add all filled fields
+    for (const field of allFields) {
+      if (field.value !== undefined && field.value !== null && field.value !== '') {
+        metadata[field.fieldId] = field.value;
+      }
+    }
+
+    return metadata;
+  }
+
+  /**
+   * Get current metadata for LLM context (for incremental updates)
+   */
+  getCurrentMetadataContext(): string {
+    const state = this.getCurrentState();
+    const allFields = [...state.coreFields, ...state.specialFields];
+    
+    const filledFields = allFields
+      .filter(f => f.value !== undefined && f.value !== null && f.value !== '')
+      .map(f => {
+        let valueStr = f.value;
+        if (Array.isArray(f.value)) {
+          valueStr = f.value.join(', ');
+        } else if (typeof f.value === 'object') {
+          valueStr = JSON.stringify(f.value);
+        }
+        return `${f.label}: ${valueStr}`;
+      });
+
+    if (filledFields.length === 0) {
+      return '';
+    }
+
+    return `\n\nAktueller Metadaten-Stand:\n${filledFields.join('\n')}`;
   }
 }

@@ -14,50 +14,130 @@
 
 /* Header for integration modes */
 .canvas-header {
-  background: #1f2a3d;
+  background: var(--md-sys-color-inverse-surface);
   padding: 16px 24px;
-  box-shadow: none;
+  box-shadow: var(--md-sys-elevation-level1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
   
   .header-left {
     display: flex;
     align-items: center;
     gap: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--md-sys-color-inverse-on-surface);
+
+    .mode-badge {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: var(--md-sys-shape-corner-small);
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .guest-badge {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--md-sys-color-inverse-on-surface);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 12px;
+        border-radius: var(--md-sys-shape-corner-small);
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .user-badge {
+        background: var(--md-sys-color-tertiary);
+        color: var(--md-sys-color-on-tertiary);
+        padding: 6px 12px;
+        border-radius: var(--md-sys-shape-corner-small);
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .edu-badge-secondary {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--md-sys-color-inverse-on-surface);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 12px;
+        border-radius: var(--md-sys-shape-corner-small);
+        font-size: 12px;
+      }
+    }
   }
 
   .header-right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
+
+    .control-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--md-sys-shape-corner-small);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 0;
+      font-size: 20px;
+      line-height: 1;
+      color: rgba(255, 255, 255, 0.6);
+
+      &:disabled {
+        background: rgba(255, 255, 255, 0.05);  // Opaque dark background
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.25);
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      &.active:not(:disabled) {
+        color: rgba(255, 255, 255, 0.9);
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.25);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+      }
+
+      &:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+    }
 
     app-language-switcher ::ng-deep {
       .language-switcher {
         background: rgba(255, 255, 255, 0.08);
-        border-radius: 6px;
+        border-radius: var(--md-sys-shape-corner-small);
         border: 1px solid rgba(255, 255, 255, 0.15);
       }
     }
   }
 
   .btn-close {
-    background: none;
-    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 4px 12px;
     font-size: 24px;
+    font-weight: 300;
     line-height: 1;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.8);
-    padding: 4px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    transition: background 0.2s ease, color 0.2s ease;
+    border-radius: var(--md-sys-shape-corner-small);
+    transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
@@ -66,18 +146,53 @@
   }
 }
 
-/* Standalone Language Switcher (positioned at top-right) */
-.standalone-language-switcher {
+/* Standalone Controls (positioned at top-right) */
+.standalone-controls {
   position: absolute;
   top: 16px;
   right: 16px;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-  app-language-switcher ::ng-deep {
-    .language-switcher {
-      background: rgba(31, 42, 61, 0.08);
-      border-radius: 6px;
-      border: 1px solid rgba(31, 42, 61, 0.15);
+  .control-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--md-sys-color-surface);
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: var(--md-sys-shape-corner-small);
+    box-shadow: var(--md-sys-elevation-level1);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--md-sys-color-on-surface-variant);
+
+    &:disabled {
+      background: #ffffff;  // Opaque white background
+      border-color: rgba(0, 0, 0, 0.12);
+      color: rgba(0, 0, 0, 0.26);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    &.active:not(:disabled) {
+      color: var(--md-sys-color-on-surface);
+      
+      &:hover {
+        background: var(--md-sys-color-surface-variant);
+        border-color: var(--md-sys-color-primary);
+        box-shadow: var(--md-sys-elevation-level2);
+      }
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
     }
   }
 }
@@ -284,7 +399,7 @@
 
     .field-stats {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
       font-size: 13px;
       color: #666;
@@ -295,15 +410,37 @@
           color: #1f2a3d;
         }
 
+        // Badge-Styling wie bei Gruppen-Badges
         &.total {
+          padding: 6px 14px;
+          background: #e8eefb;
           color: #335fae;
-          font-weight: 700;
-          font-size: 14px;
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.4px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
         }
-      }
 
-      .stat-separator {
-        color: #c6ccda;
+        &.required-badge {
+          padding: 6px 14px;
+          border-radius: 999px;
+          font-weight: 600;
+          font-size: 12px;
+          letter-spacing: 0.4px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+          &.required-incomplete {
+            background: var(--md-sys-color-error-container);
+            color: var(--md-sys-color-on-error-container);
+          }
+
+          &.required-complete {
+            background: var(--md-sys-color-tertiary-container);
+            color: var(--md-sys-color-on-tertiary-container);
+          }
+        }
       }
 
       .progress-emoji {

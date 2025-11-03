@@ -13,12 +13,13 @@ import { I18nService } from '../../services/i18n.service';
 import { CanvasState, FieldGroup, FieldStatus } from '../../models/canvas-models';
 import { CanvasFieldComponent } from '../canvas-field/canvas-field.component';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
+import { JsonLoaderComponent, LoadedJsonData } from '../json-loader/json-loader.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-canvas-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, CanvasFieldComponent, LanguageSwitcherComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, CanvasFieldComponent, LanguageSwitcherComponent, JsonLoaderComponent],
   templateUrl: './canvas-view.component.html',
   styleUrls: ['./canvas-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -495,12 +496,13 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    * Download JSON file
    */
   downloadJson(): void {
-    const json = this.canvasService.getMetadataJson();
-    const blob = new Blob([json], { type: 'application/json' });
+    const jsonData = this.canvasService.exportAsJson();
+    const jsonString = JSON.stringify(jsonData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'metadata.json';
+    link.download = `metadata_${Date.now()}.json`;
     link.click();
     window.URL.revokeObjectURL(url);
   }
@@ -806,5 +808,44 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    */
   trackByFieldId(index: number, field: any): string {
     return field.fieldId;
+  }
+
+  /**
+   * Handle JSON file loaded
+   */
+  async onJsonLoaded(data: LoadedJsonData): Promise<void> {
+    console.log('📂 JSON loaded:', data);
+    
+    try {
+      await this.canvasService.importJsonData(data.metadata, data.detectedSchema);
+      alert(`✅ JSON erfolgreich geladen!\n\n${data.fileName}\nSchema: ${data.detectedSchema || 'Standard'}`);
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('❌ Error loading JSON:', error);
+      alert('❌ Fehler beim Laden der JSON-Datei:\n' + (error as Error).message);
+    }
+  }
+
+  /**
+   * Check if metadata can be submitted (all required fields filled)
+   */
+  canSubmit(): boolean {
+    const allFields = [...this.state.coreFields, ...this.state.specialFields];
+    const requiredFields = allFields.filter(f => f.isRequired);
+    const filledRequiredFields = requiredFields.filter(f => {
+      if (Array.isArray(f.value)) {
+        return f.value.length > 0;
+      }
+      return f.value !== null && f.value !== undefined && f.value !== '';
+    });
+    
+    return requiredFields.length > 0 && filledRequiredFields.length === requiredFields.length;
+  }
+
+  /**
+   * Submit metadata (wrapper for submitAsGuest)
+   */
+  async submitMetadata(): Promise<void> {
+    await this.submitAsGuest();
   }
 }

@@ -4,16 +4,16 @@
  */
 
 :root {
-  /* Brand Colors */
-  --edu-primary: #0056b3;
-  --edu-primary-hover: #004494;
-  --edu-secondary: #6c757d;
-  --edu-success: #28a745;
-  --edu-danger: #dc3545;
+  /* Brand Colors - Material Design v3 aligned */
+  --edu-primary: #0062ac;
+  --edu-primary-hover: #004d8a;
+  --edu-secondary: #006693;
+  --edu-success: #00874d;
+  --edu-danger: #ba1a1a;
   --edu-warning: #ffc107;
-  --edu-info: #17a2b8;
-  --edu-light: #f8f9fa;
-  --edu-dark: #343a40;
+  --edu-info: #0062ac;
+  --edu-light: #f5f7fb;
+  --edu-dark: #1f2a3d;
   
   /* Typography */
   --edu-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

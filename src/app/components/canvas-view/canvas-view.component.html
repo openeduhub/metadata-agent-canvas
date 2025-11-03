@@ -20,13 +20,53 @@
       </span>
     </div>
     <div class="header-right">
+      <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
+      
+      <button 
+        class="control-button save-button"
+        [class.active]="canSubmit()"
+        [disabled]="!canSubmit()"
+        (click)="downloadJson()"
+        title="JSON herunterladen">
+        💾
+      </button>
+      
+      <button 
+        class="control-button upload-button"
+        [class.active]="canSubmit()"
+        [disabled]="!canSubmit()"
+        (click)="submitMetadata()"
+        title="An Plugin senden">
+        🌐
+      </button>
+      
       <app-language-switcher></app-language-switcher>
       <button class="btn-close" (click)="closeCanvas()" [title]="'HEADER.CLOSE' | translate">×</button>
     </div>
   </div>
 
-  <!-- Language Switcher for Standalone Mode (no browser extension header) -->
-  <div class="standalone-language-switcher" *ngIf="!integrationMode.isBrowserExtension() && !integrationMode.isBookmarklet()">
+  <!-- Language Switcher & JSON Loader for Standalone Mode (no browser extension header) -->
+  <div class="standalone-controls" *ngIf="!integrationMode.isBrowserExtension() && !integrationMode.isBookmarklet()">
+    <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
+    
+    <button 
+      class="control-button save-button"
+      [class.active]="canSubmit()"
+      [disabled]="!canSubmit()"
+      (click)="downloadJson()"
+      title="JSON herunterladen">
+      💾
+    </button>
+    
+    <button 
+      class="control-button upload-button"
+      [class.active]="canSubmit()"
+      [disabled]="!canSubmit()"
+      (click)="submitMetadata()"
+      title="An Plugin senden">
+      🌐
+    </button>
+    
     <app-language-switcher></app-language-switcher>
   </div>
 
@@ -90,8 +130,10 @@
         <span class="stat-item total">
           {{ 'PROGRESS.FIELDS' | translate }}: {{ state.filledFields }}/{{ state.totalFields }} ({{ getProgressPercentage() }}%)
         </span>
-        <span class="stat-separator">|</span>
-        <span class="stat-item">
+        <span 
+          class="stat-item required-badge"
+          [class.required-complete]="allRequiredFieldsFilled()"
+          [class.required-incomplete]="!allRequiredFieldsFilled()">
           {{ 'PROGRESS.REQUIRED' | translate }}: {{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }}
         </span>
         <span class="progress-emoji">{{ getProgressEmoji() }}</span>
