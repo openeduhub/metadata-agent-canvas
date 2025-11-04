@@ -14,13 +14,12 @@
 
 /* Header for integration modes */
 .canvas-header {
-  background: var(--md-sys-color-inverse-surface);
+  background: #3b6ec8;  /* Dunkles Blau wie "Extraktion starten" Button */
   padding: 16px 24px;
-  box-shadow: var(--md-sys-elevation-level1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   
   .header-left {
     display: flex;
@@ -29,13 +28,14 @@
     color: var(--md-sys-color-inverse-on-surface);
 
     .mode-badge {
-      background: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
+      background: #ffffff;  /* Weiß wie Buttons rechts */
+      color: #335fae;
       font-weight: 600;
-      padding: 6px 12px;
-      border-radius: var(--md-sys-shape-corner-small);
+      padding: 10px 16px;  /* Gleiche Höhe wie Buttons */
+      border-radius: 8px;  /* Konsistent mit anderen UI-Elementen */
       font-size: 13px;
       letter-spacing: 0.5px;
+      border: none;  /* Kein Rand */
     }
 
     .user-info {
@@ -44,13 +44,7 @@
       gap: 8px;
 
       .guest-badge {
-        background: rgba(255, 255, 255, 0.12);
-        color: var(--md-sys-color-inverse-on-surface);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 6px 12px;
-        border-radius: var(--md-sys-shape-corner-small);
-        font-size: 13px;
-        font-weight: 500;
+        display: none;  /* Gast-Modus wird nicht korrekt erkannt, daher ausblenden */
       }
 
       .user-badge {
@@ -84,32 +78,41 @@
       justify-content: center;
       width: 40px;
       height: 40px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: var(--md-sys-shape-corner-small);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background: #ffffff;  /* Weiß wie im lokalen Modus */
+      border: 1px solid #d4d9e3;  /* Helle Border */
+      border-radius: 10px;  /* Konsistent mit lokalem Modus */
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       padding: 0;
       font-size: 20px;
       line-height: 1;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--md-sys-color-on-surface-variant);  /* Dunkle Icons */
+      position: relative;
 
       &:disabled {
-        background: rgba(255, 255, 255, 0.05);  // Opaque dark background
-        border-color: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.25);
         cursor: not-allowed;
-        box-shadow: none;
+        color: rgba(0, 0, 0, 0.26);
+        
+        /* Halbtransparente Schicht über dem weißen Hintergrund */
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(255, 255, 255, 0.6);
+          border-radius: 10px;
+          pointer-events: none;
+        }
       }
 
       &.active:not(:disabled) {
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--md-sys-color-on-surface);
         
         &:hover {
-          background: rgba(255, 255, 255, 0.12);
-          border-color: rgba(255, 255, 255, 0.25);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          background: #f5f7fb;
+          border-color: #3b6ec8;
         }
       }
 
@@ -118,30 +121,24 @@
       }
     }
 
-    app-language-switcher ::ng-deep {
-      .language-switcher {
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: var(--md-sys-shape-corner-small);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-      }
-    }
+    /* JSON-Loader und Language-Switcher behalten ihre weißen Component-Styles */
   }
 
   .btn-close {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #ffffff;
+    color: var(--md-sys-color-on-surface);
+    border: 1px solid #d4d9e3;
     padding: 4px 12px;
     font-size: 24px;
     font-weight: 300;
     line-height: 1;
     cursor: pointer;
-    border-radius: var(--md-sys-shape-corner-small);
-    transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
+    transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #ffffff;
+      background: #f5f7fb;
+      border-color: #3b6ec8;
     }
   }
 }
@@ -162,37 +159,82 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: var(--md-sys-color-surface);
-    border: 1px solid var(--md-sys-color-outline);
-    border-radius: var(--md-sys-shape-corner-small);
-    box-shadow: var(--md-sys-elevation-level1);
+    background: #ffffff;  /* Immer weißer Hintergrund im lokalen Modus */
+    border: 1px solid #d4d9e3;  /* Border wie andere UI-Rahmen */
+    border-radius: 10px;  /* Wie andere Rahmen im UX */
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
     font-size: 20px;
     line-height: 1;
     color: var(--md-sys-color-on-surface-variant);
+    position: relative;
 
     &:disabled {
-      background: #ffffff;  // Opaque white background
-      border-color: rgba(0, 0, 0, 0.12);
-      color: rgba(0, 0, 0, 0.26);
       cursor: not-allowed;
-      box-shadow: none;
+      color: rgba(0, 0, 0, 0.26);
+      
+      /* Halbtransparente Schicht über dem weißen Hintergrund */
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 10px;
+        pointer-events: none;
+      }
     }
 
     &.active:not(:disabled) {
       color: var(--md-sys-color-on-surface);
       
       &:hover {
-        background: var(--md-sys-color-surface-variant);
-        border-color: var(--md-sys-color-primary);
-        box-shadow: var(--md-sys-elevation-level2);
+        background: #f5f7fb;
+        border-color: #3b6ec8;
       }
     }
 
     &:active:not(:disabled) {
       transform: scale(0.98);
+    }
+  }
+
+  /* Override child component styles for standalone mode */
+  ::ng-deep {
+    app-json-loader .json-loader .load-button {
+      background: #ffffff !important;
+      border: 1px solid #d4d9e3 !important;
+      border-radius: 10px !important;
+      box-shadow: none !important;
+      color: var(--md-sys-color-on-surface) !important;
+
+      &:hover:not(:disabled) {
+        background: #f5f7fb !important;
+        border-color: #3b6ec8 !important;
+        box-shadow: none !important;
+      }
+    }
+
+    app-language-switcher .language-switcher .language-button {
+      background: #ffffff !important;
+      border: 1px solid #d4d9e3 !important;
+      border-radius: 10px !important;
+      box-shadow: none !important;
+      color: var(--md-sys-color-on-surface) !important;
+
+      &:hover {
+        background: #f5f7fb !important;
+        border-color: #3b6ec8 !important;
+        box-shadow: none !important;
+      }
+    }
+
+    app-language-switcher .language-dropdown .dropdown-menu {
+      box-shadow: none !important;
+      border: 1px solid #d4d9e3 !important;
     }
   }
 }
@@ -419,7 +461,6 @@
           font-size: 12px;
           font-weight: 600;
           letter-spacing: 0.4px;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
         }
 
         &.required-badge {
@@ -429,7 +470,6 @@
           font-size: 12px;
           letter-spacing: 0.4px;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 
           &.required-incomplete {
             background: var(--md-sys-color-error-container);
@@ -437,8 +477,8 @@
           }
 
           &.required-complete {
-            background: var(--md-sys-color-tertiary-container);
-            color: var(--md-sys-color-on-tertiary-container);
+            background: #e8eefb;  /* Hellblau wie Total-Badge */
+            color: #335fae;
           }
         }
       }

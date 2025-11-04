@@ -1,0 +1,172 @@
+{
+  "metadataset": "mds_oeh",
+  "exportedAt": "2025-02-04T08:30:00.000Z",
+  "language": "de",
+  "cclom:title": {
+    "value": "Einführung in die Photosynthese",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": true,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/cclom/title",
+    "label": "Titel",
+    "description": "Der Titel der Lernressource",
+    "status": "filled",
+    "hasVocabulary": false,
+    "confidence": 0.95
+  },
+  "cclom:general_description": {
+    "value": "Diese Lernressource bietet eine umfassende Einführung in die Photosynthese, den lebenswichtigen Prozess, bei dem Pflanzen Lichtenergie in chemische Energie umwandeln.",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": true,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/cclom/general_description",
+    "label": "Beschreibung",
+    "status": "filled",
+    "hasVocabulary": false,
+    "confidence": 0.92
+  },
+  "cclom:general_keyword": {
+    "value": [
+      "http://w3id.org/openeduhub/vocabs/oeh-topics/38e90eeb-9404-4337-90a0-d6e8b2e2b2f3",
+      "http://w3id.org/openeduhub/vocabs/oeh-topics/f3e90eeb-9404-4337-90a0-d6e8b2e2b2a8",
+      "http://w3id.org/openeduhub/vocabs/oeh-topics/c7b2e2eb-9404-4337-90a0-d6e8b2e2b2d9"
+    ],
+    "displayValue": [
+      "Biologie",
+      "Pflanzen",
+      "Ökologie"
+    ],
+    "repoField": true,
+    "datatype": "string",
+    "multiple": true,
+    "required": false,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/cclom/general_keyword",
+    "label": "Schlagworte",
+    "status": "filled",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.88
+  },
+  "ccm:oeh_flex_lrt": {
+    "value": "http://w3id.org/openeduhub/vocabs/new_lrt/a4dd48da-80ec-4c17-b0e8-7bbf0ec1e7e7",
+    "displayValue": "Unterrichtsplanung",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/ccm/oeh_flex_lrt",
+    "label": "Inhaltstyp",
+    "status": "filled",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.85
+  },
+  "ccm:educationalcontext": {
+    "value": [
+      "http://w3id.org/openeduhub/vocabs/educationalContext/sekundarstufe_1",
+      "http://w3id.org/openeduhub/vocabs/educationalContext/sekundarstufe_2"
+    ],
+    "displayValue": [
+      "Sekundarstufe I",
+      "Sekundarstufe II"
+    ],
+    "repoField": true,
+    "datatype": "string",
+    "multiple": true,
+    "required": false,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/ccm/educationalcontext",
+    "label": "Bildungsstufe",
+    "status": "filled",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.82
+  },
+  "ccm:taxonid": {
+    "value": [
+      "http://w3id.org/openeduhub/vocabs/discipline/080",
+      "http://w3id.org/openeduhub/vocabs/discipline/44006"
+    ],
+    "displayValue": [
+      "Biologie",
+      "Ökologie"
+    ],
+    "repoField": true,
+    "datatype": "string",
+    "multiple": true,
+    "required": false,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/ccm/taxonid",
+    "label": "Fachgebiet",
+    "status": "filled",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.90
+  },
+  "ccm:wwwurl": {
+    "value": "https://example.org/photosynthesis-guide",
+    "repoField": true,
+    "datatype": "url",
+    "multiple": false,
+    "required": true,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/ccm/wwwurl",
+    "label": "URL",
+    "status": "filled",
+    "hasVocabulary": false
+  },
+  "cclom:general_language": {
+    "value": [
+      "http://id.loc.gov/vocabulary/iso639-2/deu"
+    ],
+    "displayValue": [
+      "Deutsch"
+    ],
+    "repoField": true,
+    "datatype": "string",
+    "multiple": true,
+    "required": false,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/cclom/general_language",
+    "label": "Sprache",
+    "status": "filled",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.98
+  },
+  "ccm:license": {
+    "value": "http://w3id.org/openeduhub/vocabs/license/CC_BY_SA_40",
+    "displayValue": "CC BY-SA 4.0",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/ccm/license",
+    "label": "Lizenz",
+    "status": "filled",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.75
+  },
+  "ccm:oeh_quality_protection_of_minors": {
+    "value": "http://w3id.org/openeduhub/vocabs/oeh_quality/1",
+    "displayValue": "Kein Risiko",
+    "repoField": false,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "core",
+    "uri": "http://w3id.org/openeduhub/vocabs/ccm/oeh_quality_protection_of_minors",
+    "label": "Jugendschutz",
+    "status": "filled",
+    "hasVocabulary": true,
+    "vocabularyType": "closed"
+  }
+}

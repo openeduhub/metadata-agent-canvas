@@ -5,19 +5,7 @@
       <span class="mode-badge edu-badge edu-badge-primary">
         {{ integrationMode.getModeDisplayName() }}
       </span>
-      <span class="user-info">
-        <span [class.guest-badge]="!integrationMode.isLoggedIn()" 
-              [class.user-badge]="integrationMode.isLoggedIn()"
-              class="edu-badge"
-              [class.edu-badge-secondary]="!integrationMode.isLoggedIn()"
-              [class.edu-badge-success]="integrationMode.isLoggedIn()">
-          {{ integrationMode.isLoggedIn() ? '👤' : '👥' }}
-          {{ integrationMode.getUserInfo().username }}
-        </span>
-        <span class="edu-badge edu-badge-secondary" *ngIf="integrationMode.getUserInfo().systemName">
-          {{ integrationMode.getUserInfo().systemName }}
-        </span>
-      </span>
+      <!-- User-Info ausgeblendet - Benutzermodus wird nicht korrekt aus WLO App erkannt -->
     </div>
     <div class="header-right">
       <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>

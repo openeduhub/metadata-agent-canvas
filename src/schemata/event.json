@@ -1353,7 +1353,7 @@
         "uri": "https://schema.org/eventAttendanceMode",
         "datatype": "string",
         "multiple": false,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {

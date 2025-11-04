@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="100" viewBox="0 0 160 100" role="img" aria-labelledby="title desc">
+  <title id="title">Bookmarklet Mode</title>
+  <desc id="desc">Browser window with overlay sidebar representing bookmarklet mode</desc>
+  <rect x="10" y="18" width="140" height="70" rx="8" ry="8" fill="#F5F9FF" stroke="#1E72B9" stroke-width="3" />
+  <rect x="22" y="30" width="86" height="46" rx="6" ry="6" fill="#FFFFFF" stroke="#1E72B9" stroke-dasharray="5 5" stroke-width="1.8" />
+  <rect x="112" y="30" width="26" height="46" rx="4" ry="4" fill="#1E72B9" opacity="0.2" />
+  <rect x="112" y="30" width="26" height="46" rx="4" ry="4" fill="none" stroke="#1E72B9" stroke-width="2" />
+  <circle cx="32" cy="26" r="3" fill="#1E72B9" />
+  <circle cx="42" cy="26" r="3" fill="#1E72B9" opacity="0.4" />
+  <circle cx="52" cy="26" r="3" fill="#1E72B9" opacity="0.2" />
+  <rect x="118" y="36" width="14" height="6" rx="3" fill="#1E72B9" />
+  <rect x="118" y="46" width="14" height="6" rx="3" fill="#1E72B9" opacity="0.6" />
+  <rect x="118" y="56" width="14" height="6" rx="3" fill="#1E72B9" opacity="0.4" />
+</svg>

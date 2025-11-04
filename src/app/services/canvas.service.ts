@@ -1024,78 +1024,10 @@ export class CanvasService {
 
   /**
    * Get metadata JSON with URI and label information
-   * For vocabulary-based fields: returns array of {label, uri} pairs
-   * For free-text fields: returns just the value
+   * Uses the new structured format from exportAsJson()
    */
   getMetadataJson(): string {
-    const state = this.getCurrentState();
-    const allFields = [...state.coreFields, ...state.specialFields];
-    
-    // Create a map of fieldId to field object
-    const fieldMap = new Map<string, any>();
-    allFields.forEach(field => {
-      fieldMap.set(field.fieldId, field);
-    });
-    
-    // Build a set of sub-field IDs to exclude from output
-    const subFieldIds = new Set<string>();
-    allFields.forEach(field => {
-      if (field.isParent && field.subFields) {
-        field.subFields.forEach((sf: any) => subFieldIds.add(sf.fieldId));
-      }
-    });
-    
-    // Build enriched output
-    const enrichedOutput: Record<string, any> = {};
-    
-    Object.keys(state.metadata).forEach(fieldId => {
-      const value = state.metadata[fieldId];
-      const field = fieldMap.get(fieldId);
-      
-      // Skip sub-fields - they will be reconstructed into parent objects
-      if (subFieldIds.has(fieldId)) {
-        console.log(`⏭️ Skipping sub-field ${fieldId} (will be included in parent object)`);
-        return;
-      }
-      
-      if (!field) {
-        // Fallback: field not found (shouldn't happen)
-        enrichedOutput[fieldId] = value;
-        return;
-      }
-      
-      // Check if field has sub-fields (complex object with shape)
-      if (field.isParent && field.subFields && field.subFields.length > 0) {
-        // Always reconstruct from current sub-field values
-        // This ensures we get the latest values (including geocoded data)
-        console.log(`🔧 Reconstructing object for ${fieldId} from ${field.subFields.length} sub-fields`);
-        const reconstructedValue = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
-        enrichedOutput[fieldId] = reconstructedValue;
-        return;
-      }
-      
-      // Check if field has a vocabulary (controlled values)
-      if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
-        // Field with vocabulary: Map values to {label, uri} pairs
-        if (Array.isArray(value)) {
-          // Multiple values: map each to {label, uri}
-          enrichedOutput[fieldId] = value
-            .filter(v => v !== null && v !== undefined && v !== '')
-            .map(v => this.mapValueToLabelUri(v, field.vocabulary.concepts));
-        } else if (value !== null && value !== undefined && value !== '') {
-          // Single value: map to {label, uri}
-          enrichedOutput[fieldId] = this.mapValueToLabelUri(value, field.vocabulary.concepts);
-        } else {
-          // Empty value
-          enrichedOutput[fieldId] = field.multiple ? [] : null;
-        }
-      } else {
-        // Field without vocabulary: just use the value as-is
-        enrichedOutput[fieldId] = value;
-      }
-    });
-    
-    return JSON.stringify(enrichedOutput, null, 2);
+    return JSON.stringify(this.exportAsJson(), null, 2);
   }
   
   /**
@@ -1664,18 +1596,18 @@ export class CanvasService {
 
   /**
    * Import JSON data and pre-fill fields
+   * Supports both old format (flat) and new format (structured with metadata)
    */
   async importJsonData(jsonData: any, detectedSchema?: string): Promise<void> {
     console.log('📂 Importing JSON data...', { detectedSchema });
 
     try {
-      // Filter out _repo_field and _display fields from imported JSON
-      const cleanJsonData: any = {};
-      for (const key of Object.keys(jsonData)) {
-        if (!key.endsWith('_repo_field') && !key.endsWith('_display')) {
-          cleanJsonData[key] = jsonData[key];
-        }
-      }
+      // Detect format: new structured format has objects with 'value' property
+      const isNewFormat = this.detectJsonFormat(jsonData);
+      console.log(`🔍 Detected format: ${isNewFormat ? 'new (structured)' : 'old (flat)'}`);
+
+      // Convert old format to new format if needed
+      const normalizedData = isNewFormat ? jsonData : this.convertOldToNewFormat(jsonData);
       
       // Step 1: Initialize with correct schema
       await this.initializeCoreFields();
@@ -1709,9 +1641,10 @@ export class CanvasService {
       const fieldUpdates: { [key: string]: CanvasFieldState } = {};
 
       for (const field of allFields) {
-        const jsonValue = this.findValueInJson(cleanJsonData, field.fieldId);
+        const fieldData = normalizedData[field.fieldId];
         
-        if (jsonValue !== undefined && jsonValue !== null) {
+        if (fieldData && fieldData.value !== undefined && fieldData.value !== null) {
+          const jsonValue = fieldData.value;
           // Check if this field has a shape (complex object with sub-fields)
           if (field.shape && (typeof jsonValue === 'object' || Array.isArray(jsonValue))) {
             console.log(`🏗️ Creating sub-fields for ${field.fieldId} during import (has shape)`);
@@ -1800,40 +1733,69 @@ export class CanvasService {
   }
 
   /**
-   * Find value in JSON by field ID
+   * Detect if JSON is in new structured format
    */
-  private findValueInJson(jsonData: any, fieldId: string): any {
-    let value: any = undefined;
+  private detectJsonFormat(jsonData: any): boolean {
+    // Check a few fields to see if they have the 'value' property
+    const sampleKeys = Object.keys(jsonData).filter(k => 
+      !['metadataset', 'exportedAt', 'language'].includes(k)
+    ).slice(0, 5);
 
-    // Direct property match
-    if (jsonData[fieldId] !== undefined) {
-      value = jsonData[fieldId];
-    } else {
-      // Try common namespace prefixes
-      const prefixes = ['ccm:', 'cclom:', 'cm:'];
-      for (const prefix of prefixes) {
-        const key = prefix + fieldId;
-        if (jsonData[key] !== undefined) {
-          value = jsonData[key];
-          break;
-        }
-      }
-
-      // Try without namespace
-      if (value === undefined) {
-        const withoutNamespace = fieldId.replace(/^(ccm:|cclom:|cm:)/, '');
-        if (jsonData[withoutNamespace] !== undefined) {
-          value = jsonData[withoutNamespace];
-        }
+    let structuredCount = 0;
+    for (const key of sampleKeys) {
+      const value = jsonData[key];
+      if (value && typeof value === 'object' && 'value' in value && 'repoField' in value) {
+        structuredCount++;
       }
     }
 
-    // Convert repository format to simple values
-    if (value !== undefined) {
+    // If more than half of sample fields are structured, it's the new format
+    return structuredCount > sampleKeys.length / 2;
+  }
+
+  /**
+   * Convert old flat format to new structured format
+   */
+  private convertOldToNewFormat(jsonData: any): any {
+    const converted: any = {};
+
+    // Copy metadata fields
+    if (jsonData.metadataset) converted.metadataset = jsonData.metadataset;
+    if (jsonData['ccm:metadataset']) converted.metadataset = jsonData['ccm:metadataset'];
+
+    // Process all fields
+    for (const key of Object.keys(jsonData)) {
+      // Skip special fields and repo_field/display suffixes
+      if (key === 'metadataset' || key === 'ccm:metadataset' || 
+          key.endsWith('_repo_field') || key.endsWith('_display')) {
+        continue;
+      }
+
+      let value = jsonData[key];
+      
+      // Normalize repository format values
       value = this.normalizeRepositoryValue(value);
+
+      // Create structured field data
+      const fieldData: any = {
+        value: value,
+        repoField: jsonData[`${key}_repo_field`] !== false, // Default true
+        datatype: 'string', // Will be overridden by schema
+        multiple: Array.isArray(value),
+        required: false,
+        schema: 'core',
+        hasVocabulary: false
+      };
+
+      // Add display value if present
+      if (jsonData[`${key}_display`]) {
+        fieldData.displayValue = jsonData[`${key}_display`];
+      }
+
+      converted[key] = fieldData;
     }
 
-    return value;
+    return converted;
   }
 
   /**
@@ -1894,61 +1856,99 @@ export class CanvasService {
   }
 
   /**
-   * Export current state as JSON
+   * Export current state as JSON with new structured format
+   * Each field contains value and all metadata in one object
    */
   exportAsJson(): any {
     const state = this.getCurrentState();
     const allFields = [...state.coreFields, ...state.specialFields];
     const currentLanguage = this.i18n.getCurrentLanguage();
     
-    const metadata: any = {
-      metadataset: 'mds_oeh'
+    const output: any = {
+      metadataset: 'mds_oeh',
+      exportedAt: new Date().toISOString(),
+      language: currentLanguage
     };
 
     // Add content type if selected
     if (state.selectedContentType) {
-      metadata.metadataset = `mds_oeh_${state.selectedContentType}`;
+      output.metadataset = `mds_oeh_${state.selectedContentType}`;
     }
 
-    // Add all filled fields with repo_field flag and _display fields for URI-based vocabularies
+    // Build a set of sub-field IDs to exclude from top-level output
+    const subFieldIds = new Set<string>();
+    allFields.forEach(field => {
+      if (field.isParent && field.subFields) {
+        field.subFields.forEach((sf: any) => subFieldIds.add(sf.fieldId));
+      }
+    });
+
+    // Add all fields with structured metadata
     for (const field of allFields) {
-      // Always add repo_field flag
-      metadata[`${field.fieldId}_repo_field`] = field.repoField;
-      
-      if (field.value !== undefined && field.value !== null && field.value !== '') {
-        // Add the main field value
-        metadata[field.fieldId] = field.value;
+      // Skip sub-fields - they are reconstructed into parent objects
+      if (subFieldIds.has(field.fieldId)) {
+        continue;
+      }
+
+      let fieldValue = field.value;
+
+      // Reconstruct complex objects from sub-fields
+      if (field.isParent && field.subFields && field.subFields.length > 0) {
+        fieldValue = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
+      }
+
+      // Create field metadata object
+      const fieldData: any = {
+        value: fieldValue,
+        repoField: field.repoField,
+        datatype: field.datatype,
+        multiple: field.multiple,
+        required: field.isRequired,
+        schema: field.schemaName,
+        uri: field.uri,
+        label: field.label,
+        status: field.status
+      };
+
+      // Add description if present
+      if (field.description) {
+        fieldData.description = field.description;
+      }
+
+      // Add vocabulary information
+      if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
+        fieldData.hasVocabulary = true;
+        fieldData.vocabularyType = field.vocabulary.type || 'closed';
         
-        // If field has vocabulary with URIs, add _display field with labels
-        if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
-          const hasUris = field.vocabulary.concepts.some(c => c.uri);
-          
-          if (hasUris) {
-            // Create a map of URI -> label
-            const uriToLabelMap = new Map<string, string>();
-            field.vocabulary.concepts.forEach(concept => {
-              if (concept.uri && concept.label) {
-                uriToLabelMap.set(concept.uri, concept.label);
-              }
-            });
-            
-            // Convert URIs to labels
-            let displayValue: any;
-            if (Array.isArray(field.value)) {
-              displayValue = field.value.map(uri => uriToLabelMap.get(uri) || uri);
-            } else if (typeof field.value === 'string') {
-              displayValue = uriToLabelMap.get(field.value) || field.value;
-            } else {
-              displayValue = field.value;
+        // Add display value (labels) for vocabulary-based fields
+        const hasUris = field.vocabulary.concepts.some(c => c.uri);
+        if (hasUris && fieldValue) {
+          const uriToLabelMap = new Map<string, string>();
+          field.vocabulary.concepts.forEach(concept => {
+            if (concept.uri && concept.label) {
+              uriToLabelMap.set(concept.uri, concept.label);
             }
-            
-            metadata[`${field.fieldId}_display`] = displayValue;
+          });
+          
+          if (Array.isArray(fieldValue)) {
+            fieldData.displayValue = fieldValue.map(uri => uriToLabelMap.get(uri) || uri);
+          } else if (typeof fieldValue === 'string') {
+            fieldData.displayValue = uriToLabelMap.get(fieldValue) || fieldValue;
           }
         }
+      } else {
+        fieldData.hasVocabulary = false;
       }
+
+      // Add confidence if extraction was done
+      if (field.confidence && field.confidence > 0) {
+        fieldData.confidence = field.confidence;
+      }
+
+      output[field.fieldId] = fieldData;
     }
 
-    return metadata;
+    return output;
   }
 
   /**

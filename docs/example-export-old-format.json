@@ -1,0 +1,54 @@
+{
+  "metadataset": "mds_oeh",
+  "cclom:title": "Einführung in die Photosynthese",
+  "cclom:title_repo_field": true,
+  "cclom:general_description": "Diese Lernressource bietet eine umfassende Einführung in die Photosynthese, den lebenswichtigen Prozess, bei dem Pflanzen Lichtenergie in chemische Energie umwandeln.",
+  "cclom:general_description_repo_field": true,
+  "cclom:general_keyword": [
+    "http://w3id.org/openeduhub/vocabs/oeh-topics/38e90eeb-9404-4337-90a0-d6e8b2e2b2f3",
+    "http://w3id.org/openeduhub/vocabs/oeh-topics/f3e90eeb-9404-4337-90a0-d6e8b2e2b2a8",
+    "http://w3id.org/openeduhub/vocabs/oeh-topics/c7b2e2eb-9404-4337-90a0-d6e8b2e2b2d9"
+  ],
+  "cclom:general_keyword_repo_field": true,
+  "cclom:general_keyword_display": [
+    "Biologie",
+    "Pflanzen",
+    "Ökologie"
+  ],
+  "ccm:oeh_flex_lrt": "http://w3id.org/openeduhub/vocabs/new_lrt/a4dd48da-80ec-4c17-b0e8-7bbf0ec1e7e7",
+  "ccm:oeh_flex_lrt_repo_field": true,
+  "ccm:oeh_flex_lrt_display": "Unterrichtsplanung",
+  "ccm:educationalcontext": [
+    "http://w3id.org/openeduhub/vocabs/educationalContext/sekundarstufe_1",
+    "http://w3id.org/openeduhub/vocabs/educationalContext/sekundarstufe_2"
+  ],
+  "ccm:educationalcontext_repo_field": true,
+  "ccm:educationalcontext_display": [
+    "Sekundarstufe I",
+    "Sekundarstufe II"
+  ],
+  "ccm:taxonid": [
+    "http://w3id.org/openeduhub/vocabs/discipline/080",
+    "http://w3id.org/openeduhub/vocabs/discipline/44006"
+  ],
+  "ccm:taxonid_repo_field": true,
+  "ccm:taxonid_display": [
+    "Biologie",
+    "Ökologie"
+  ],
+  "ccm:wwwurl": "https://example.org/photosynthesis-guide",
+  "ccm:wwwurl_repo_field": true,
+  "cclom:general_language": [
+    "http://id.loc.gov/vocabulary/iso639-2/deu"
+  ],
+  "cclom:general_language_repo_field": true,
+  "cclom:general_language_display": [
+    "Deutsch"
+  ],
+  "ccm:license": "http://w3id.org/openeduhub/vocabs/license/CC_BY_SA_40",
+  "ccm:license_repo_field": true,
+  "ccm:license_display": "CC BY-SA 4.0",
+  "ccm:oeh_quality_protection_of_minors": "http://w3id.org/openeduhub/vocabs/oeh_quality/1",
+  "ccm:oeh_quality_protection_of_minors_repo_field": false,
+  "ccm:oeh_quality_protection_of_minors_display": "Kein Risiko"
+}
