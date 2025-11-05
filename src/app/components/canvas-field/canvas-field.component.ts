@@ -16,6 +16,16 @@ import { takeUntil } from 'rxjs/operators';
 import { CanvasFieldState, FieldStatus } from '../../models/canvas-models';
 import { I18nService } from '../../services/i18n.service';
 
+// Angular Material imports
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TextFieldModule } from '@angular/cdk/text-field';
+
 @Component({
   selector: 'app-canvas-field',
   standalone: true,
@@ -25,12 +35,11 @@ import { I18nService } from '../../services/i18n.service';
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatChipsModule,
-    MatIconModule,
     MatButtonModule,
-    MatTooltipModule,
+    MatIconModule,
+    MatChipsModule,
     MatAutocompleteModule,
-    MatOptionModule,
+    MatTooltipModule,
     TextFieldModule
   ],
   templateUrl: './canvas-field.component.html',

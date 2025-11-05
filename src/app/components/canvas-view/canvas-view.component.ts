@@ -30,6 +30,16 @@ import { LanguageSwitcherComponent } from '../language-switcher/language-switche
 import { JsonLoaderComponent, LoadedJsonData } from '../json-loader/json-loader.component';
 import { environment } from '../../../environments/environment';
 
+// Angular Material imports
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TextFieldModule } from '@angular/cdk/text-field';
+
 @Component({
   selector: 'app-canvas-view',
   standalone: true,

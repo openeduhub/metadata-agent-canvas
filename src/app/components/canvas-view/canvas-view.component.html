@@ -14,51 +14,55 @@
       
       <button 
         mat-icon-button
-        class="control-button save-button"
         [class.active]="canSubmit()"
         [disabled]="!canSubmit()"
         (click)="downloadJson()"
+        [matTooltip]="'JSON herunterladen'">
+        <mat-icon>save</mat-icon>
         [matTooltip]="'JSON herunterladen'">
         <mat-icon>save</mat-icon>
       </button>
       
       <button 
         mat-icon-button
-        class="control-button upload-button"
         [class.active]="canSubmit()"
         [disabled]="!canSubmit()"
         (click)="submitMetadata()"
         [matTooltip]="'An Plugin senden'">
         <mat-icon>cloud_upload</mat-icon>
+        [matTooltip]="'An Plugin senden'">
+        <mat-icon>cloud_upload</mat-icon>
       </button>
       
       <app-language-switcher></app-language-switcher>
-      <button mat-icon-button class="btn-close" (click)="closeCanvas()" [matTooltip]="'HEADER.CLOSE' | translate">
+      <button mat-icon-button (click)="closeCanvas()" [matTooltip]="'HEADER.CLOSE' | translate">
         <mat-icon>close</mat-icon>
       </button>
     </div>
   </div>
 
-  <!-- Language Switcher & JSON Loader for Standalone Mode (no browser extension header) -->
+  <!-- Language Switcher & JSON Loader for Standalone Mode -->
   <div class="standalone-controls" *ngIf="!integrationMode.isBrowserExtension() && !integrationMode.isBookmarklet()">
     <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
     
     <button 
       mat-icon-button
-      class="control-button save-button"
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="downloadJson()"
+      [matTooltip]="'JSON herunterladen'">
+      <mat-icon>save</mat-icon>
       [matTooltip]="'JSON herunterladen'">
       <mat-icon>save</mat-icon>
     </button>
     
     <button 
       mat-icon-button
-      class="control-button upload-button"
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="submitMetadata()"
+      [matTooltip]="'An Plugin senden'">
+      <mat-icon>cloud_upload</mat-icon>
       [matTooltip]="'An Plugin senden'">
       <mat-icon>cloud_upload</mat-icon>
     </button>
@@ -68,24 +72,27 @@
 
   <!-- Input Section -->
   <div class="input-section">
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="text-input-field">
       <mat-label>{{ 'INPUT.PLACEHOLDER' | translate }}</mat-label>
       <textarea
         matInput
-        rows="4"
         [(ngModel)]="userText"
         [disabled]="state.isExtracting"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="4"
+        cdkAutosizeMaxRows="8"
       ></textarea>
     </mat-form-field>
       
     <div class="header-actions">
       <button 
-        mat-raised-button
+        mat-flat-button
         color="primary"
-        class="btn-primary"
         (click)="startExtraction()"
         [disabled]="state.isExtracting || !userText.trim()"
       >
+        <mat-icon *ngIf="!state.isExtracting">play_arrow</mat-icon>
+        <mat-icon *ngIf="state.isExtracting">hourglass_empty</mat-icon>
         <mat-icon *ngIf="!state.isExtracting">play_arrow</mat-icon>
         <mat-icon *ngIf="state.isExtracting">hourglass_empty</mat-icon>
         <span *ngIf="!state.isExtracting">{{ 'INPUT.START_EXTRACTION' | translate }}</span>
@@ -94,10 +101,10 @@
       
       <button 
         mat-stroked-button
-        class="btn-secondary"
         (click)="reset()"
         [disabled]="state.isExtracting"
       >
+        <mat-icon>refresh</mat-icon>
         <mat-icon>refresh</mat-icon>
         {{ 'INPUT.RESET' | translate }}
       </button>
@@ -147,12 +154,36 @@
         <span class="progress-emoji">{{ getProgressEmoji() }}</span>
       </div>
       <mat-progress-bar 
-        class="progress-bar-compact"
-        mode="determinate"
+        mode="determinate" 
         [value]="state.extractionProgress"
+        class="progress-bar-compact"
       ></mat-progress-bar>
     </div>
 
+    <!-- Content Type Dropdown -->
+    <div *ngIf="showContentTypeDropdown" class="content-type-dropdown">
+      <div class="dropdown-overlay" (click)="closeContentTypeDropdown()"></div>
+      <div class="dropdown-menu">
+        <div class="dropdown-header">
+          <span>{{ 'CONTENT_TYPE.SELECT' | translate }}</span>
+          <button mat-icon-button (click)="closeContentTypeDropdown()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="dropdown-options">
+          <button 
+            mat-button
+            *ngFor="let option of contentTypeOptions"
+            class="dropdown-option"
+            [class.active]="getContentTypeLabel() === option.label"
+            (click)="selectContentType(option)"
+          >
+            <span class="option-label">{{ option.label }}</span>
+            <mat-icon *ngIf="getContentTypeLabel() === option.label" class="option-checkmark">check</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Canvas Content Area -->
@@ -163,8 +194,9 @@
       <div class="group-header">
         <h3>📋 {{ group.label }}</h3>
         <div class="group-badges">
-          <span class="group-badge schema-badge">{{ group.schemaName }}</span>
-          <span class="group-badge count-badge">{{ getFilledFieldsCount(group) }} / {{ group.fields.length }}</span>
+          <span class="group-badge schema-badge" [matBadge]="getFilledFieldsCount(group) + ' / ' + group.fields.length" matBadgeOverlap="false">
+            {{ group.schemaName }}
+          </span>
           <span class="badge-text">{{ 'PROGRESS.FIELDS_RECOGNIZED' | translate }}</span>
         </div>
       </div>
@@ -181,7 +213,7 @@
   <!-- Empty State -->
   <div *ngIf="state.fieldGroups.length === 0" class="empty-state">
     <div class="empty-state-content">
-      <div class="empty-icon">📝</div>
+      <mat-icon class="empty-icon">description</mat-icon>
       <h3>{{ 'EMPTY_STATE.TITLE' | translate }}</h3>
       <p>{{ 'EMPTY_STATE.MESSAGE' | translate }}</p>
     </div>
@@ -205,6 +237,8 @@
           (click)="submitAsGuest()"
           [disabled]="!allRequiredFieldsFilled() || isSubmitting"
         >
+          <mat-icon *ngIf="!isSubmitting">cloud_upload</mat-icon>
+          <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
           <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SUBMIT_GUEST' | translate }}</span>
           <span *ngIf="isSubmitting">{{ 'FOOTER.SUBMITTING' | translate }}</span>
           <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
@@ -216,6 +250,7 @@
           (click)="downloadJson()"
           [disabled]="!allRequiredFieldsFilled()"
         >
+          <mat-icon>download</mat-icon>
           <span *ngIf="allRequiredFieldsFilled()">{{ 'FOOTER.DOWNLOAD_JSON' | translate }}</span>
           <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
         </button>
@@ -230,6 +265,8 @@
           (click)="submitAsGuest()"
           [disabled]="!allRequiredFieldsFilled() || isSubmitting"
         >
+          <mat-icon *ngIf="!isSubmitting">cloud_upload</mat-icon>
+          <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
           <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SUBMIT_GUEST' | translate }}</span>
           <span *ngIf="isSubmitting">{{ 'FOOTER.SUBMITTING' | translate }}</span>
           <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
@@ -241,6 +278,7 @@
           (click)="downloadJson()"
           [disabled]="!allRequiredFieldsFilled()"
         >
+          <mat-icon>download</mat-icon>
           <span *ngIf="allRequiredFieldsFilled()">{{ 'FOOTER.DOWNLOAD_JSON' | translate }}</span>
           <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
         </button>
@@ -255,6 +293,8 @@
         (click)="submitAsGuest()"
         [disabled]="!allRequiredFieldsFilled() || isSubmitting"
       >
+        <mat-icon *ngIf="!isSubmitting">send</mat-icon>
+        <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
         <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SEND_TO_PLUGIN' | translate }}</span>
         <span *ngIf="isSubmitting">{{ 'FOOTER.SENDING' | translate }}</span>
         <span *ngIf="!isSubmitting && !allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>

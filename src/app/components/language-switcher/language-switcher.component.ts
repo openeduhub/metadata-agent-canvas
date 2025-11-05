@@ -3,10 +3,21 @@ import { CommonModule } from '@angular/common';
 import { I18nService, LanguageConfig, SupportedLanguage } from '../../services/i18n.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+// Angular Material imports
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-language-switcher',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [
+    CommonModule, 
+    TranslateModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatIconModule
+  ],
   templateUrl: './language-switcher.component.html',
   styleUrls: ['./language-switcher.component.scss']
 })
