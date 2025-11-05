@@ -584,10 +584,35 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    * Get content type label
    */
   getContentTypeLabel(): string {
+    const currentLang = this.i18n.getCurrentLanguage();
+    
+    // First, try to get from metadata if available (from imported JSON)
+    const metadata = this.state.metadata['ccm:oeh_flex_lrt'];
+    if (metadata && typeof metadata === 'object') {
+      // Extract label based on current language
+      if (metadata.label && typeof metadata.label === 'object') {
+        return metadata.label[currentLang] || metadata.label['de'] || metadata.label['en'] || '';
+      } else if (typeof metadata.label === 'string') {
+        return metadata.label;
+      }
+    }
+    
+    // Second, try to get from concept (already localized by SchemaLoader)
+    const concept = this.canvasService.getContentTypeConcept();
+    if (concept && concept.label) {
+      // Concept labels from SchemaLoader are already localized strings or objects
+      if (typeof concept.label === 'object') {
+        return concept.label[currentLang] || concept.label['de'] || concept.label['en'] || '';
+      }
+      return concept.label;
+    }
+
+    // Fallback: use SchemaLoader to get label by schema file
     if (this.state.selectedContentType || this.state.detectedContentType) {
       const schemaFile = this.state.selectedContentType || this.state.detectedContentType;
       return this.schemaLoader.getContentTypeLabel(schemaFile!);
     }
+
     return this.i18n.instant('CONTENT_TYPE.NOT_DETECTED');
   }
 
@@ -818,7 +843,38 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     
     try {
       await this.canvasService.importJsonData(data.metadata, data.detectedSchema);
-      alert(`✅ JSON erfolgreich geladen!\n\n${data.fileName}\nSchema: ${data.detectedSchema || 'Standard'}`);
+      
+      const currentLanguage = this.i18n.getCurrentLanguage();
+      
+      // Try to get content type info from imported JSON directly
+      let contentTypeLabel = this.i18n.instant('CONTENT_TYPE.NOT_DETECTED');
+      let schemaFile = data.detectedSchema || 'Standard';
+      
+      const contentTypeField = data.metadata['ccm:oeh_flex_lrt'];
+      if (contentTypeField && typeof contentTypeField.value === 'object') {
+        const metadata = contentTypeField.value;
+        
+        // Extract label based on current language
+        if (metadata.displayLabel && typeof metadata.displayLabel === 'string') {
+          contentTypeLabel = metadata.displayLabel;
+        } else if (metadata.label && typeof metadata.label === 'object') {
+          // Get label for current language from multilingual object
+          contentTypeLabel = metadata.label[currentLanguage] || metadata.label['de'] || metadata.label['en'] || contentTypeLabel;
+        } else if (typeof metadata.label === 'string') {
+          contentTypeLabel = metadata.label;
+        }
+        
+        schemaFile = metadata.schema_file || schemaFile;
+      } else {
+        // Fallback: try to get from service (for older exports)
+        const contentType = this.canvasService.getContentTypeConcept();
+        if (contentType) {
+          contentTypeLabel = contentType.label;
+          schemaFile = contentType.schema_file || schemaFile;
+        }
+      }
+      
+      alert(`✅ JSON erfolgreich geladen!\n\n${data.fileName}\nSchema: ${schemaFile}\nInhaltsart: ${contentTypeLabel}\nSprache: ${currentLanguage}`);
       this.cdr.detectChanges();
     } catch (error) {
       console.error('❌ Error loading JSON:', error);

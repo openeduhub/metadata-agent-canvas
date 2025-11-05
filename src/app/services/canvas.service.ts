@@ -207,13 +207,71 @@ export class CanvasService {
 
     // Find the matching concept
     const concept = contentTypeField.vocabulary.concepts.find(c => c.schema_file === schemaFile);
-    
+
     if (concept) {
-      const value = concept.uri || concept.label;
-      this.updateFieldStatus('ccm:oeh_flex_lrt', FieldStatus.FILLED, value, state.contentTypeConfidence);
-      this.updateMetadata('ccm:oeh_flex_lrt', value);
-      console.log(`✅ Content type field filled: ${concept.label}`);
+      const localizedLabel = concept.label;
+      const metadataValue = {
+        schema_file: concept.schema_file || null,
+        uri: concept.uri || null,
+        label: localizedLabel,
+        language: this.i18n.getCurrentLanguage()
+      };
+      this.updateFieldStatus('ccm:oeh_flex_lrt', FieldStatus.FILLED, localizedLabel, state.contentTypeConfidence);
+      this.updateMetadata('ccm:oeh_flex_lrt', metadataValue);
+      console.log(`✅ Content type field filled: ${localizedLabel} (${metadataValue.schema_file || metadataValue.uri || 'n/a'})`);
     }
+  }
+
+  /**
+   * Resolve the content type concept from the current state or a given identifier
+   */
+  public getContentTypeConcept(identifier?: string): any | null {
+    const state = this.getCurrentState();
+    
+    // Determine target to search for
+    const target = identifier
+      || (typeof state.metadata['ccm:oeh_flex_lrt'] === 'object' && state.metadata['ccm:oeh_flex_lrt'] !== null
+        ? state.metadata['ccm:oeh_flex_lrt'].schema_file || state.metadata['ccm:oeh_flex_lrt'].uri || state.metadata['ccm:oeh_flex_lrt'].label
+        : state.metadata['ccm:oeh_flex_lrt'])
+      || state.selectedContentType
+      || state.detectedContentType;
+
+    if (!target) {
+      console.warn('⚠️ getContentTypeConcept: No target to search for');
+      return null;
+    }
+
+    const normalizedTarget = target.endsWith('.json') ? target : `${target}.json`;
+
+    // Get concepts directly from SchemaLoader (more reliable than from field)
+    const concepts = this.schemaLoader.getContentTypeConcepts();
+    
+    if (!concepts || concepts.length === 0) {
+      console.warn('⚠️ getContentTypeConcept: No concepts available from SchemaLoader');
+      return null;
+    }
+
+    const foundConcept = concepts.find(concept => {
+      const labelDe = (concept as any).label_de;
+      const labelEn = (concept as any).label_en;
+      const conceptLabel = concept.label;
+      const conceptUri = (concept as any).uri;
+      return concept.schema_file === normalizedTarget
+        || concept.schema_file === target
+        || conceptUri === target
+        || conceptLabel === target
+        || labelDe === target
+        || labelEn === target
+        || conceptLabel === normalizedTarget
+        || labelDe === normalizedTarget
+        || labelEn === normalizedTarget;
+    }) || null;
+    
+    if (!foundConcept) {
+      console.warn('⚠️ getContentTypeConcept: No concept found for target:', target, 'normalized:', normalizedTarget);
+    }
+    
+    return foundConcept;
   }
 
   /**
@@ -1612,24 +1670,34 @@ export class CanvasService {
       // Step 1: Initialize with correct schema
       await this.initializeCoreFields();
 
-      // Step 2: If content type detected, load special schema
+      // Step 2: Detect content type from ccm:oeh_flex_lrt or metadataset
       let contentTypeValue: string | null = null;
-      
-      if (detectedSchema && detectedSchema.includes('event')) {
-        contentTypeValue = 'event';
-        try {
-          await this.loadSpecialSchema('event.json');
-          this.fillContentTypeField('event.json');
-        } catch (error) {
-          console.warn('Could not load event schema, continuing with core only:', error);
+      let schemaFileToLoad: string | null = null;
+
+      // First priority: ccm:oeh_flex_lrt structured metadata
+      const contentTypeField = normalizedData['ccm:oeh_flex_lrt'];
+      if (contentTypeField && typeof contentTypeField.value === 'object' && contentTypeField.value.schema_file) {
+        schemaFileToLoad = contentTypeField.value.schema_file;
+        console.log(`📋 Content type from ccm:oeh_flex_lrt: ${schemaFileToLoad}`);
+      }
+      // Second priority: metadataset field
+      else if (detectedSchema && detectedSchema !== 'mds_oeh') {
+        // Remove 'mds_oeh_' prefix if present and ensure .json extension
+        schemaFileToLoad = detectedSchema.replace('mds_oeh_', '');
+        if (!schemaFileToLoad.endsWith('.json')) {
+          schemaFileToLoad = `${schemaFileToLoad}.json`;
         }
-      } else if (detectedSchema && detectedSchema.includes('tool')) {
-        contentTypeValue = 'tool';
+        console.log(`📋 Content type from metadataset: ${schemaFileToLoad}`);
+      }
+
+      // Load the detected schema
+      if (schemaFileToLoad) {
         try {
-          await this.loadSpecialSchema('tool.json');
-          this.fillContentTypeField('tool.json');
+          await this.loadSpecialSchema(schemaFileToLoad);
+          this.fillContentTypeField(schemaFileToLoad);
+          contentTypeValue = schemaFileToLoad;
         } catch (error) {
-          console.warn('Could not load tool schema, continuing with core only:', error);
+          console.warn(`Could not load ${schemaFileToLoad} schema, continuing with core only:`, error);
         }
       }
 
@@ -1642,6 +1710,46 @@ export class CanvasService {
 
       for (const field of allFields) {
         const fieldData = normalizedData[field.fieldId];
+        
+        // Special handling for ccm:oeh_flex_lrt - extract label for display
+        if (field.fieldId === 'ccm:oeh_flex_lrt' && fieldData && typeof fieldData.value === 'object') {
+          const contentTypeMetadata = fieldData.value;
+          const currentLang = this.i18n.getCurrentLanguage();
+          
+          // Extract display label based on current language
+          let displayLabel = '';
+          
+          // Priority 1: Use displayLabel if available and matches current language preference
+          if (contentTypeMetadata.displayLabel && typeof contentTypeMetadata.displayLabel === 'string') {
+            displayLabel = contentTypeMetadata.displayLabel;
+          }
+          // Priority 2: Use localized label from multilingual object
+          else if (contentTypeMetadata.label && typeof contentTypeMetadata.label === 'object') {
+            displayLabel = contentTypeMetadata.label[currentLang] || contentTypeMetadata.label['de'] || contentTypeMetadata.label['en'] || '';
+          }
+          // Priority 3: Use label as string (backward compatibility)
+          else if (typeof contentTypeMetadata.label === 'string') {
+            displayLabel = contentTypeMetadata.label;
+          }
+          // Fallback: Use schema_file
+          else {
+            displayLabel = contentTypeMetadata.schema_file || '';
+          }
+          
+          const updatedField: CanvasFieldState = {
+            ...field,
+            value: displayLabel,
+            status: 'filled' as FieldStatus
+          };
+          
+          fieldUpdates[field.fieldId] = updatedField;
+          importedCount++;
+          
+          // Store structured metadata separately
+          this.updateMetadata('ccm:oeh_flex_lrt', contentTypeMetadata);
+          console.log(`✅ Imported ccm:oeh_flex_lrt with structured metadata:`, contentTypeMetadata, 'Display:', displayLabel);
+          continue;
+        }
         
         if (fieldData && fieldData.value !== undefined && fieldData.value !== null) {
           const jsonValue = fieldData.value;
@@ -1870,9 +1978,58 @@ export class CanvasService {
       language: currentLanguage
     };
 
-    // Add content type if selected
+    // Add content type if selected - use only the schema file name
     if (state.selectedContentType) {
-      output.metadataset = `mds_oeh_${state.selectedContentType}`;
+      output.metadataset = state.selectedContentType;
+    }
+
+    // Add content type field (ccm:oeh_flex_lrt) with structured metadata
+    // This field is not a regular canvas field, so we export it separately
+    console.log('🔍 Export check:', {
+      selectedContentType: state.selectedContentType,
+      detectedContentType: state.detectedContentType
+    });
+    
+    if (state.selectedContentType) {
+      const concept = this.getContentTypeConcept();
+      console.log('🔍 Concept found:', concept);
+      
+      if (concept) {
+        // Get both language labels (for language-independent export)
+        const labelDe = this.localizer.localizeString(concept.label, 'de');
+        const labelEn = this.localizer.localizeString(concept.label, 'en');
+        const currentLabel = this.localizer.localizeString(concept.label, currentLanguage);
+        
+        // Create enriched metadata with multilingual labels
+        const enrichedMetadata = {
+          schema_file: concept.schema_file,
+          uri: (concept as any).uri || null,
+          label: {
+            de: labelDe,
+            en: labelEn
+          },
+          language: currentLanguage,  // Language at time of export
+          displayLabel: currentLabel   // Current display label for quick access
+        };
+        
+        output['ccm:oeh_flex_lrt'] = {
+          value: enrichedMetadata,
+          repoField: false,
+          datatype: 'string',
+          multiple: false,
+          required: false,
+          schema: 'Core',
+          uri: 'ccm:oeh_flex_lrt',
+          label: 'Inhaltsart(en)',
+          status: 'filled',
+          description: 'Erkannte Ressourcentypen (Mehrfachauswahl).',
+          hasVocabulary: true,
+          vocabularyType: 'closed',
+          confidence: state.contentTypeConfidence || 1.0
+        };
+        
+        console.log('✅ Exported ccm:oeh_flex_lrt:', enrichedMetadata);
+      }
     }
 
     // Build a set of sub-field IDs to exclude from top-level output
@@ -1887,6 +2044,11 @@ export class CanvasService {
     for (const field of allFields) {
       // Skip sub-fields - they are reconstructed into parent objects
       if (subFieldIds.has(field.fieldId)) {
+        continue;
+      }
+
+      // Skip ccm:oeh_flex_lrt if already added above
+      if (field.fieldId === 'ccm:oeh_flex_lrt' && output['ccm:oeh_flex_lrt']) {
         continue;
       }
 
