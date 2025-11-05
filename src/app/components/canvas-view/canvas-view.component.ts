@@ -171,12 +171,22 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         console.log('✅ Text successfully set in canvas textarea');
       }
       
-      // Handle structured SET_PAGE_DATA (bookmarklet with URL)
+      // Handle structured SET_PAGE_DATA (bookmarklet/plugin with URL and structured data)
       if (event.data.type === 'SET_PAGE_DATA' && event.data.text) {
         console.log('📨 Received page data via postMessage:');
         console.log('  - URL:', event.data.url);
         console.log('  - Title:', event.data.pageTitle);
         console.log('  - Mode:', event.data.mode);
+        
+        // Log structured data availability
+        const pageData = event.data.pageData || event.data.structuredData || {};
+        console.log('  - Has JSON-LD:', !!pageData.structuredData || !!pageData.jsonLd);
+        console.log('  - Has Schema.org:', !!pageData.schemaOrg);
+        console.log('  - Has Dublin Core:', !!pageData.dublinCore?.title);
+        console.log('  - Has LRMI:', !!pageData.lrmi?.educationalUse);
+        console.log('  - Has License:', !!pageData.license);
+        console.log('  - Has Breadcrumbs:', !!pageData.breadcrumbs);
+        console.log('  - Has Tags:', !!pageData.tags);
         
         // Update mode if specified
         if (event.data.mode) {
@@ -189,6 +199,22 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         // Store URL for later use (will be pre-filled in metadata)
         if (event.data.url) {
           sessionStorage.setItem('canvas_page_url', event.data.url);
+        }
+        
+        // Store page title
+        if (event.data.pageTitle) {
+          sessionStorage.setItem('canvas_page_title', event.data.pageTitle);
+        }
+        
+        // Store complete page data for extraction enhancement
+        if (pageData && Object.keys(pageData).length > 0) {
+          sessionStorage.setItem('canvas_page_data', JSON.stringify(pageData));
+          console.log('📦 Stored complete page data with', Object.keys(pageData).length, 'categories');
+        }
+        
+        // Backward compatibility: also store old structuredData format
+        if (event.data.structuredData) {
+          sessionStorage.setItem('canvas_structured_data', JSON.stringify(event.data.structuredData));
         }
         
         // Trigger change detection

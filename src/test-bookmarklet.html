@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Test-Seite für Bookmarklet mit vielen Metadaten">
+  <meta name="keywords" content="Test, Bookmarklet, Metadata, Extraktion">
+  <meta name="author" content="Test Author">
+  
+  <!-- OpenGraph -->
+  <meta property="og:title" content="Test Bookmarklet Page">
+  <meta property="og:description" content="Eine Test-Seite mit vielen strukturierten Metadaten">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="de_DE">
+  
+  <!-- Dublin Core -->
+  <meta name="DC.title" content="Bookmarklet Test Ressource">
+  <meta name="DC.creator" content="Test Creator">
+  <meta name="DC.subject" content="Informatik, Bildung">
+  <meta name="DC.rights" content="CC BY 4.0">
+  
+  <!-- LRMI -->
+  <meta name="lrmi:educationalUse" content="self study">
+  <meta name="lrmi:educationalLevel" content="University">
+  <meta name="lrmi:learningResourceType" content="tutorial">
+  
+  <title>Bookmarklet Test - Metadata Extraktion</title>
+  
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px;
+      line-height: 1.6;
+    }
+    h1 { color: #1976d2; }
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #1976d2;
+      padding: 16px;
+      margin: 24px 0;
+      border-radius: 4px;
+    }
+    .test-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #4caf50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      margin: 16px 0;
+      cursor: pointer;
+      border: none;
+      font-size: 16px;
+    }
+    .test-button:hover {
+      background: #45a049;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 Bookmarklet Test-Seite</h1>
+  
+  <div class="info-box">
+    <strong>✅ Diese Seite enthält:</strong>
+    <ul>
+      <li>Standard Meta-Tags (description, keywords, author)</li>
+      <li>OpenGraph Metadaten</li>
+      <li>Dublin Core Metadaten</li>
+      <li>LRMI (Learning Resource) Metadaten</li>
+      <li>JSON-LD strukturierte Daten</li>
+    </ul>
+  </div>
+  
+  <h2>🧪 Test-Anleitung</h2>
+  <ol>
+    <li>Öffne <a href="bookmarklet-simple.html" target="_blank">bookmarklet-simple.html</a></li>
+    <li>Kopiere den Bookmarklet-Code</li>
+    <li>Erstelle ein neues Lesezeichen mit dem Code</li>
+    <li>Kehre zu dieser Seite zurück</li>
+    <li>Klicke auf das Bookmarklet</li>
+  </ol>
+  
+  <button class="test-button" onclick="testBookmarklet()">🚀 Bookmarklet direkt testen</button>
+  
+  <h2>📊 Erwartetes Ergebnis</h2>
+  <div class="info-box">
+    <strong>Das Canvas sollte öffnen und automatisch folgendes erkennen:</strong>
+    <ul>
+      <li>Titel: "Bookmarklet Test - Metadata Extraktion"</li>
+      <li>Beschreibung: "Test-Seite für Bookmarklet mit vielen Metadaten"</li>
+      <li>Author: "Test Author"</li>
+      <li>Dublin Core Creator: "Test Creator"</li>
+      <li>Dublin Core Subject: "Informatik, Bildung"</li>
+      <li>LRMI Educational Use: "self study"</li>
+      <li>LRMI Educational Level: "University"</li>
+      <li>JSON-LD Event Daten</li>
+    </ul>
+  </div>
+  
+  <h2>📦 Browser Console</h2>
+  <p>Öffne die Browser-Konsole (F12) und achte auf:</p>
+  <pre>✅ Iframe loaded, extracting page data...
+📤 Sent page data to Canvas: {
+  textLength: ...,
+  hasJsonLd: true,
+  hasDC: true,
+  hasLRMI: true,
+  ...
+}</pre>
+  
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": "Test Workshop: Metadata Extraktion",
+    "description": "Ein Workshop über Metadaten-Extraktion mit Bookmarklets",
+    "startDate": "2025-12-01T10:00:00+01:00",
+    "endDate": "2025-12-01T16:00:00+01:00",
+    "location": {
+      "@type": "Place",
+      "name": "Online",
+      "address": {
+        "@type": "VirtualLocation",
+        "url": "https://example.com/workshop"
+      }
+    },
+    "organizer": {
+      "@type": "Organization",
+      "name": "Test Organization"
+    }
+  }
+  </script>
+  
+  <script>
+    function testBookmarklet() {
+      // This simulates clicking the bookmarklet
+      const code = prompt('Füge den Bookmarklet-Code hier ein (beginnend mit javascript:):');
+      if (code && code.startsWith('javascript:')) {
+        try {
+          // Remove javascript: prefix and execute
+          eval(decodeURIComponent(code.substring(11)));
+        } catch (e) {
+          alert('Fehler beim Ausführen: ' + e.message);
+          console.error(e);
+        }
+      }
+    }
+    
+    // Log page info
+    console.log('%c📄 Test Page Loaded', 'color: #4caf50; font-size: 16px; font-weight: bold');
+    console.log('Title:', document.title);
+    console.log('Meta description:', document.querySelector('meta[name="description"]')?.content);
+    console.log('DC.creator:', document.querySelector('meta[name="DC.creator"]')?.content);
+    console.log('LRMI educationalUse:', document.querySelector('meta[name="lrmi:educationalUse"]')?.content);
+  </script>
+</body>
+</html>
