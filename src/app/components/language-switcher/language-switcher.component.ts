@@ -19,7 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
   ],
   templateUrl: './language-switcher.component.html',
-  //styleUrls: ['./language-switcher.component.scss']
+  styleUrls: ['../../assets/themes/override-core.scss'],
 })
 export class LanguageSwitcherComponent implements OnInit {
   currentLanguage: LanguageConfig;

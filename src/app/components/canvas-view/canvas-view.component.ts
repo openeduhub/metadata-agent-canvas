@@ -65,7 +65,7 @@ import { TextFieldModule } from '@angular/cdk/text-field';
     TextFieldModule
   ],
   templateUrl: './canvas-view.component.html',
-  //styleUrls: ['./canvas-view.component.scss'],
+  styleUrls: ['../../assets/themes/override-core.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CanvasViewComponent implements OnInit, OnDestroy {
