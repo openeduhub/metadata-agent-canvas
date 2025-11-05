@@ -24,7 +24,7 @@ export interface LoadedJsonData {
     MatSnackBarModule
   ],
   templateUrl: './json-loader.component.html',
-  styleUrls: ['../../assets/themes/override-core.scss'],
+  styleUrls: ['../../../assets/themes/override-core.scss'],
 })
 export class JsonLoaderComponent {
   @Output() jsonLoaded = new EventEmitter<LoadedJsonData>();
