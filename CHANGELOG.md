@@ -106,6 +106,7 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 - AI-Prompts mehrsprachig (Extraktion, Normalisierung, Content-Type Detection)
 - Automatische Browser-Spracherkennung
 - Persistierung der Sprachauswahl in localStorage
+- Material Design
 
 **Services:**
 - `I18nService` - UI-Übersetzungen & Sprachwechsel
