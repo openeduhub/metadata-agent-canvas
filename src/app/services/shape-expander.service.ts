@@ -24,9 +24,16 @@ export class ShapeExpanderService {
   expandFieldWithShape(parentField: CanvasFieldState, extractedValue: any, schemaFieldDef?: any): CanvasFieldState[] {
     if (!parentField.shape && !schemaFieldDef?.system?.items?.variants) {
       console.log(`⚠️ No shape or variants found for ${parentField.fieldId}`);
+      console.log(`⚠️ No shape or variants found for ${parentField.fieldId}`);
       return [];
     }
 
+    console.log(`🔍 Expanding field ${parentField.fieldId}:`, {
+      extractedValueType: Array.isArray(extractedValue) ? `array[${extractedValue.length}]` : typeof extractedValue,
+      extractedValueSample: Array.isArray(extractedValue) ? extractedValue[0] : extractedValue,
+      hasVariants: !!(schemaFieldDef?.system?.items?.variants),
+      variantsCount: schemaFieldDef?.system?.items?.variants?.length || 0
+    });
     console.log(`🔍 Expanding field ${parentField.fieldId}:`, {
       extractedValueType: Array.isArray(extractedValue) ? `array[${extractedValue.length}]` : typeof extractedValue,
       extractedValueSample: Array.isArray(extractedValue) ? extractedValue[0] : extractedValue,
@@ -379,12 +386,41 @@ export class ShapeExpanderService {
   }
 
   /**
-   * Format property key to readable label
-   * Fallback for fields without schema definition
+   * Format property key to readable label with i18n support
    */
   private formatLabel(key: string): string {
+    const language = this.localizer.getActiveLanguage();
+    
+    // i18n translation map for common field names
+    const translations: { [key: string]: { de: string, en: string } } = {
+      'contactType': { de: 'Kontakttyp', en: 'Contact Type' },
+      'email': { de: 'E-Mail', en: 'Email' },
+      'telephone': { de: 'Telefon', en: 'Telephone' },
+      'faxNumber': { de: 'Faxnummer', en: 'Fax Number' },
+      'availableLanguage': { de: 'Verfügbare Sprachen', en: 'Available Language' },
+      'name': { de: 'Name', en: 'Name' },
+      'value': { de: 'Wert', en: 'Value' },
+      'description': { de: 'Beschreibung', en: 'Description' },
+      'streetAddress': { de: 'Straße und Hausnummer', en: 'Street Address' },
+      'postalCode': { de: 'Postleitzahl', en: 'Postal Code' },
+      'addressLocality': { de: 'Stadt', en: 'City' },
+      'addressRegion': { de: 'Bundesland/Region', en: 'State/Region' },
+      'addressCountry': { de: 'Land', en: 'Country' },
+      'address': { de: 'Adresse', en: 'Address' },
+      'geo': { de: 'Koordinaten', en: 'Coordinates' },
+      'latitude': { de: 'Breitengrad', en: 'Latitude' },
+      'longitude': { de: 'Längengrad', en: 'Longitude' },
+      'sameAs': { de: 'Verweis', en: 'Reference' },
+      'accessibilitySummary': { de: 'Barrierefreiheits-Übersicht', en: 'Accessibility Summary' },
+      'accessibilitySupport': { de: 'Barrierefreiheits-Unterstützung', en: 'Accessibility Support' }
+    };
+    
+    // Check if we have a translation for this key
+    if (translations[key]) {
+      return translations[key][language];
+    }
+    
     // Fallback: Convert camelCase/snake_case to Title Case
-    // This is only used for fields without proper schema definition
     return key
       .replace(/([A-Z])/g, ' $1')
       .replace(/_/g, ' ')

@@ -104,17 +104,16 @@
           <div *ngIf="shouldShowPreview(subField)" class="structured-field-preview">
             <span class="preview-text">{{ getSubFieldPreview(subField) }}</span>
           </div>
-
           <mat-form-field *ngIf="!subField.isParent" appearance="outline">
             <textarea
-              matInput
-              [(ngModel)]="subField.value"
-              (blur)="onSubFieldValueChange(subField)"
-              [placeholder]="subField.description"
-              [disabled]="subField.status === FieldStatus.EXTRACTING"
-              cdkTextareaAutosize
-              cdkAutosizeMinRows="1"
-            ></textarea>
+            *ngIf="!shouldDisableSubFieldInput(subField)"
+            class="field-input sub-field-input"
+            [(ngModel)]="subField.value"
+            (blur)="onSubFieldValueChange(subField)"
+            [placeholder]="subField.description"
+            [disabled]="subField.status === FieldStatus.EXTRACTING"
+            rows="1"
+          ></textarea>
           </mat-form-field>
         </div>
 
