@@ -241,19 +241,50 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": {
-          "@type": [
-            "Organization",
-            "EducationalOrganization"
-          ],
-          "url": {
-            "type": "uri"
-          }
-        },
         "index": {
           "keyword": true
         },
-        "repo_field": false
+        "repo_field": false,
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "Organization",
+            "label": {
+              "de": "Ursprungsorganisation",
+              "en": "Originating organization"
+            },
+            "description": {
+              "de": "Institution, die die Inhalte ursprünglich erstellt/herausgegeben hat.",
+              "en": "Institution that originally created/published the content."
+            },
+            "fields": [
+              {
+                "id": "url",
+                "label": {
+                  "de": "URL",
+                  "en": "URL"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "url",
+                  "uri": "https://schema.org/url",
+                  "datatype": "uri",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -279,20 +310,50 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": {
-          "@type": [
-            "CreativeWork",
-            "LearningResource",
-            "WebPage"
-          ],
-          "url": {
-            "type": "uri"
-          }
-        },
         "index": {
           "keyword": true
         },
-        "repo_field": false
+        "repo_field": false,
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "CreativeWork",
+            "label": {
+              "de": "Basiert auf (Objekt)",
+              "en": "Based on (Object)"
+            },
+            "description": {
+              "de": "Verweis auf Original/Fork/Remix als CreativeWork.",
+              "en": "Reference to original/fork/remix as CreativeWork."
+            },
+            "fields": [
+              {
+                "id": "url",
+                "label": {
+                  "de": "URL",
+                  "en": "URL"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "url",
+                  "uri": "https://schema.org/url",
+                  "datatype": "uri",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -350,19 +411,50 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": {
-          "@type": [
-            "Organization",
-            "Service"
-          ],
-          "url": {
-            "type": "uri"
-          }
-        },
         "index": {
           "keyword": true
         },
-        "repo_field": false
+        "repo_field": false,
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "Organization",
+            "label": {
+              "de": "Bereitstellende Plattform (Provider)",
+              "en": "Providing Platform (Provider)"
+            },
+            "description": {
+              "de": "Plattform/Repository/LMS, das Inhalte bereitstellt.",
+              "en": "Platform/Repository/LMS that provides content."
+            },
+            "fields": [
+              {
+                "id": "url",
+                "label": {
+                  "de": "URL",
+                  "en": "URL"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "url",
+                  "uri": "https://schema.org/url",
+                  "datatype": "uri",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -388,19 +480,50 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": {
-          "@type": [
-            "Organization",
-            "Person"
-          ],
-          "url": {
-            "type": "uri"
-          }
-        },
         "index": {
           "keyword": true
         },
-        "repo_field": false
+        "repo_field": false,
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "Organization",
+            "label": {
+              "de": "Publisher dieser Fassung",
+              "en": "Publisher of this version"
+            },
+            "description": {
+              "de": "Wer veröffentlicht die konkrete Fassung?",
+              "en": "Who publishes the specific version?"
+            },
+            "fields": [
+              {
+                "id": "url",
+                "label": {
+                  "de": "URL",
+                  "en": "URL"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "url",
+                  "uri": "https://schema.org/url",
+                  "datatype": "uri",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -430,15 +553,6 @@
           "string",
           "object"
         ],
-        "shape": {
-          "@type": [
-            "CreativeWork",
-            "WebPage"
-          ],
-          "url": {
-            "type": "uri"
-          }
-        },
         "index": {
           "fulltext": true,
           "keyword": true
@@ -447,7 +561,90 @@
           "trim": true,
           "deduplicate": true
         },
-        "repo_field": false
+        "repo_field": false,
+        "items": {
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "CreativeWork",
+              "label": {
+                "de": "Zitierung/Literatur",
+                "en": "Citation/Literature"
+              },
+              "description": {
+                "de": "Formale Quellenangabe(n) oder verlinkte Werke.",
+                "en": "Formal source citation(s) or linked works."
+              },
+              "fields": [
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "CreativeWork",
+            "label": {
+              "de": "CreativeWork",
+              "en": "CreativeWork"
+            },
+            "description": {
+              "de": "",
+              "en": ""
+            },
+            "fields": [
+              {
+                "id": "url",
+                "label": {
+                  "de": "URL",
+                  "en": "URL"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "url",
+                  "uri": "https://schema.org/url",
+                  "datatype": "uri",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -564,8 +761,8 @@
             },
             {
               "label": {
-                "de": "manual",
-                "en": "Handbuch"
+                "de": "Manuell",
+                "en": "manual"
               }
             }
           ]
@@ -585,7 +782,7 @@
       "group": "harvesting",
       "label": {
         "de": "Erschließungsstatus",
-        "en": "access status"
+        "en": "Access Status"
       },
       "description": {
         "de": "Aktueller Status der Erschließung.",
@@ -608,32 +805,32 @@
           "concepts": [
             {
               "label": {
-                "de": "planned",
-                "en": "geplant"
+                "de": "Geplant",
+                "en": "planned"
               }
             },
             {
               "label": {
-                "de": "running",
-                "en": "laufend"
+                "de": "Laufend",
+                "en": "running"
               }
             },
             {
               "label": {
-                "de": "succeeded",
-                "en": "erfolgreich"
+                "de": "Erfolgreich",
+                "en": "succeeded"
               }
             },
             {
               "label": {
-                "de": "failed",
-                "en": "fehlgeschlagen"
+                "de": "Fehlgeschlagen",
+                "en": "failed"
               }
             },
             {
               "label": {
-                "de": "paused",
-                "en": "pausiert"
+                "de": "Pausiert",
+                "en": "paused"
               }
             }
           ]
@@ -730,14 +927,14 @@
           "concepts": [
             {
               "label": {
-                "de": "all",
-                "en": "alle"
+                "de": "Alle",
+                "en": "all"
               }
             },
             {
               "label": {
-                "de": "subset",
-                "en": "Teilmenge"
+                "de": "Teilmenge",
+                "en": "subset"
               }
             }
           ]
@@ -789,7 +986,7 @@
       },
       "description": {
         "de": "Welche Felder sollen standardmäßig an Inhalte vererbt werden?",
-        "en": "Welche Felder sollen standardmäßig an Inhalte vererbt werden?"
+        "en": "Which fields should be inherited to content by default?"
       },
       "prompt": {
         "de": "",
@@ -808,38 +1005,38 @@
           "concepts": [
             {
               "label": {
-                "de": "discipline",
-                "en": "Disziplin"
+                "de": "Disziplin",
+                "en": "discipline"
               }
             },
             {
               "label": {
-                "de": "keywords",
+                "de": "Schlagwörter",
                 "en": "keywords"
               }
             },
             {
               "label": {
-                "de": "license",
-                "en": "Lizenz"
+                "de": "Lizenz",
+                "en": "license"
               }
             },
             {
               "label": {
-                "de": "ads",
-                "en": "Anzeigen"
+                "de": "Anzeigen",
+                "en": "ads"
               }
             },
             {
               "label": {
-                "de": "cost",
-                "en": "Kosten"
+                "de": "Kosten",
+                "en": "cost"
               }
             },
             {
               "label": {
-                "de": "login_required",
-                "en": "Anmeldung erforderlich"
+                "de": "Anmeldung erforderlich",
+                "en": "login_required"
               }
             }
           ]
@@ -863,7 +1060,7 @@
       },
       "description": {
         "de": "Welche Facetten werden aus Inhalten an der Quelle aggregiert angezeigt?",
-        "en": "Welche Facetten werden aus Inhalten an der Quelle aggregiert angezeigt?"
+        "en": "Which facets are aggregated from content at the source?"
       },
       "prompt": {
         "de": "",
@@ -882,44 +1079,44 @@
           "concepts": [
             {
               "label": {
-                "de": "discipline",
-                "en": "Disziplin"
+                "de": "Disziplin",
+                "en": "discipline"
               }
             },
             {
               "label": {
-                "de": "keywords",
+                "de": "Schlagwörter",
                 "en": "keywords"
               }
             },
             {
               "label": {
-                "de": "license",
-                "en": "Lizenz"
+                "de": "Lizenz",
+                "en": "license"
               }
             },
             {
               "label": {
-                "de": "educationalLevel",
-                "en": "Bildungsniveau"
+                "de": "Bildungsniveau",
+                "en": "educationalLevel"
               }
             },
             {
               "label": {
-                "de": "audience",
-                "en": "Zielgruppe"
+                "de": "Zielgruppe",
+                "en": "audience"
               }
             },
             {
               "label": {
-                "de": "cost",
-                "en": "Kosten"
+                "de": "Kosten",
+                "en": "cost"
               }
             },
             {
               "label": {
-                "de": "login_required",
-                "en": "Anmeldung erforderlich"
+                "de": "Anmeldung erforderlich",
+                "en": "login_required"
               }
             }
           ]

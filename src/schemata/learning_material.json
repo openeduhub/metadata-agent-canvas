@@ -666,55 +666,55 @@
           "concepts": [
             {
               "label": {
-                "de": "captions",
-                "en": "Untertitel"
+                "de": "Untertitel",
+                "en": "captions"
               }
             },
             {
               "label": {
-                "de": "transcript",
-                "en": "Transkript"
+                "de": "Transkript",
+                "en": "transcript"
               }
             },
             {
               "label": {
-                "de": "audio_description",
+                "de": "Audiobeschreibung",
                 "en": "audio description"
               }
             },
             {
               "label": {
-                "de": "alt_text",
+                "de": "Alternativtext",
                 "en": "alt text"
               }
             },
             {
               "label": {
-                "de": "sign_language",
+                "de": "Gebärdensprache",
                 "en": "sign language"
               }
             },
             {
               "label": {
-                "de": "high_contrast",
+                "de": "Hoher Kontrast",
                 "en": "high contrast"
               }
             },
             {
               "label": {
-                "de": "keyboard_navigation",
+                "de": "Tastaturnavigation",
                 "en": "keyboard navigation"
               }
             },
             {
               "label": {
-                "de": "long_description",
+                "de": "Lange Beschreibung",
                 "en": "long description"
               }
             },
             {
               "label": {
-                "de": "closed_captions",
+                "de": "Geschlossene Untertitel",
                 "en": "closed captions"
               }
             }
@@ -758,19 +758,19 @@
           "concepts": [
             {
               "label": {
-                "de": "flashing",
+                "de": "Blitzen",
                 "en": "flashing"
               }
             },
             {
               "label": {
-                "de": "motion_simulation",
+                "de": "Bewegungssimulation",
                 "en": "motion simulation"
               }
             },
             {
               "label": {
-                "de": "audio_auto",
+                "de": "Automatisches Audio",
                 "en": "audio auto"
               }
             }

@@ -608,8 +608,8 @@
         "en": "Additional Type"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Zusätzliche Typisierung oder Kategorisierung",
+        "en": "Additional type or categorization"
       },
       "prompt": {
         "de": "",
@@ -641,8 +641,8 @@
         "en": "Non-profit Organization"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Kennzeichnung als gemeinnützige Organisation",
+        "en": "Designation as non-profit organization"
       },
       "prompt": {
         "de": "",
@@ -667,8 +667,8 @@
         "en": "Learning Place"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Kennzeichnung als Lernort oder Bildungseinrichtung",
+        "en": "Designation as learning place or educational institution"
       },
       "prompt": {
         "de": "",
@@ -693,8 +693,8 @@
         "en": "Officially Recognized"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Offizielle Anerkennung durch Behörden oder Institutionen",
+        "en": "Official recognition by authorities or institutions"
       },
       "prompt": {
         "de": "",
@@ -939,8 +939,8 @@
         "en": "Fax Number"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Faxnummer",
+        "en": "Fax number"
       },
       "prompt": {
         "de": "",
@@ -984,24 +984,146 @@
         "ask_user": true,
         "ai_fillable": true,
         "items": {
-          "type": "object",
-          "shape": {
-            "contactType": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            },
-            "telephone": {
-              "type": "string"
-            },
-            "faxNumber": {
-              "type": "string"
-            },
-            "availableLanguage": {
-              "type": "array"
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Kontaktpunkt(e)",
+                "en": "Contact point(s)"
+              },
+              "description": {
+                "de": "Spezifische Anlaufstellen (z. B. Studierendenservice, Presse, Barrierefreiheit).",
+                "en": "Specific contact points (e.g., student services, press, accessibility)."
+              },
+              "fields": [
+                {
+                  "id": "contactType",
+                  "label": {
+                    "de": "Kontakttyp",
+                    "en": "Contact Type"
+                  },
+                  "description": {
+                    "de": "Art des Kontakts (z.B. Kundenservice, Presse)",
+                    "en": "Type of contact (e.g., customer service, press)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "contactType",
+                    "uri": "https://schema.org/contactType",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "email",
+                  "label": {
+                    "de": "E-Mail",
+                    "en": "Email"
+                  },
+                  "description": {
+                    "de": "E-Mail-Adresse",
+                    "en": "Email address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "email",
+                    "uri": "https://schema.org/email",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "telephone",
+                  "label": {
+                    "de": "Telefon",
+                    "en": "Telephone"
+                  },
+                  "description": {
+                    "de": "Telefonnummer",
+                    "en": "Telephone number"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "telephone",
+                    "uri": "https://schema.org/telephone",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "faxNumber",
+                  "label": {
+                    "de": "Faxnummer",
+                    "en": "Fax Number"
+                  },
+                  "description": {
+                    "de": "Faxnummer",
+                    "en": "Fax number"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "faxNumber",
+                    "uri": "https://schema.org/faxNumber",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "availableLanguage",
+                  "label": {
+                    "de": "Verfügbare Sprachen",
+                    "en": "Available Languages"
+                  },
+                  "description": {
+                    "de": "Verfügbare Sprachen",
+                    "en": "Available languages"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "availableLanguage",
+                    "uri": "https://schema.org/availableLanguage",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "string"
+                    }
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "repo_field": false
       }
@@ -1029,24 +1151,143 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": {
-          "streetAddress": {
-            "type": "string"
-          },
-          "postalCode": {
-            "type": "string"
-          },
-          "addressLocality": {
-            "type": "string"
-          },
-          "addressRegion": {
-            "type": "string"
-          },
-          "addressCountry": {
-            "type": "string"
+        "repo_field": false,
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "Default",
+            "label": {
+              "de": "Physische Adresse",
+              "en": "Physical Address"
+            },
+            "description": {
+              "de": "Standortadresse der Organisation/des Ortes.",
+              "en": "Location address of the organization/place."
+            },
+            "fields": [
+              {
+                "id": "streetAddress",
+                "label": {
+                  "de": "Straße und Hausnummer",
+                  "en": "Street Address"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "streetAddress",
+                  "uri": "https://schema.org/streetAddress",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "postalCode",
+                "label": {
+                  "de": "Postleitzahl",
+                  "en": "Postal Code"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "postalCode",
+                  "uri": "https://schema.org/postalCode",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "addressLocality",
+                "label": {
+                  "de": "Stadt",
+                  "en": "City"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "addressLocality",
+                  "uri": "https://schema.org/addressLocality",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "addressRegion",
+                "label": {
+                  "de": "Bundesland/Region",
+                  "en": "State/Region"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "addressRegion",
+                  "uri": "https://schema.org/addressRegion",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "addressCountry",
+                "label": {
+                  "de": "Land",
+                  "en": "Country"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "addressCountry",
+                  "uri": "https://schema.org/addressCountry",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
           }
-        },
-        "repo_field": false
+        ]
       }
     },
     {
@@ -1072,24 +1313,143 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": {
-          "streetAddress": {
-            "type": "string"
-          },
-          "postalCode": {
-            "type": "string"
-          },
-          "addressLocality": {
-            "type": "string"
-          },
-          "addressRegion": {
-            "type": "string"
-          },
-          "addressCountry": {
-            "type": "string"
+        "repo_field": false,
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "Default",
+            "label": {
+              "de": "Rechts-/Registeradresse",
+              "en": "Legal/Registered Address"
+            },
+            "description": {
+              "de": "Gesetzlicher Sitz für rechtliche/steuerliche Zwecke.",
+              "en": "Legal seat for legal/tax purposes."
+            },
+            "fields": [
+              {
+                "id": "streetAddress",
+                "label": {
+                  "de": "Straße und Hausnummer",
+                  "en": "Street Address"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "streetAddress",
+                  "uri": "https://schema.org/streetAddress",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "postalCode",
+                "label": {
+                  "de": "Postleitzahl",
+                  "en": "Postal Code"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "postalCode",
+                  "uri": "https://schema.org/postalCode",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "addressLocality",
+                "label": {
+                  "de": "Stadt",
+                  "en": "City"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "addressLocality",
+                  "uri": "https://schema.org/addressLocality",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "addressRegion",
+                "label": {
+                  "de": "Bundesland/Region",
+                  "en": "State/Region"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "addressRegion",
+                  "uri": "https://schema.org/addressRegion",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "addressCountry",
+                "label": {
+                  "de": "Land",
+                  "en": "Country"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "addressCountry",
+                  "uri": "https://schema.org/addressCountry",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
           }
-        },
-        "repo_field": false
+        ]
       }
     },
     {
@@ -1100,8 +1460,8 @@
         "en": "Location(s)"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Standort oder Veranstaltungsort",
+        "en": "Location or venue"
       },
       "prompt": {
         "de": "",
@@ -1411,8 +1771,8 @@
                     "en": "Accessibility Summary"
                   },
                   "description": {
-                    "de": "",
-                    "en": ""
+                    "de": "Zusammenfassung der Barrierefreiheit",
+                    "en": "Accessibility summary"
                   },
                   "prompt": {
                     "de": "",
@@ -1435,8 +1795,8 @@
                     "en": "Accessibility Support"
                   },
                   "description": {
-                    "de": "",
-                    "en": ""
+                    "de": "Unterstützung für Barrierefreiheit",
+                    "en": "Accessibility support features"
                   },
                   "prompt": {
                     "de": "",
@@ -1499,8 +1859,8 @@
                     "en": "Accessibility Summary"
                   },
                   "description": {
-                    "de": "",
-                    "en": ""
+                    "de": "Zusammenfassung der Barrierefreiheit",
+                    "en": "Accessibility summary"
                   },
                   "prompt": {
                     "de": "",
@@ -1523,8 +1883,8 @@
                     "en": "Accessibility Support"
                   },
                   "description": {
-                    "de": "",
-                    "en": ""
+                    "de": "Unterstützung für Barrierefreiheit",
+                    "en": "Accessibility support features"
                   },
                   "prompt": {
                     "de": "",
@@ -1684,8 +2044,8 @@
                     "en": "Accessibility Summary"
                   },
                   "description": {
-                    "de": "",
-                    "en": ""
+                    "de": "Zusammenfassung der Barrierefreiheit",
+                    "en": "Accessibility summary"
                   },
                   "prompt": {
                     "de": "",
@@ -1708,8 +2068,8 @@
                     "en": "Accessibility Support"
                   },
                   "description": {
-                    "de": "",
-                    "en": ""
+                    "de": "Unterstützung für Barrierefreiheit",
+                    "en": "Accessibility support features"
                   },
                   "prompt": {
                     "de": "",
@@ -1744,8 +2104,8 @@
         "en": "Directions"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Wegbeschreibung oder Anfahrtsinformationen",
+        "en": "Directions or travel information"
       },
       "prompt": {
         "de": "",
@@ -1788,15 +2148,71 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": {
-          "latitude": {
-            "type": "number"
-          },
-          "longitude": {
-            "type": "number"
+        "repo_field": false,
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "Default",
+            "label": {
+              "de": "Koordinaten",
+              "en": "Coordinates"
+            },
+            "description": {
+              "de": "Breiten- und Längengrad (WGS84).",
+              "en": "Latitude and longitude (WGS84)."
+            },
+            "fields": [
+              {
+                "id": "latitude",
+                "label": {
+                  "de": "Breitengrad",
+                  "en": "Latitude"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "latitude",
+                  "uri": "https://schema.org/latitude",
+                  "datatype": "number",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "longitude",
+                "label": {
+                  "de": "Längengrad",
+                  "en": "Longitude"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "longitude",
+                  "uri": "https://schema.org/longitude",
+                  "datatype": "number",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
           }
-        },
-        "repo_field": false
+        ]
       }
     },
     {
@@ -1807,8 +2223,8 @@
         "en": "Transport Access"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Verkehrsanbindung und Erreichbarkeit",
+        "en": "Transport access and accessibility"
       },
       "prompt": {
         "de": "",
@@ -1822,21 +2238,119 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "shape": {
-          "publicTransport": {
-            "type": "string"
-          },
-          "car": {
-            "type": "string"
-          },
-          "parking": {
-            "type": "string"
-          },
-          "notes": {
-            "type": "string"
+        "repo_field": false,
+        "discriminator": "@type",
+        "variants": [
+          {
+            "@type": "Default",
+            "label": {
+              "de": "Verkehrsanbindung",
+              "en": "Transport Access"
+            },
+            "description": {
+              "de": "",
+              "en": ""
+            },
+            "fields": [
+              {
+                "id": "publicTransport",
+                "label": {
+                  "de": "ÖPNV-Anbindung",
+                  "en": "Public Transport"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "publicTransport",
+                  "uri": "https://schema.org/publicTransport",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "car",
+                "label": {
+                  "de": "car",
+                  "en": "car"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "car",
+                  "uri": "https://schema.org/car",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "parking",
+                "label": {
+                  "de": "Parkmöglichkeiten",
+                  "en": "Parking"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "parking",
+                  "uri": "https://schema.org/parking",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              },
+              {
+                "id": "notes",
+                "label": {
+                  "de": "notes",
+                  "en": "notes"
+                },
+                "description": {
+                  "de": "",
+                  "en": ""
+                },
+                "prompt": {
+                  "de": "",
+                  "en": ""
+                },
+                "system": {
+                  "path": "notes",
+                  "uri": "https://schema.org/notes",
+                  "datatype": "string",
+                  "multiple": false,
+                  "required": false,
+                  "ask_user": true,
+                  "ai_fillable": true
+                }
+              }
+            ]
           }
-        },
-        "repo_field": false
+        ]
       }
     },
     {
@@ -1928,24 +2442,146 @@
         "ask_user": true,
         "ai_fillable": true,
         "items": {
-          "type": "object",
-          "shape": {
-            "dayOfWeek": {
-              "type": "array"
-            },
-            "opens": {
-              "type": "string"
-            },
-            "closes": {
-              "type": "string"
-            },
-            "validFrom": {
-              "type": "string"
-            },
-            "validThrough": {
-              "type": "string"
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Öffnungszeiten (strukturiert)",
+                "en": "Opening hours (structured)"
+              },
+              "description": {
+                "de": "Tagesbezogene Zeiten mit Feldern dayOfWeek, opens, closes.",
+                "en": "Day-related times with fields dayOfWeek, opens, closes."
+              },
+              "fields": [
+                {
+                  "id": "dayOfWeek",
+                  "label": {
+                    "de": "Wochentag",
+                    "en": "Day of Week"
+                  },
+                  "description": {
+                    "de": "Wochentag(e)",
+                    "en": "Day(s) of the week"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "dayOfWeek",
+                    "uri": "https://schema.org/dayOfWeek",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "string"
+                    }
+                  }
+                },
+                {
+                  "id": "opens",
+                  "label": {
+                    "de": "Öffnet",
+                    "en": "Opens"
+                  },
+                  "description": {
+                    "de": "Öffnungszeit (Uhrzeit)",
+                    "en": "Opening time"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "opens",
+                    "uri": "https://schema.org/opens",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "closes",
+                  "label": {
+                    "de": "Schließt",
+                    "en": "Closes"
+                  },
+                  "description": {
+                    "de": "Schließzeit (Uhrzeit)",
+                    "en": "Closing time"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "closes",
+                    "uri": "https://schema.org/closes",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "validFrom",
+                  "label": {
+                    "de": "Gültig von",
+                    "en": "Valid From"
+                  },
+                  "description": {
+                    "de": "Gültig ab (Datum)",
+                    "en": "Valid from (date)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "validFrom",
+                    "uri": "https://schema.org/validFrom",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "validThrough",
+                  "label": {
+                    "de": "Gültig bis",
+                    "en": "Valid Through"
+                  },
+                  "description": {
+                    "de": "Gültig bis (Datum)",
+                    "en": "Valid through (date)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "validThrough",
+                    "uri": "https://schema.org/validThrough",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "repo_field": false
       }
@@ -1984,8 +2620,8 @@
         "en": "Offers"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Angebote oder Leistungen",
+        "en": "Offers or services"
       },
       "prompt": {
         "de": "",
@@ -2000,24 +2636,143 @@
         "ask_user": true,
         "ai_fillable": true,
         "items": {
-          "type": "object",
-          "shape": {
-            "price": {
-              "type": "number"
-            },
-            "priceCurrency": {
-              "type": "string"
-            },
-            "category": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Angebote",
+                "en": "Offers"
+              },
+              "description": {
+                "de": "Detaillierte Angaben zum Angebot (Preis, Verfügbarkeit, etc.)",
+                "en": "Detailed offer information (price, availability, etc.)"
+              },
+              "fields": [
+                {
+                  "id": "price",
+                  "label": {
+                    "de": "Preis",
+                    "en": "Price"
+                  },
+                  "description": {
+                    "de": "Preis oder Kosten",
+                    "en": "Price or cost"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "price",
+                    "uri": "https://schema.org/price",
+                    "datatype": "number",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "priceCurrency",
+                  "label": {
+                    "de": "Währung",
+                    "en": "Price Currency"
+                  },
+                  "description": {
+                    "de": "Währung (z.B. EUR, USD)",
+                    "en": "Currency (e.g., EUR, USD)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "priceCurrency",
+                    "uri": "https://schema.org/priceCurrency",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "category",
+                  "label": {
+                    "de": "Kategorie",
+                    "en": "Category"
+                  },
+                  "description": {
+                    "de": "Kategorie oder Klassifizierung",
+                    "en": "Category or classification"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "category",
+                    "uri": "https://schema.org/category",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "description",
+                  "label": {
+                    "de": "Beschreibung",
+                    "en": "Description"
+                  },
+                  "description": {
+                    "de": "Beschreibung oder Erläuterung",
+                    "en": "Description or explanation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "description",
+                    "uri": "https://schema.org/description",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -2092,8 +2847,8 @@
         "en": "Videos"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Video oder Videomaterial",
+        "en": "Video or video material"
       },
       "prompt": {
         "de": "",
@@ -2108,18 +2863,95 @@
         "ask_user": true,
         "ai_fillable": true,
         "items": {
-          "type": "object",
-          "shape": {
-            "name": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Videos",
+                "en": "Videos"
+              },
+              "description": {
+                "de": "Video mit Name und URL",
+                "en": "Video with name and URL"
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "description",
+                  "label": {
+                    "de": "Beschreibung",
+                    "en": "Description"
+                  },
+                  "description": {
+                    "de": "Beschreibung oder Erläuterung",
+                    "en": "Description or explanation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "description",
+                    "uri": "https://schema.org/description",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -2136,8 +2968,8 @@
         "en": "Free Access"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Kostenfrei zugänglich",
+        "en": "Accessible for free"
       },
       "prompt": {
         "de": "",
@@ -2162,8 +2994,8 @@
         "en": "Amenity Features"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Ausstattungsmerkmale oder Einrichtungen",
+        "en": "Amenity features or facilities"
       },
       "prompt": {
         "de": "",
@@ -2178,18 +3010,95 @@
         "ask_user": true,
         "ai_fillable": true,
         "items": {
-          "type": "object",
-          "shape": {
-            "name": {
-              "type": "string"
-            },
-            "value": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Ausstattungsmerkmale",
+                "en": "Amenity Features"
+              },
+              "description": {
+                "de": "Ausstattungsmerkmal mit Name und Beschreibung",
+                "en": "Amenity feature with name and description"
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "value",
+                  "label": {
+                    "de": "Wert",
+                    "en": "value"
+                  },
+                  "description": {
+                    "de": "Wert oder Inhalt",
+                    "en": "Value or content"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "value",
+                    "uri": "https://schema.org/value",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "description",
+                  "label": {
+                    "de": "Beschreibung",
+                    "en": "Description"
+                  },
+                  "description": {
+                    "de": "Beschreibung oder Erläuterung",
+                    "en": "Description or explanation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "description",
+                    "uri": "https://schema.org/description",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -2206,8 +3115,8 @@
         "en": "Accessibility Summary"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Zusammenfassung der Barrierefreiheit",
+        "en": "Accessibility summary"
       },
       "prompt": {
         "de": "",
@@ -2356,8 +3265,8 @@
         "en": "Branch Code"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Branchencode oder Wirtschaftszweig",
+        "en": "Industry code or business sector"
       },
       "prompt": {
         "de": "",
@@ -2385,8 +3294,8 @@
         "en": "Awards"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Auszeichnungen oder Preise",
+        "en": "Awards or prizes"
       },
       "prompt": {
         "de": "",
@@ -2418,8 +3327,8 @@
         "en": "Certifications"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Zertifizierungen oder Qualifikationen",
+        "en": "Certifications or qualifications"
       },
       "prompt": {
         "de": "",
@@ -2484,8 +3393,8 @@
         "en": "Sponsors"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Sponsor oder Förderer",
+        "en": "Sponsor or supporter"
       },
       "prompt": {
         "de": "",
@@ -2500,15 +3409,71 @@
         "ask_user": true,
         "ai_fillable": true,
         "items": {
-          "type": "object",
-          "shape": {
-            "name": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Sponsoren/Förderer",
+                "en": "Sponsors"
+              },
+              "description": {
+                "de": "Sponsor mit Name und URL",
+                "en": "Sponsor with name and URL"
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -2525,8 +3490,8 @@
         "en": "Member Of"
       },
       "description": {
-        "de": "",
-        "en": ""
+        "de": "Mitgliedschaft in Organisation oder Gruppe",
+        "en": "Membership in organization or group"
       },
       "prompt": {
         "de": "",

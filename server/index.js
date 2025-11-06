@@ -9,7 +9,7 @@ const rateLimit = require('express-rate-limit');
 const axios = require('axios');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Security Configuration
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS 

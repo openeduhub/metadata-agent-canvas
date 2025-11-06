@@ -540,14 +540,14 @@
             {
               "label": {
                 "de": "Community-Workshop",
-                "en": "Community-Workshop"
+                "en": "Community Workshop"
               },
               "uri": "http://w3id.org/openeduhub/vocabs/eventType/community-workshop"
             },
             {
               "label": {
                 "de": "Online-Community",
-                "en": "Online-Community"
+                "en": "Online Community"
               },
               "uri": "http://w3id.org/openeduhub/vocabs/eventType/online-community"
             },
@@ -561,7 +561,7 @@
             {
               "label": {
                 "de": "Lernpartnerschaft",
-                "en": "Lernpartnerschaft"
+                "en": "Learning Partnership"
               },
               "uri": "http://w3id.org/openeduhub/vocabs/eventType/learning-partnership"
             },
@@ -596,7 +596,7 @@
             {
               "label": {
                 "de": "Networking-Event",
-                "en": "Networking-Event"
+                "en": "Networking Event"
               },
               "uri": "http://w3id.org/openeduhub/vocabs/eventType/networking-event"
             },
@@ -638,7 +638,7 @@
             {
               "label": {
                 "de": "Online-Prüfung",
-                "en": "Online-Prüfung"
+                "en": "Online Exam"
               },
               "uri": "http://w3id.org/openeduhub/vocabs/eventType/online-exam"
             },
@@ -694,7 +694,7 @@
             {
               "label": {
                 "de": "Online-Präsentation",
-                "en": "Online-Präsentation"
+                "en": "Online Presentation"
               },
               "uri": "http://w3id.org/openeduhub/vocabs/eventType/online-presentation"
             },
@@ -841,7 +841,7 @@
             {
               "label": {
                 "de": "Online-Onboarding",
-                "en": "Online-Onboarding"
+                "en": "Online Onboarding"
               },
               "uri": "http://w3id.org/openeduhub/vocabs/eventType/online-onboarding"
             },
@@ -862,7 +862,7 @@
             {
               "label": {
                 "de": "Teambuilding-Event",
-                "en": "Teambuilding-Event"
+                "en": "Team Building Event"
               },
               "uri": "http://w3id.org/openeduhub/vocabs/eventType/teambuilding-event"
             },
@@ -1025,8 +1025,8 @@
         "en": "Event Schedule"
       },
       "description": {
-        "de": "Detaillierter Zeitplan oder Ablaufplan der Veranstaltung",
-        "en": "Detailed schedule or timeline of the event"
+        "de": "Detaillierter Zeitplan oder Ablaufplan der Veranstaltung mit Wiederholungen",
+        "en": "Detailed schedule or timeline of the event with recurrence"
       },
       "prompt": {
         "de": "",
@@ -1042,19 +1042,278 @@
         "ai_fillable": true,
         "items": {
           "datatype": "object",
-          "shape": {
-            "@type": "Schedule",
-            "repeatFrequency": "string",
-            "repeatCount": "number",
-            "startDate": "string",
-            "endDate": "string",
-            "byDay": "array",
-            "byMonth": "array",
-            "byMonthDay": "array",
-            "byHour": "array",
-            "scheduleTimezone": "string",
-            "duration": "string"
-          }
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Schedule",
+              "label": {
+                "de": "Zeitplan",
+                "en": "Schedule"
+              },
+              "description": {
+                "de": "Wiederkehrender Zeitplan mit Frequenz, Dauer und Zeitzone",
+                "en": "Recurring schedule with frequency, duration and timezone"
+              },
+              "fields": [
+                {
+                  "id": "repeatFrequency",
+                  "label": {
+                    "de": "Wiederholungsfrequenz",
+                    "en": "Repeat Frequency"
+                  },
+                  "description": {
+                    "de": "Frequenz der Wiederholung (z.B. P1Y für jährlich, P1M für monatlich, P1W für wöchentlich, P1D für täglich)",
+                    "en": "Frequency of repetition (e.g. P1Y for yearly, P1M for monthly, P1W for weekly, P1D for daily)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "repeatFrequency",
+                    "uri": "https://schema.org/repeatFrequency",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "repeatCount",
+                  "label": {
+                    "de": "Anzahl Wiederholungen",
+                    "en": "Repeat Count"
+                  },
+                  "description": {
+                    "de": "Anzahl der Wiederholungen",
+                    "en": "Number of repetitions"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "repeatCount",
+                    "uri": "https://schema.org/repeatCount",
+                    "datatype": "number",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "validation": {
+                      "integer": true,
+                      "min": 1
+                    }
+                  }
+                },
+                {
+                  "id": "startDate",
+                  "label": {
+                    "de": "Startdatum",
+                    "en": "Start Date"
+                  },
+                  "description": {
+                    "de": "Startdatum des Zeitplans",
+                    "en": "Start date of the schedule"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "startDate",
+                    "uri": "https://schema.org/startDate",
+                    "datatype": "date",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "endDate",
+                  "label": {
+                    "de": "Enddatum",
+                    "en": "End Date"
+                  },
+                  "description": {
+                    "de": "Enddatum des Zeitplans",
+                    "en": "End date of the schedule"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "endDate",
+                    "uri": "https://schema.org/endDate",
+                    "datatype": "date",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "byDay",
+                  "label": {
+                    "de": "Wochentag",
+                    "en": "By Day"
+                  },
+                  "description": {
+                    "de": "Wochentag(e) der Wiederholung (z.B. MO, TU, WE, TH, FR, SA, SU)",
+                    "en": "Day(s) of the week for repetition (e.g. MO, TU, WE, TH, FR, SA, SU)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "byDay",
+                    "uri": "https://schema.org/byDay",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "string"
+                    }
+                  }
+                },
+                {
+                  "id": "byMonth",
+                  "label": {
+                    "de": "Monat",
+                    "en": "By Month"
+                  },
+                  "description": {
+                    "de": "Monat(e) der Wiederholung (1-12)",
+                    "en": "Month(s) of repetition (1-12)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "byMonth",
+                    "uri": "https://schema.org/byMonth",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "number"
+                    }
+                  }
+                },
+                {
+                  "id": "byMonthDay",
+                  "label": {
+                    "de": "Monatstag",
+                    "en": "By Month Day"
+                  },
+                  "description": {
+                    "de": "Tag(e) im Monat für Wiederholung (1-31)",
+                    "en": "Day(s) of the month for repetition (1-31)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "byMonthDay",
+                    "uri": "https://schema.org/byMonthDay",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "number"
+                    }
+                  }
+                },
+                {
+                  "id": "byHour",
+                  "label": {
+                    "de": "Stunde",
+                    "en": "By Hour"
+                  },
+                  "description": {
+                    "de": "Stunde(n) der Wiederholung (0-23)",
+                    "en": "Hour(s) of repetition (0-23)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "byHour",
+                    "uri": "https://schema.org/byHour",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "number"
+                    }
+                  }
+                },
+                {
+                  "id": "scheduleTimezone",
+                  "label": {
+                    "de": "Zeitzone",
+                    "en": "Schedule Timezone"
+                  },
+                  "description": {
+                    "de": "Zeitzone des Zeitplans (z.B. Europe/Berlin)",
+                    "en": "Timezone of the schedule (e.g. Europe/Berlin)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "scheduleTimezone",
+                    "uri": "https://schema.org/scheduleTimezone",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "duration",
+                  "label": {
+                    "de": "Dauer",
+                    "en": "Duration"
+                  },
+                  "description": {
+                    "de": "Dauer der Veranstaltung (ISO 8601 Format, z.B. P2D für 2 Tage, PT3H für 3 Stunden)",
+                    "en": "Duration of the event (ISO 8601 format, e.g. P2D for 2 days, PT3H for 3 hours)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "duration",
+                    "uri": "https://schema.org/duration",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "repo_field": false
       }
@@ -1084,13 +1343,145 @@
         "ai_fillable": true,
         "items": {
           "datatype": "object",
-          "shape": {
-            "dayOfWeek": "array",
-            "opens": "string",
-            "closes": "string",
-            "validFrom": "string",
-            "validThrough": "string"
-          }
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Öffnungszeiten-Spezifikation",
+                "en": "Opening Hours Specification"
+              },
+              "description": {
+                "de": "Spezifikation der Öffnungszeiten für wiederkehrende Veranstaltungen",
+                "en": "Specification of opening hours for recurring events"
+              },
+              "fields": [
+                {
+                  "id": "dayOfWeek",
+                  "label": {
+                    "de": "Wochentag",
+                    "en": "Day of Week"
+                  },
+                  "description": {
+                    "de": "Wochentag(e)",
+                    "en": "Day(s) of the week"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "dayOfWeek",
+                    "uri": "https://schema.org/dayOfWeek",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "string"
+                    }
+                  }
+                },
+                {
+                  "id": "opens",
+                  "label": {
+                    "de": "Öffnet",
+                    "en": "Opens"
+                  },
+                  "description": {
+                    "de": "Öffnungszeit (Uhrzeit)",
+                    "en": "Opening time"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "opens",
+                    "uri": "https://schema.org/opens",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "closes",
+                  "label": {
+                    "de": "Schließt",
+                    "en": "Closes"
+                  },
+                  "description": {
+                    "de": "Schließzeit (Uhrzeit)",
+                    "en": "Closing time"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "closes",
+                    "uri": "https://schema.org/closes",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "validFrom",
+                  "label": {
+                    "de": "Gültig von",
+                    "en": "Valid From"
+                  },
+                  "description": {
+                    "de": "Gültig ab (Datum)",
+                    "en": "Valid from (date)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "validFrom",
+                    "uri": "https://schema.org/validFrom",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "validThrough",
+                  "label": {
+                    "de": "Gültig bis",
+                    "en": "Valid Through"
+                  },
+                  "description": {
+                    "de": "Gültig bis (Datum)",
+                    "en": "Valid through (date)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "validThrough",
+                    "uri": "https://schema.org/validThrough",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "repo_field": false
       }
@@ -1342,7 +1733,7 @@
       },
       "description": {
         "de": "Online, vor Ort oder gemischt.",
-        "en": "Online, vor Ort oder gemischt."
+        "en": "Online, on-site, or mixed."
       },
       "prompt": {
         "de": "",
@@ -1827,11 +2218,94 @@
         },
         "items": {
           "datatype": "object",
-          "shape": {
-            "name": "string",
-            "url": "uri",
-            "sameAs": "uri"
-          }
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Akteur:innen",
+                "en": "Actors"
+              },
+              "description": {
+                "de": "Personen oder Organisationen, die bei der Veranstaltung auftreten oder mitwirken",
+                "en": "Persons or organizations that perform or participate in the event"
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "sameAs",
+                  "label": {
+                    "de": "Verweis",
+                    "en": "Reference"
+                  },
+                  "description": {
+                    "de": "Verweis auf externe Ressource oder Identifikator",
+                    "en": "Reference to external resource or identifier"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "sameAs",
+                    "uri": "https://schema.org/sameAs",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -1869,17 +2343,94 @@
         },
         "items": {
           "datatype": "object",
-          "shape": {
-            "name": {
-              "type": "string"
-            },
-            "url": {
-              "type": "uri"
-            },
-            "sameAs": {
-              "type": "uri"
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Organisator:in(en)",
+                "en": "Organisator:in(en)"
+              },
+              "description": {
+                "de": "Organisation(en) oder Person(en), die das Event organisieren.",
+                "en": "Organisation(en) oder Person(en), die das Event organisieren."
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "sameAs",
+                  "label": {
+                    "de": "Verweis",
+                    "en": "Reference"
+                  },
+                  "description": {
+                    "de": "Verweis auf externe Ressource oder Identifikator",
+                    "en": "Reference to external resource or identifier"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "sameAs",
+                    "uri": "https://schema.org/sameAs",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -1916,10 +2467,70 @@
         },
         "items": {
           "datatype": "object",
-          "shape": {
-            "name": "string",
-            "url": "uri"
-          }
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Mitwirkende/Performer",
+                "en": "Contributors/Performers"
+              },
+              "description": {
+                "de": "Performer:innen (z. B. Vortragende, Bands).",
+                "en": "Performers (e.g., speakers, bands)."
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -1956,10 +2567,70 @@
         },
         "items": {
           "datatype": "object",
-          "shape": {
-            "name": "string",
-            "url": "uri"
-          }
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Teilnehmende (bekannt)",
+                "en": "Participants (known)"
+              },
+              "description": {
+                "de": "Optionale Nennung bekannter Teilnehmender (Org/Person).",
+                "en": "Optional mention of known participants (Org/Person)."
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -1996,27 +2667,220 @@
         },
         "items": {
           "datatype": "object",
-          "shape": {
-            "@type": "Offer",
-            "price": "number",
-            "priceCurrency": "string",
-            "url": "uri",
-            "availability": "string",
-            "validFrom": "string",
-            "validThrough": "string",
-            "acceptedPaymentMethod": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "paymentMethod": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Offer",
+              "label": {
+                "de": "Tickets/Preise",
+                "en": "Tickets/Prices"
+              },
+              "description": {
+                "de": "Ticket-/Angebotsinfos, z. B. Preis, Währung, URL.",
+                "en": "Ticket/offer information, e.g., price, currency, URL."
+              },
+              "fields": [
+                {
+                  "id": "price",
+                  "label": {
+                    "de": "Preis",
+                    "en": "Price"
+                  },
+                  "description": {
+                    "de": "Preis oder Kosten",
+                    "en": "Price or cost"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "price",
+                    "uri": "https://schema.org/price",
+                    "datatype": "number",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "priceCurrency",
+                  "label": {
+                    "de": "Währung",
+                    "en": "Price Currency"
+                  },
+                  "description": {
+                    "de": "Währung (z.B. EUR, USD)",
+                    "en": "Currency (e.g., EUR, USD)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "priceCurrency",
+                    "uri": "https://schema.org/priceCurrency",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "availability",
+                  "label": {
+                    "de": "Verfügbarkeit",
+                    "en": "Availability"
+                  },
+                  "description": {
+                    "de": "Verfügbarkeit oder Bestand",
+                    "en": "Availability or stock status"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "availability",
+                    "uri": "https://schema.org/availability",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "validFrom",
+                  "label": {
+                    "de": "Gültig von",
+                    "en": "Valid From"
+                  },
+                  "description": {
+                    "de": "Gültig ab (Datum)",
+                    "en": "Valid from (date)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "validFrom",
+                    "uri": "https://schema.org/validFrom",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "validThrough",
+                  "label": {
+                    "de": "Gültig bis",
+                    "en": "Valid Through"
+                  },
+                  "description": {
+                    "de": "Gültig bis (Datum)",
+                    "en": "Valid through (date)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "validThrough",
+                    "uri": "https://schema.org/validThrough",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "acceptedPaymentMethod",
+                  "label": {
+                    "de": "accepted Payment Method",
+                    "en": "accepted Payment Method"
+                  },
+                  "description": {
+                    "de": "Akzeptierte Zahlungsmethoden",
+                    "en": "Accepted payment methods"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "acceptedPaymentMethod",
+                    "uri": "https://schema.org/acceptedPaymentMethod",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "string"
+                    }
+                  }
+                },
+                {
+                  "id": "paymentMethod",
+                  "label": {
+                    "de": "payment Method",
+                    "en": "payment Method"
+                  },
+                  "description": {
+                    "de": "Zahlungsmethode",
+                    "en": "Payment method"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "paymentMethod",
+                    "uri": "https://schema.org/paymentMethod",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "string"
+                    }
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -2054,13 +2918,118 @@
         },
         "items": {
           "datatype": "object",
-          "shape": {
-            "@type": "string",
-            "url": "uri",
-            "serviceUrl": "uri",
-            "serviceType": "string",
-            "description": "string"
-          }
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "string",
+              "label": {
+                "de": "Zugangsdienste",
+                "en": "Access Services"
+              },
+              "description": {
+                "de": "Services oder Hilfen für barrierefreien Zugang zur Veranstaltung",
+                "en": "Services or aids for accessible access to the event"
+              },
+              "fields": [
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "serviceUrl",
+                  "label": {
+                    "de": "service Url",
+                    "en": "service Url"
+                  },
+                  "description": {
+                    "de": "URL des Service oder Dienstes",
+                    "en": "Service URL"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "serviceUrl",
+                    "uri": "https://schema.org/serviceUrl",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "serviceType",
+                  "label": {
+                    "de": "service Type",
+                    "en": "service Type"
+                  },
+                  "description": {
+                    "de": "Art des Dienstes oder Service-Typ",
+                    "en": "Type of service"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "serviceType",
+                    "uri": "https://schema.org/serviceType",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "description",
+                  "label": {
+                    "de": "Beschreibung",
+                    "en": "Description"
+                  },
+                  "description": {
+                    "de": "Beschreibung oder Erläuterung",
+                    "en": "Description or explanation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "description",
+                    "uri": "https://schema.org/description",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "normalization": {
           "trim": true,
@@ -2183,7 +3152,7 @@
       },
       "description": {
         "de": "Worauf bezieht sich das Event? (URIs oder Freitext)",
-        "en": "Worauf bezieht sich das Event? (URIs oder Freitext)"
+        "en": "What does the event relate to? (URIs or free text)"
       },
       "prompt": {
         "de": "",
@@ -2216,7 +3185,7 @@
       "group": "relations",
       "label": {
         "de": "Übergeordnetes Event",
-        "en": "Übergeordnetes Event"
+        "en": "Parent Event"
       },
       "description": {
         "de": "URI/ID des übergeordneten Events.",
@@ -2308,11 +3277,70 @@
         },
         "items": {
           "datatype": "object",
-          "shape": {
-            "@type": "string",
-            "name": "string",
-            "url": "uri"
-          }
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "string",
+              "label": {
+                "de": "Aufgezeichnet in",
+                "en": "Recorded In"
+              },
+              "description": {
+                "de": "Verknüpfung zu CreativeWork-Objekten, in denen diese Veranstaltung aufgezeichnet wurde",
+                "en": "Link to CreativeWork objects in which this event was recorded"
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "uri",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "normalization": {
           "trim": true,

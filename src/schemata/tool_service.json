@@ -631,7 +631,7 @@
       },
       "description": {
         "de": "Service-/Softwareanbieter (Organisation/Person).",
-        "en": "Service-/Softwareanbieter (Organisation/Person)."
+        "en": "Service or software provider (organization/person)."
       },
       "prompt": {
         "de": "",
@@ -730,7 +730,7 @@
       },
       "description": {
         "de": "Länder/Regionen, in denen Service/Produkt offiziell angeboten wird.",
-        "en": "Länder/Regionen, in denen Service/Produkt offiziell angeboten wird."
+        "en": "Countries/regions where the service/product is officially offered."
       },
       "prompt": {
         "de": "",
@@ -949,7 +949,7 @@
             {
               "label": {
                 "de": "Datenverarbeitung in EU/EWR",
-                "en": "Datenverarbeitung in EU/EWR"
+                "en": "Data processing in EU/EEA"
               }
             },
             {

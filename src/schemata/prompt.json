@@ -401,37 +401,37 @@
           "concepts": [
             {
               "label": {
-                "de": "text",
+                "de": "Text",
                 "en": "text"
               }
             },
             {
               "label": {
-                "de": "image",
+                "de": "Bild",
                 "en": "image"
               }
             },
             {
               "label": {
-                "de": "video",
+                "de": "Video",
                 "en": "video"
               }
             },
             {
               "label": {
-                "de": "audio",
+                "de": "Audio",
                 "en": "audio"
               }
             },
             {
               "label": {
-                "de": "code",
+                "de": "Code",
                 "en": "code"
               }
             },
             {
               "label": {
-                "de": "mixed",
+                "de": "Gemischt",
                 "en": "mixed"
               }
             }
@@ -474,37 +474,37 @@
           "concepts": [
             {
               "label": {
-                "de": "text",
+                "de": "Text",
                 "en": "text"
               }
             },
             {
               "label": {
-                "de": "bild",
+                "de": "Bild",
                 "en": "image"
               }
             },
             {
               "label": {
-                "de": "audio",
+                "de": "Audio",
                 "en": "audio"
               }
             },
             {
               "label": {
-                "de": "video",
+                "de": "Video",
                 "en": "video"
               }
             },
             {
               "label": {
-                "de": "code",
+                "de": "Code",
                 "en": "code"
               }
             },
             {
               "label": {
-                "de": "struktur",
+                "de": "Struktur",
                 "en": "structure"
               }
             }

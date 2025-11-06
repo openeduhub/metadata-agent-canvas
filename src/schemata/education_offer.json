@@ -899,7 +899,7 @@
       },
       "description": {
         "de": "Art des Programms (z. B. Präsenz, Praktikum, dual, berufsbegleitend).",
-        "en": "Type of program (e.g., Präsenz, Praktikum, dual, berufsbegleitend)."
+        "en": "Type of program (e.g., on-site, internship, dual, part-time)."
       },
       "prompt": {
         "de": "",
@@ -1480,18 +1480,98 @@
         "ask_user": true,
         "ai_fillable": true,
         "items": {
-          "type": "object",
-          "shape": {
-            "name": {
-              "type": "string"
-            },
-            "schema:courseCode": {
-              "type": "string"
-            },
-            "schema:coursePrerequisites": {
-              "type": "array"
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Kurse im Programm",
+                "en": "Courses in the program"
+              },
+              "description": {
+                "de": "Liste von Kursen, die das Programm konstituieren (Kurzform).",
+                "en": "List of courses that constitute the program (short form)."
+              },
+              "fields": [
+                {
+                  "id": "name",
+                  "label": {
+                    "de": "Name",
+                    "en": "Name"
+                  },
+                  "description": {
+                    "de": "Name oder Bezeichnung",
+                    "en": "Name or designation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "name",
+                    "uri": "https://schema.org/name",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "schema:courseCode",
+                  "label": {
+                    "de": "Kurscode",
+                    "en": "Course Code"
+                  },
+                  "description": {
+                    "de": "Kurscode oder Kursnummer",
+                    "en": "Course code or course number"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "schema:courseCode",
+                    "uri": "https://schema.org/schema:courseCode",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "schema:coursePrerequisites",
+                  "label": {
+                    "de": "Kursvoraussetzungen",
+                    "en": "Course Prerequisites"
+                  },
+                  "description": {
+                    "de": "Voraussetzungen für die Teilnahme am Kurs",
+                    "en": "Prerequisites for course participation"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "schema:coursePrerequisites",
+                    "uri": "https://schema.org/schema:coursePrerequisites",
+                    "datatype": "array",
+                    "multiple": true,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true,
+                    "items": {
+                      "datatype": "string"
+                    }
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "index": {
           "fulltext": true
@@ -2059,18 +2139,95 @@
         "ask_user": true,
         "ai_fillable": true,
         "items": {
-          "type": "object",
-          "shape": {
-            "price": {
-              "type": "number"
-            },
-            "priceCurrency": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
+          "datatype": "object",
+          "discriminator": "@type",
+          "variants": [
+            {
+              "@type": "Default",
+              "label": {
+                "de": "Preise/Angebote",
+                "en": "Prices/Offers"
+              },
+              "description": {
+                "de": "Optionale Angebots-/Preisinfos für das Programm.",
+                "en": "Optional offer/price information for the program."
+              },
+              "fields": [
+                {
+                  "id": "price",
+                  "label": {
+                    "de": "Preis",
+                    "en": "Price"
+                  },
+                  "description": {
+                    "de": "Preis oder Kosten",
+                    "en": "Price or cost"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "price",
+                    "uri": "https://schema.org/price",
+                    "datatype": "number",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "priceCurrency",
+                  "label": {
+                    "de": "Währung",
+                    "en": "Price Currency"
+                  },
+                  "description": {
+                    "de": "Währung (z.B. EUR, USD)",
+                    "en": "Currency (e.g., EUR, USD)"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "priceCurrency",
+                    "uri": "https://schema.org/priceCurrency",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                },
+                {
+                  "id": "url",
+                  "label": {
+                    "de": "URL",
+                    "en": "URL"
+                  },
+                  "description": {
+                    "de": "URL oder Webadresse",
+                    "en": "URL or web address"
+                  },
+                  "prompt": {
+                    "de": "",
+                    "en": ""
+                  },
+                  "system": {
+                    "path": "url",
+                    "uri": "https://schema.org/url",
+                    "datatype": "string",
+                    "multiple": false,
+                    "required": false,
+                    "ask_user": true,
+                    "ai_fillable": true
+                  }
+                }
+              ]
             }
-          }
+          ]
         },
         "index": {
           "keyword": true
