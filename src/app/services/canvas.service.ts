@@ -1048,8 +1048,9 @@ export class CanvasService {
   }
 
   /**
-   * Get metadata for Browser-Plugin in Repository-API format
-   * Converts {label, uri} objects to URI strings only
+   * Get metadata for Browser-Plugin in NEW format with repoField flag
+   * v2.1.0: Switched from old format to new object format for better Plugin compatibility
+   * Converts {label, uri} objects to URI strings and wraps in {value, repoField, ...} structure
    */
   getMetadataForPlugin(): Record<string, any> {
     const state = this.getCurrentState();
@@ -1069,7 +1070,7 @@ export class CanvasService {
       }
     });
     
-    // Build output in Repository-API format
+    // Build output in NEW format with repoField flag
     const output: Record<string, any> = {};
     
     Object.keys(state.metadata).forEach(fieldId => {
@@ -1082,22 +1083,34 @@ export class CanvasService {
       }
       
       if (!field) {
-        output[fieldId] = value;
+        // Unknown field: send as-is with repoField=true
+        output[fieldId] = {
+          value: value,
+          repoField: true
+        };
         return;
       }
+      
+      // Determine if field should be written to repository
+      const repoField = field.repoField !== false; // Default: true unless explicitly false
       
       // Check if field has sub-fields (complex object)
       if (field.isParent && field.subFields && field.subFields.length > 0) {
         const reconstructedValue = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
-        output[fieldId] = reconstructedValue;
+        output[fieldId] = {
+          value: reconstructedValue,
+          repoField: repoField,
+          hasSubFields: true
+        };
         return;
       }
       
       // Convert vocabulary values: {label, uri} → uri string
+      let processedValue = value;
       if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
         if (Array.isArray(value)) {
           // Array: Extract URIs from each {label, uri} object
-          output[fieldId] = value
+          processedValue = value
             .filter(v => v !== null && v !== undefined && v !== '')
             .map(v => {
               if (typeof v === 'object' && v.uri) {
@@ -1112,30 +1125,42 @@ export class CanvasService {
         } else if (value !== null && value !== undefined && value !== '') {
           // Single value: Extract URI
           if (typeof value === 'object' && value.uri) {
-            output[fieldId] = [value.uri]; // Repository expects array
+            processedValue = [value.uri]; // Repository expects array
           } else {
             // Find URI from vocabulary
             const concept = field.vocabulary.concepts.find((c: any) => 
               c.uri === value || c.label === value || (c.altLabels && c.altLabels.includes(value))
             );
-            output[fieldId] = concept ? [concept.uri] : [value];
+            processedValue = concept ? [concept.uri] : [value];
           }
         } else {
-          output[fieldId] = [];
+          processedValue = [];
         }
+        
+        // NEW FORMAT: Wrap in object with vocabulary metadata
+        output[fieldId] = {
+          value: processedValue,
+          repoField: repoField,
+          hasVocabulary: true,
+          vocabularyType: field.vocabulary.vocabularyType || 'closed'
+        };
       } else {
-        // Non-vocabulary field: use as-is, but ensure arrays
+        // Non-vocabulary field: ensure arrays
         if (field.multiple && !Array.isArray(value)) {
-          output[fieldId] = value ? [value] : [];
+          processedValue = value ? [value] : [];
         } else if (!field.multiple && Array.isArray(value)) {
-          output[fieldId] = value.length > 0 ? value[0] : null;
-        } else {
-          output[fieldId] = value;
+          processedValue = value.length > 0 ? value[0] : null;
         }
+        
+        // NEW FORMAT: Wrap in object
+        output[fieldId] = {
+          value: processedValue,
+          repoField: repoField
+        };
       }
     });
     
-    console.log('📦 Metadata prepared for Plugin (Repository format)');
+    console.log('📦 Metadata prepared for Plugin (NEW format with repoField flag)');
     return output;
   }
 
