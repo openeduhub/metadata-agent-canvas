@@ -6,6 +6,13 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 
 ## 🎯 Features
 
+### 🆕 **NEU in v2.1.0 (November 2025)**
+- 🔄 **Perfekter Import/Export Round-Trip**: Array-Felder und verschachtelte Sub-Fields werden korrekt importiert
+- 🏷️ **Vollständige Schema-Labels**: Alle 11 Schemas mit deutschen + englischen Labels
+- 🐳 **Production-Ready Docker**: Multi-Stage Build mit Security Best Practices
+- 🛡️ **Enhanced Security**: Port-Binding Optionen, Nginx Reverse Proxy, Firewall-Guides
+- 📚 **Erweiterte Dokumentation**: Detaillierte technische Docs für Sub-Fields & Docker
+
 ### Core Features
 - ⚡ **Schnell**: Parallele Feld-Extraktion (6-10s statt 40-50s)
 - 🎨 **Canvas-UI**: Alle Felder gleichzeitig sichtbar und bearbeitbar mit Baum-Hierarchie für verschachtelte Felder
@@ -1790,12 +1797,27 @@ BATCH_DELAY_MS = 100;  // Reduzieren nur wenn API-Limit erhöht
 
 ## 📦 Weitere Dokumentation
 
-- **ENVIRONMENT_VARIABLES.md** - 🆕 **NEU:** Vollständige Dokumentation aller LLM-Provider und Environment Variables
+### 🆕 Neu in v2.1.0
+- **[CHANGELOG.md](CHANGELOG.md)** - Vollständige Release Notes für v2.1.0
+- **[docs/SCHEMA-FIELDS.md](docs/SCHEMA-FIELDS.md)** - 🔥 **NEU:** Technische Architektur für Schema Fields & Sub-Fields
+  - Field-Typen, Expansion, Import/Export Round-Trip
+  - Variant-basierte Felder, Array-Felder, Programmatische Lokalisierung
+- **[DOCKER.md](DOCKER.md)** - 🔥 **ERWEITERT:** Production-Ready Docker Deployment
+  - Security Best Practices, Port-Binding Options
+  - Nginx Reverse Proxy, Firewall-Konfiguration
+  - Risiko-Szenarien & Mitigationen
+
+### Allgemeine Dokumentation
+- **ENVIRONMENT_VARIABLES.md** - Vollständige Dokumentation aller LLM-Provider und Environment Variables
 - **INSTALLATION.md** - Detaillierte Setup-Anleitung
 - **CANVAS_DOCUMENTATION.md** - Canvas-Architektur
 - **PERFORMANCE.md** - Performance-Optimierungen
 - **ENVIRONMENT_CONFIG.md** - Environment-Konfiguration
 - **CODE_REVIEW_SUMMARY.md** - Code-Review Ergebnisse
+
+### Docker & Deployment
+- **[DOCKER.md](DOCKER.md)** - Vollständiger Docker Deployment Guide
+- **[DOCKER-QUICKSTART.md](DOCKER-QUICKSTART.md)** - 5-Minuten Quick-Start
 
 ---
 

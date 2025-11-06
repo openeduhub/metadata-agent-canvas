@@ -472,6 +472,108 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
   }
 
   /**
+   * Check if value is a nested object (not array, not null)
+   */
+  isNestedObject(value: any): boolean {
+    return value && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  /**
+   * Determine whether a sub-field has child sub-fields (based on path prefix)
+   */
+  hasChildSubFields(subField: CanvasFieldState): boolean {
+    if (!this.field?.subFields || !subField.path) {
+      return false;
+    }
+
+    const prefix = `${subField.path}.`;
+    return this.field.subFields.some(child => child !== subField && child.path?.startsWith(prefix));
+  }
+
+  /**
+   * Gather child sub-fields for preview purposes
+   */
+  private getChildSubFields(subField: CanvasFieldState): CanvasFieldState[] {
+    if (!this.field?.subFields || !subField.path) {
+      return [];
+    }
+
+    const prefix = `${subField.path}.`;
+    return this.field.subFields.filter(child => child.path?.startsWith(prefix));
+  }
+
+  /**
+   * Determine whether a preview should be shown for a sub-field
+   */
+  shouldShowPreview(subField: CanvasFieldState): boolean {
+    return this.isNestedObject(subField.value) || this.hasChildSubFields(subField);
+  }
+
+  /**
+   * Determine whether the textarea for a sub-field should be disabled/hidden
+   */
+  shouldDisableSubFieldInput(subField: CanvasFieldState): boolean {
+    return subField.isParent || this.isNestedObject(subField.value) || this.hasChildSubFields(subField);
+  }
+
+  /**
+   * Format object value for display (instead of [object Object])
+   * Converts nested objects to readable key-value pairs
+   */
+  formatObjectValue(obj: any): string {
+    if (!obj || typeof obj !== 'object') {
+      return String(obj || '');
+    }
+
+    // For nested objects, show key-value pairs
+    const entries = Object.entries(obj)
+      .filter(([_, value]) => value !== null && value !== undefined && value !== '')
+      .map(([key, value]) => {
+        // Format key (remove prefixes, make readable)
+        const formattedKey = key.replace(/^(street|postal|address)/, '');
+        
+        // Format value
+        if (typeof value === 'object') {
+          return `${formattedKey}: ${this.formatObjectValue(value)}`;
+        }
+        return `${formattedKey}: ${value}`;
+      });
+
+    return entries.join(', ') || 'Keine Daten';
+  }
+
+  /**
+   * Create a readable preview string for structured sub-fields
+   */
+  getSubFieldPreview(subField: CanvasFieldState): string {
+    if (this.isNestedObject(subField.value)) {
+      return this.formatObjectValue(subField.value);
+    }
+
+    const childSubFields = this.getChildSubFields(subField)
+      .filter(child => !this.isNestedObject(child.value));
+
+    const childEntries = childSubFields
+      .filter(child => this.isValuePresent(child.value))
+      .slice(0, 4) // Prevent overly long previews
+      .map(child => `${child.label}: ${child.value}`);
+
+    if (childEntries.length > 0) {
+      return childEntries.join(', ');
+    }
+
+    if (this.isValuePresent(subField.value)) {
+      return String(subField.value);
+    }
+
+    return 'Noch keine Daten';
+  }
+
+  private isValuePresent(value: any): boolean {
+    return value !== null && value !== undefined && value !== '';
+  }
+
+  /**
    * Get preview text for a given structured field
    */
   getStructuredPreviewForField(field: CanvasFieldState): string {

@@ -174,7 +174,8 @@ export class CanvasService {
           multiple: field.system?.multiple || false,
           vocabulary: localizedField.vocabulary,
           validation: field.system?.validation,
-          shape: field.system?.items?.shape,  // Extract complex object structure
+          // Support both old shape format and new variants format
+          shape: field.system?.items?.shape || (field.system?.items?.variants ? field.system.items : null),
           examples: localizedField.examples,
           prompt: localizedField.prompt,
           promptInstructions: field.promptInstructions || undefined
@@ -183,13 +184,23 @@ export class CanvasService {
 
     // Group fields
     const fieldGroups = this.groupFields(coreFields);
+    
+    // Count all fields including potential subfields for consistent display
+    const allSubFields: CanvasFieldState[] = [];
+    coreFields.forEach(field => {
+      if (field.isParent && field.subFields) {
+        allSubFields.push(...field.subFields);
+      }
+    });
+    const totalFieldsCount = coreFields.length + allSubFields.length;
+    
     // Initialize metadata template
     const template = await this.schemaLoader.getOutputTemplate('core.json').toPromise();
 
     this.updateState({
       coreFields: coreFields,
       fieldGroups: fieldGroups,
-      totalFields: coreFields.length,
+      totalFields: totalFieldsCount,  // Include subfields for consistency
       metadata: template || {}
     });
   }
@@ -404,6 +415,12 @@ export class CanvasService {
         console.log(`🔍 ${schemaFile} Field ${field.id}: group="${groupId}", group_label="${field.group_label}", resolved="${groupLabel}", order=${groupOrder}`);
         
         const localizedField = this.localizer.localizeField(field, language);
+        
+        // IMPORTANT: Fallback to field.id if label is missing
+        const fieldLabel = localizedField.label || field.id;
+        if (!localizedField.label) {
+          console.warn(`⚠️ No label found for field ${field.id}, using ID as fallback`);
+        }
 
         return {
           fieldId: field.id,
@@ -414,7 +431,7 @@ export class CanvasService {
           schemaName: schemaName,
           aiFillable: field.system?.ai_fillable !== false,
           repoField: field.system?.repo_field !== false,  // Default true if not specified
-          label: localizedField.label,
+          label: fieldLabel,
           description: localizedField.description,
           value: field.system?.multiple ? [] : null,
           status: FieldStatus.EMPTY,
@@ -424,7 +441,8 @@ export class CanvasService {
           multiple: field.system?.multiple || false,
           vocabulary: localizedField.vocabulary,
           validation: field.system?.validation,
-          shape: field.system?.items?.shape,  // Extract complex object structure
+          // Support both old shape format and new variants format
+          shape: field.system?.items?.shape || (field.system?.items?.variants ? field.system.items : null),
           examples: localizedField.examples,
           prompt: localizedField.prompt,
           promptInstructions: field.promptInstructions || undefined
@@ -435,14 +453,30 @@ export class CanvasService {
     const allFields = [...state.coreFields, ...specialFields];
     const fieldGroups = this.groupFields(allFields);
 
+    // Count all fields including subfields for consistent display
+    const allSubFields: CanvasFieldState[] = [];
+    allFields.forEach(field => {
+      if (field.isParent && field.subFields) {
+        allSubFields.push(...field.subFields);
+      }
+    });
+    const totalFieldsCount = allFields.length + allSubFields.length;
+
     // Merge template
     const template = await this.schemaLoader.getOutputTemplate(schemaFile).toPromise();
     const mergedMetadata = { ...state.metadata, ...(template || {}) };
 
+    console.log(`✅ Loaded ${schemaFile}:`, {
+      specialFields: specialFields.length,
+      totalTopLevel: allFields.length,
+      totalWithSubFields: totalFieldsCount,
+      subFields: allSubFields.length
+    });
+
     this.updateState({
       specialFields: specialFields,
       fieldGroups: fieldGroups,
-      totalFields: allFields.length,
+      totalFields: totalFieldsCount,  // Include subfields for consistency
       metadata: mergedMetadata
     });
   }
@@ -511,10 +545,24 @@ export class CanvasService {
           const attemptedRetry = (effectiveTask.retryAttempt ?? 0) > 0;
           await this.normalizeAiExtractedValue(result.fieldId, result.value, result.confidence, effectiveTask, attemptedRetry);
           
-          // Create sub-fields for fields with shape (complex objects)
-          if (effectiveTask.field.shape) {
-            console.log(`🏗️ Creating sub-fields for ${result.fieldId} (has shape)`);
-            const subFields = this.shapeExpander.expandFieldWithShape(effectiveTask.field, result.value);
+          // Create sub-fields for fields with shape or variants (complex objects)
+          if (effectiveTask.field.shape || effectiveTask.field.datatype === 'array') {
+            console.log(`🏗️ Creating sub-fields for ${result.fieldId}`);
+            
+            // Get full schema definition for this field
+            const schemaName = effectiveTask.field.schemaName === 'Core' ? 'core.json' : this.getCurrentState().selectedContentType;
+            const schema = schemaName ? this.schemaLoader.getCachedSchema(schemaName) : null;
+            const schemaFieldDef = schema?.fields?.find((f: any) => f.id === result.fieldId);
+            
+            if (schemaFieldDef) {
+              console.log(`   📖 Found schema definition for ${result.fieldId}:`, schemaFieldDef.system?.items?.variants ? 'has variants' : 'no variants');
+            }
+            
+            const subFields = this.shapeExpander.expandFieldWithShape(
+              effectiveTask.field, 
+              result.value,
+              schemaFieldDef  // Pass full schema definition
+            );
             
             if (subFields.length > 0) {
               // Mark parent as having sub-fields
@@ -613,13 +661,23 @@ export class CanvasService {
       return f;
     });
 
-    const allFields = [...updatedCoreFields, ...updatedSpecialFields];
+    // Collect all fields including subfields
+    const allSubFields: CanvasFieldState[] = [];
+    [...updatedCoreFields, ...updatedSpecialFields].forEach(field => {
+      if (field.isParent && field.subFields) {
+        allSubFields.push(...field.subFields);
+      }
+    });
     
-    // Recalculate filled fields
-    const filledFields = allFields.filter(f => f.status === FieldStatus.FILLED).length;
-    const extractionProgress = (filledFields / state.totalFields) * 100;
+    const allFields = [...updatedCoreFields, ...updatedSpecialFields];
+    const allFieldsWithSubFields = [...allFields, ...allSubFields];
+    
+    // Recalculate filled fields (including subfields)
+    const filledFields = allFieldsWithSubFields.filter(f => f.status === FieldStatus.FILLED).length;
+    const totalFieldsCount = allFieldsWithSubFields.length;
+    const extractionProgress = totalFieldsCount > 0 ? (filledFields / totalFieldsCount) * 100 : 0;
 
-    // Regroup fields
+    // Regroup fields (only top-level fields, subfields are accessed via field.subFields)
     const fieldGroups = this.groupFields(allFields);
 
     this.updateState({
@@ -627,6 +685,7 @@ export class CanvasService {
       specialFields: updatedSpecialFields,
       fieldGroups: fieldGroups,
       filledFields: filledFields,
+      totalFields: totalFieldsCount,  // Update total to include subfields
       extractionProgress: extractionProgress
     });
   }
@@ -1696,6 +1755,14 @@ export class CanvasService {
           await this.loadSpecialSchema(schemaFileToLoad);
           this.fillContentTypeField(schemaFileToLoad);
           contentTypeValue = schemaFileToLoad;
+          
+          // IMPORTANT: Update state so selectedContentType is available for schema lookups
+          const currentState = this.getCurrentState();
+          this.updateState({
+            ...currentState,
+            selectedContentType: schemaFileToLoad
+          });
+          console.log(`✅ Updated state.selectedContentType to: ${schemaFileToLoad}`);
         } catch (error) {
           console.warn(`Could not load ${schemaFileToLoad} schema, continuing with core only:`, error);
         }
@@ -1707,6 +1774,13 @@ export class CanvasService {
       
       let importedCount = 0;
       const fieldUpdates: { [key: string]: CanvasFieldState } = {};
+      
+      console.log(`📋 Import field mapping:`, {
+        totalFields: allFields.length,
+        coreFields: state.coreFields.length,
+        specialFields: state.specialFields.length,
+        selectedContentType: state.selectedContentType
+      });
 
       for (const field of allFields) {
         const fieldData = normalizedData[field.fieldId];
@@ -1753,12 +1827,69 @@ export class CanvasService {
         
         if (fieldData && fieldData.value !== undefined && fieldData.value !== null) {
           const jsonValue = fieldData.value;
-          // Check if this field has a shape (complex object with sub-fields)
-          if (field.shape && (typeof jsonValue === 'object' || Array.isArray(jsonValue))) {
-            console.log(`🏗️ Creating sub-fields for ${field.fieldId} during import (has shape)`);
+          
+          // Check if field has schema hints from export (NEW: use hints for reconstruction)
+          const schemaInfo = fieldData._schema_info;
+          const hasSchemaHints = schemaInfo && schemaInfo.hasSubFields;
+          
+          // Get full schema definition for this field to check for variants
+          // For Core fields use core.json, for Special fields use state.selectedContentType
+          const currentState = this.getCurrentState();
+          const schemaName = field.schemaName === 'Core' ? 'core.json' : currentState.selectedContentType;
+          const schema = schemaName ? this.schemaLoader.getCachedSchema(schemaName) : null;
+          const schemaFieldDef = schema?.fields?.find((f: any) => f.id === field.fieldId);
+          
+          console.log(`   🔎 Schema lookup for ${field.fieldId}:`, {
+            fieldSchemaName: field.schemaName,
+            lookupSchemaName: schemaName,
+            schemaFound: !!schema,
+            schemaFieldDefFound: !!schemaFieldDef,
+            schemaFieldsCount: schema?.fields?.length || 0
+          });
+          
+          // Check if this field has variants (complex object structure) or is a shape-based object
+          // Prioritize schema hints from export if available
+          const hasVariants = hasSchemaHints ? schemaInfo.hasVariants : (schemaFieldDef?.system?.items?.variants);
+          const hasShape = hasSchemaHints ? schemaInfo.hasShape : (field.shape || schemaFieldDef?.system?.items?.shape);
+          const isComplexObject = (hasSchemaHints || hasShape || hasVariants || field.datatype === 'array') && 
+                                  (typeof jsonValue === 'object' || Array.isArray(jsonValue));
+          
+          console.log(`🔍 Import field ${field.fieldId}:`, {
+            hasSchemaHints: !!hasSchemaHints,
+            variantType: schemaInfo?.variantType,
+            hasVariants: !!hasVariants,
+            hasShape: !!hasShape,
+            isComplexObject,
+            valueType: Array.isArray(jsonValue) ? 'array' : typeof jsonValue,
+            valueKeys: typeof jsonValue === 'object' && jsonValue !== null ? Object.keys(jsonValue) : [],
+            expectedSubFields: schemaInfo?.subFieldPaths?.length || 0
+          });
+          
+          if (isComplexObject) {
+            console.log(`🏗️ Creating sub-fields for ${field.fieldId} during import`, {
+              usingHints: hasSchemaHints,
+              variantType: schemaInfo?.variantType,
+              jsonValueType: Array.isArray(jsonValue) ? 'array' : typeof jsonValue,
+              jsonValueSample: Array.isArray(jsonValue) ? jsonValue[0] : jsonValue,
+              schemaFieldDefKeys: schemaFieldDef ? Object.keys(schemaFieldDef) : 'no schema',
+              hasVariants: !!(schemaFieldDef?.system?.items?.variants),
+              hasShape: !!(schemaFieldDef?.system?.items?.shape || schemaFieldDef?.system?.shape)
+            });
+            
+            // CRITICAL: Pass the actual data value, not schema metadata
+            // For arrays, the value should be the array of data objects
+            // For objects, the value should be the data object
+            console.log(`   📊 JSON Value to expand:`, JSON.stringify(jsonValue).substring(0, 200));
             
             // Use ShapeExpander to create sub-fields from the imported value
-            const subFields = this.shapeExpander.expandFieldWithShape(field, jsonValue);
+            // Schema hints help ensure correct variant selection
+            const subFields = this.shapeExpander.expandFieldWithShape(field, jsonValue, schemaFieldDef);
+            
+            console.log(`   ✅ Created ${subFields.length} sub-fields`, {
+              expected: schemaInfo?.subFieldPaths?.length,
+              created: subFields.length,
+              paths: subFields.map((sf: any) => sf.path).filter((p: string) => p)
+            });
             
             if (subFields.length > 0) {
               // Mark parent as having sub-fields
@@ -1778,7 +1909,30 @@ export class CanvasService {
               });
               
               importedCount++;
-              console.log(`✅ Created ${subFields.length} sub-fields for ${field.fieldId}`);
+              
+              // Validate reconstruction if we have schema hints
+              if (hasSchemaHints && schemaInfo.subFieldPaths) {
+                const createdPaths = subFields.map((sf: any) => sf.path).filter((p: string) => p);
+                const expectedPaths = schemaInfo.subFieldPaths;
+                const missingPaths = expectedPaths.filter((p: string) => !createdPaths.includes(p));
+                
+                if (missingPaths.length > 0) {
+                  console.warn(`⚠️ Import validation: Missing ${missingPaths.length} subfields for ${field.fieldId}:`, missingPaths);
+                } else {
+                  console.log(`✅ Import validation: All subfields reconstructed correctly for ${field.fieldId}`);
+                }
+              }
+            } else {
+              // No subfields created - treat as regular array/object field
+              console.log(`   💡 No subfields created for ${field.fieldId}, treating as regular array/object field`);
+              const updatedField: CanvasFieldState = {
+                ...field,
+                value: jsonValue,
+                status: 'filled' as FieldStatus
+              };
+              
+              fieldUpdates[field.fieldId] = updatedField;
+              importedCount++;
             }
           } else {
             // Regular field without shape
@@ -1806,34 +1960,46 @@ export class CanvasService {
         }
       });
 
-      // Step 5: Update field groups with imported values (including sub-fields for display)
-      const allFieldsWithSubFields = [...updatedCoreFields, ...updatedSpecialFields, ...allSubFields];
-      const updatedFieldGroups = this.groupFields(allFieldsWithSubFields);
-
-      // Count filled fields (only top-level fields, not sub-fields)
+      // Step 5: Update field groups with imported values
+      // IMPORTANT: Only group top-level fields, subfields are accessed via field.subFields
       const topLevelFields = [...updatedCoreFields, ...updatedSpecialFields];
-      const filledCount = topLevelFields
+      const allFieldsWithSubFields = [...topLevelFields, ...allSubFields];
+      const updatedFieldGroups = this.groupFields(topLevelFields);
+
+      // Count all filled fields (including sub-fields for accurate progress)
+      const filledCount = allFieldsWithSubFields
         .filter(f => f.value !== undefined && f.value !== null && f.value !== '' && 
                      (!Array.isArray(f.value) || f.value.length > 0)).length;
 
-      // Calculate progress based on filled fields
-      const progress = topLevelFields.length > 0 
-        ? Math.round((filledCount / topLevelFields.length) * 100)
-        : 0;
+      // Count all fields including subfields for accurate display
+      const totalFieldsCount = allFieldsWithSubFields.length;
 
+      // Calculate progress based on ALL fields (not just top-level)
+      const progress = totalFieldsCount > 0 
+        ? Math.round((filledCount / totalFieldsCount) * 100)
+        : 0;
+      
       this.updateState({
         coreFields: updatedCoreFields,
         specialFields: updatedSpecialFields,
         fieldGroups: updatedFieldGroups,
         filledFields: filledCount,
-        totalFields: topLevelFields.length,  // Only count top-level fields
+        totalFields: totalFieldsCount,  // Count ALL fields (top-level + subfields)
         detectedContentType: contentTypeValue,
         selectedContentType: contentTypeValue,
         isExtracting: false,
         extractionProgress: progress  // Calculate based on actual filled fields
       });
 
-      console.log(`✅ JSON imported: ${importedCount} fields pre-filled`);
+      console.log(`✅ JSON imported successfully:`, {
+        importedValues: importedCount,
+        totalFieldsCount: totalFieldsCount,
+        filledFieldsCount: filledCount,
+        coreFields: updatedCoreFields.length,
+        specialFields: updatedSpecialFields.length,
+        subFields: allSubFields.length,
+        progress: `${progress}%`
+      });
     } catch (error) {
       console.error('❌ Error importing JSON:', error);
       throw error;
@@ -2032,18 +2198,24 @@ export class CanvasService {
       }
     }
 
-    // Build a set of sub-field IDs to exclude from top-level output
+    // Build a set of ALL sub-field IDs to exclude from export
+    // Sub-fields are reconstructed into their parent's value object
     const subFieldIds = new Set<string>();
     allFields.forEach(field => {
       if (field.isParent && field.subFields) {
-        field.subFields.forEach((sf: any) => subFieldIds.add(sf.fieldId));
+        field.subFields.forEach((sf: any) => {
+          subFieldIds.add(sf.fieldId);
+        });
       }
     });
 
+    console.log(`📦 Export: Found ${subFieldIds.size} sub-fields to exclude`);
+
     // Add all fields with structured metadata
     for (const field of allFields) {
-      // Skip sub-fields - they are reconstructed into parent objects
+      // Skip ALL sub-fields - they are reconstructed into parent objects
       if (subFieldIds.has(field.fieldId)) {
+        console.log(`   ⏭️  Skipping sub-field: ${field.fieldId}`);
         continue;
       }
 
@@ -2071,6 +2243,54 @@ export class CanvasService {
         label: field.label,
         status: field.status
       };
+
+      // Get the schema definition to check for complex structure
+      const schemaName = field.schemaName === 'Core' ? 'core.json' : state.selectedContentType;
+      const schema = schemaName ? this.schemaLoader.getCachedSchema(schemaName) : null;
+      const schemaFieldDef = schema?.fields?.find((f: any) => f.id === field.fieldId);
+      
+      // Check if field has complex structure in schema (even if no subfields currently)
+      const hasVariants = !!(schemaFieldDef?.system?.items?.variants);
+      const hasShape = !!(field.shape || schemaFieldDef?.system?.items?.shape || schemaFieldDef?.system?.shape);
+      const hasComplexStructure = hasVariants || hasShape;
+      
+      // Add schema hints for fields with complex structure to enable reconstruction on import
+      if (hasComplexStructure) {
+        // Extract variant type from value's @type
+        let variantType: string | null = null;
+        if (fieldValue) {
+          if (Array.isArray(fieldValue) && fieldValue.length > 0 && fieldValue[0]['@type']) {
+            variantType = fieldValue[0]['@type'];
+          } else if (typeof fieldValue === 'object' && fieldValue['@type']) {
+            variantType = fieldValue['@type'];
+          }
+        }
+        
+        // Get expected subfield paths from schema if available
+        let expectedPaths: string[] = [];
+        if (field.isParent && field.subFields && field.subFields.length > 0) {
+          expectedPaths = field.subFields.map((sf: any) => sf.path).filter((p: string) => p);
+        } else if (hasShape && schemaFieldDef?.system?.shape) {
+          // Extract paths from old shape format
+          expectedPaths = Object.keys(schemaFieldDef.system.shape);
+        } else if (hasVariants && schemaFieldDef?.system?.items?.variants) {
+          // Extract paths from first variant
+          const firstVariant = schemaFieldDef.system.items.variants[0];
+          if (firstVariant?.fields) {
+            expectedPaths = this.extractPathsFromVariantFields(firstVariant.fields);
+          }
+        }
+        
+        // Store schema info for reconstruction
+        fieldData._schema_info = {
+          hasSubFields: field.isParent && field.subFields && field.subFields.length > 0,
+          variantType: variantType,
+          hasVariants: hasVariants,
+          hasShape: hasShape,
+          // Store expected paths even if no current subfields
+          subFieldPaths: expectedPaths
+        };
+      }
 
       // Add description if present
       if (field.description) {
@@ -2111,6 +2331,26 @@ export class CanvasService {
     }
 
     return output;
+  }
+
+  /**
+   * Extract all field paths from variant fields (recursive for nested fields)
+   */
+  private extractPathsFromVariantFields(fields: any[], prefix: string = ''): string[] {
+    const paths: string[] = [];
+    
+    fields.forEach((fieldDef: any) => {
+      const fieldPath = prefix ? `${prefix}.${fieldDef.id}` : fieldDef.id;
+      paths.push(fieldPath);
+      
+      // Recursively extract nested field paths
+      if (fieldDef.fields && Array.isArray(fieldDef.fields) && fieldDef.fields.length > 0) {
+        const nestedPaths = this.extractPathsFromVariantFields(fieldDef.fields, fieldPath);
+        paths.push(...nestedPaths);
+      }
+    });
+    
+    return paths;
   }
 
   /**

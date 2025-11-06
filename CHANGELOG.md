@@ -4,6 +4,96 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 
 ---
 
+## [2.1.0] - November 2025
+
+### 🔄 Import/Export & Sub-Field Parsing
+
+**Fixed:**
+- **Array-Felder ohne Shape** werden jetzt korrekt importiert
+  - `cclom:general_keyword`, `cm:author`, `oeh:locationType`, `schema:alternateName`
+  - Felder mit Arrays aber ohne Subfelder-Definition wurden als "empty" markiert
+  - Neue Logik: Wenn keine Subfelder erstellt werden, wird der Wert direkt übernommen
+  
+- **Sub-Field Rekonstruktion** beim JSON-Import
+  - `_schema_info` Metadaten im Export ermöglichen korrekte Rekonstruktion
+  - Variant-basierte Felder (z.B. `schema:location`) werden jetzt perfekt wiederhergestellt
+  - Validation: Warnung bei fehlenden Subfeldern mit erwarteten Pfaden
+
+**Improved:**
+- **Schema Lookup** während Import (korrekte Schema-Zuordnung Core vs. Organization)
+- **Field Counting** inkl. aller Subfelder für genaue Progress-Anzeige
+- **Field Grouping** zeigt nur Top-Level-Felder (keine Subfeld-Duplikate mehr)
+
+**Code Changes:**
+- `canvas.service.ts` (Lines 1868-1936): Import-Logik mit Subfeld-Fallback
+- `shape-expander.service.ts`: Rekursive Expansion komplexer Felder
+
+---
+
+### 🏷️ Schema Labels & i18n
+
+**Fixed:**
+- **18 fehlende deutsche Labels** in `organization.json`:
+  - `oeh:isNonprofit`, `oeh:isLearningPlace`, `oeh:officiallyRecognized`
+  - `schema:contactPoint`, `schema:address`, `schema:legalAddress`
+  - `oeh:transportAccess`, `schema:offers`, `schema:video`, etc.
+  
+- **Programmatische Lokalisierung** für Subfelder:
+  - 20+ Subfeld-Keys mit deutscher/englischer Übersetzung
+  - `formatLabel()` mit i18n-Translation-Map
+  - Fallback: CamelCase → Title Case Konvertierung
+
+**Verified:**
+- Alle 11 Schemas geprüft: 0 fehlende Labels ✅
+- Validation Script: `check-schema-labels.js`
+
+---
+
+### 🐳 Docker Deployment
+
+**Added:**
+- Multi-Stage Docker Build (Builder + Runtime)
+- Production-ready Container mit Node.js 20 Alpine
+- Non-root User (nodejs:1001) für Security
+- Health Check mit `/api/health` Endpoint
+- Resource Limits (1 CPU, 1GB RAM)
+
+**Security:**
+- Read-only Root Filesystem (außer /tmp)
+- Capability Drop ALL
+- No-new-privileges Security Option
+- Rate Limiting (konfigurierbar)
+- CORS mit ALLOWED_ORIGINS Whitelist
+
+**Configuration:**
+- `.env.docker.example` - Template mit allen Optionen
+- Environment Variables für LLM Provider, API Keys, Rate Limits
+- docker-compose.yml mit Health Check & Logging
+
+**Files:**
+- `Dockerfile` - Multi-Stage Build
+- `docker-compose.yml` - Orchestrierung
+- `DOCKER.md` - Vollständige Dokumentation
+- `DOCKER-QUICKSTART.md` - 5-Minuten Quick-Start
+
+---
+
+### 🧹 Code Cleanup
+
+**Removed:**
+- 7 veraltete/temporäre Dateien (Bookmarklet-Duplikate, Test-Scripts)
+- `src/bookmarklet-enhanced.js`, `src/bookmarklet-minimal.js`
+- `src/bookmarklet-minimal.txt`, `src/bookmarklet-test-simple.js`
+- `src/test-bookmarklet.html`
+- Einmal-Helper-Scripts (`check-schema-labels.js`, `analyze-bookmarklet-files.js`)
+
+**Kept:**
+- Produktive Bookmarklet-Dateien (`bookmarklet-working.js`, `bookmarklet-minified.txt`)
+- Build/Validation Scripts in `scripts/`
+- Aktive Dev-Tools (`local-universal-proxy.js`, `validate-env.js`, etc.)
+
+---
+
 ## [2.0.0] - Januar 2025
 
 ### 🌐 Internationalisierung (i18n)

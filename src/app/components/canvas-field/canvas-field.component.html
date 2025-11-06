@@ -95,13 +95,14 @@
           <span *ngIf="subField.isRequired" class="required-marker">*</span>
         </label>
 
-        <div class="field-input-container sub-field-input-container">
-          <div *ngIf="subField.isParent && subField.subFields && subField.subFields.length > 0" class="structured-field-preview">
-            <span class="preview-text">{{ getStructuredPreviewForField(subField) }}</span>
+        <div class="field-input-container sub-field-input-container" [class.sub-field-disabled]="shouldDisableSubFieldInput(subField)">
+          <!-- Preview for structured data (nested objects or child sub-fields) -->
+          <div *ngIf="shouldShowPreview(subField)" class="structured-field-preview">
+            <span class="preview-text">{{ getSubFieldPreview(subField) }}</span>
           </div>
 
           <textarea
-            *ngIf="!subField.isParent"
+            *ngIf="!shouldDisableSubFieldInput(subField)"
             class="field-input sub-field-input"
             [(ngModel)]="subField.value"
             (blur)="onSubFieldValueChange(subField)"

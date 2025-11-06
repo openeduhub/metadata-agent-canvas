@@ -1,0 +1,54 @@
+# Node modules
+node_modules
+server/node_modules
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts (will be built inside Docker)
+dist
+.angular
+
+# Documentation
+*.md
+!README.md
+docs
+
+# Tests
+*.spec.ts
+e2e
+coverage
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Logs
+*.log
+logs
+
+# Temporary files
+tmp
+temp
+.tmp
+
+# Development files
+src/**/*.spec.ts
+karma.conf.js

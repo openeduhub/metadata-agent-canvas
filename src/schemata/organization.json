@@ -604,8 +604,8 @@
       "id": "schema:additionalType",
       "group": "classification",
       "label": {
-        "de": "schema:additionalType",
-        "en": "schema:additionalType"
+        "de": "Zusätzlicher Typ",
+        "en": "Additional Type"
       },
       "description": {
         "de": "",
@@ -637,8 +637,8 @@
       "id": "oeh:isNonprofit",
       "group": "classification",
       "label": {
-        "de": "oeh:isNonprofit",
-        "en": "oeh:isNonprofit"
+        "de": "Gemeinnützige Organisation",
+        "en": "Non-profit Organization"
       },
       "description": {
         "de": "",
@@ -663,8 +663,8 @@
       "id": "oeh:isLearningPlace",
       "group": "classification",
       "label": {
-        "de": "oeh:isLearningPlace",
-        "en": "oeh:isLearningPlace"
+        "de": "Lernort",
+        "en": "Learning Place"
       },
       "description": {
         "de": "",
@@ -689,8 +689,8 @@
       "id": "oeh:officiallyRecognized",
       "group": "classification",
       "label": {
-        "de": "oeh:officiallyRecognized",
-        "en": "oeh:officiallyRecognized"
+        "de": "Offiziell anerkannt",
+        "en": "Officially Recognized"
       },
       "description": {
         "de": "",
@@ -935,8 +935,8 @@
       "id": "schema:faxNumber",
       "group": "contact",
       "label": {
-        "de": "schema:faxNumber",
-        "en": "schema:faxNumber"
+        "de": "Faxnummer",
+        "en": "Fax Number"
       },
       "description": {
         "de": "",
@@ -1096,8 +1096,8 @@
       "id": "schema:location",
       "group": "location",
       "label": {
-        "de": "schema:location",
-        "en": "schema:location"
+        "de": "Standort(e)",
+        "en": "Location(s)"
       },
       "description": {
         "de": "",
@@ -1740,8 +1740,8 @@
       "id": "schema:directions",
       "group": "geo",
       "label": {
-        "de": "schema:directions",
-        "en": "schema:directions"
+        "de": "Wegbeschreibung",
+        "en": "Directions"
       },
       "description": {
         "de": "",
@@ -1803,8 +1803,8 @@
       "id": "oeh:transportAccess",
       "group": "geo",
       "label": {
-        "de": "oeh:transportAccess",
-        "en": "oeh:transportAccess"
+        "de": "Verkehrsanbindung",
+        "en": "Transport Access"
       },
       "description": {
         "de": "",
@@ -1980,8 +1980,8 @@
       "id": "schema:offers",
       "group": "visitor",
       "label": {
-        "de": "schema:offers",
-        "en": "schema:offers"
+        "de": "Angebote",
+        "en": "Offers"
       },
       "description": {
         "de": "",
@@ -2088,8 +2088,8 @@
       "id": "schema:video",
       "group": "visitor",
       "label": {
-        "de": "schema:video",
-        "en": "schema:video"
+        "de": "Videos",
+        "en": "Videos"
       },
       "description": {
         "de": "",
@@ -2132,8 +2132,8 @@
       "id": "schema:isAccessibleForFree",
       "group": "visitor",
       "label": {
-        "de": "schema:isAccessibleForFree",
-        "en": "schema:isAccessibleForFree"
+        "de": "Kostenlos zugänglich",
+        "en": "Free Access"
       },
       "description": {
         "de": "",
@@ -2158,8 +2158,8 @@
       "id": "schema:amenityFeature",
       "group": "visitor",
       "label": {
-        "de": "schema:amenityFeature",
-        "en": "schema:amenityFeature"
+        "de": "Ausstattungsmerkmale",
+        "en": "Amenity Features"
       },
       "description": {
         "de": "",
@@ -2202,8 +2202,8 @@
       "id": "schema:accessibilitySummary",
       "group": "visitor",
       "label": {
-        "de": "schema:accessibilitySummary",
-        "en": "schema:accessibilitySummary"
+        "de": "Barrierefreiheits-Übersicht",
+        "en": "Accessibility Summary"
       },
       "description": {
         "de": "",
@@ -2352,8 +2352,8 @@
       "id": "schema:branchCode",
       "group": "org",
       "label": {
-        "de": "schema:branchCode",
-        "en": "schema:branchCode"
+        "de": "Filial-/Zweigstellen-Code",
+        "en": "Branch Code"
       },
       "description": {
         "de": "",
@@ -2381,8 +2381,8 @@
       "id": "schema:award",
       "group": "org",
       "label": {
-        "de": "schema:award",
-        "en": "schema:award"
+        "de": "Auszeichnungen",
+        "en": "Awards"
       },
       "description": {
         "de": "",
@@ -2414,8 +2414,8 @@
       "id": "schema:hasCertification",
       "group": "org",
       "label": {
-        "de": "schema:hasCertification",
-        "en": "schema:hasCertification"
+        "de": "Zertifizierungen",
+        "en": "Certifications"
       },
       "description": {
         "de": "",
@@ -2480,8 +2480,8 @@
       "id": "schema:sponsor",
       "group": "org",
       "label": {
-        "de": "schema:sponsor",
-        "en": "schema:sponsor"
+        "de": "Sponsoren/Förderer",
+        "en": "Sponsors"
       },
       "description": {
         "de": "",
@@ -2521,8 +2521,8 @@
       "id": "schema:memberOf",
       "group": "org",
       "label": {
-        "de": "schema:memberOf",
-        "en": "schema:memberOf"
+        "de": "Mitglied bei",
+        "en": "Member Of"
       },
       "description": {
         "de": "",

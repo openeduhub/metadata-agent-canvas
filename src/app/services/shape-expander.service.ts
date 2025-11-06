@@ -23,10 +23,16 @@ export class ShapeExpanderService {
    */
   expandFieldWithShape(parentField: CanvasFieldState, extractedValue: any, schemaFieldDef?: any): CanvasFieldState[] {
     if (!parentField.shape && !schemaFieldDef?.system?.items?.variants) {
+      console.log(`⚠️ No shape or variants found for ${parentField.fieldId}`);
       return [];
     }
 
-    console.log(`🔍 Expanding field ${parentField.fieldId} with schema definition:`, schemaFieldDef?.system?.items?.variants);
+    console.log(`🔍 Expanding field ${parentField.fieldId}:`, {
+      extractedValueType: Array.isArray(extractedValue) ? `array[${extractedValue.length}]` : typeof extractedValue,
+      extractedValueSample: Array.isArray(extractedValue) ? extractedValue[0] : extractedValue,
+      hasVariants: !!(schemaFieldDef?.system?.items?.variants),
+      variantsCount: schemaFieldDef?.system?.items?.variants?.length || 0
+    });
 
     const subFields: CanvasFieldState[] = [];
     const language = this.localizer.getActiveLanguage();
@@ -74,47 +80,36 @@ export class ShapeExpanderService {
   ): CanvasFieldState[] {
     const subFields: CanvasFieldState[] = [];
 
+    console.log(`   📋 createSubFieldsFromObject for ${parentField.fieldId}[${arrayIndex}]:`, {
+      objectValueType: typeof objectValue,
+      objectValueKeys: typeof objectValue === 'object' && objectValue ? Object.keys(objectValue) : 'not object',
+      hasVariants: !!(schemaFieldDef?.system?.items?.variants)
+    });
+
     // NEW: Use variants from schema if available (preferred)
     if (schemaFieldDef?.system?.items?.variants) {
       const variants = schemaFieldDef.system.items.variants;
       
+      console.log(`      Found ${variants.length} variants, matching against objectValue`);
+      
       // Find matching variant based on @type or first variant
       const matchedVariant = this.findMatchingVariant(objectValue, variants) || variants[0];
       
+      console.log(`      Matched variant:`, matchedVariant?.['@type'] || 'first variant', `with ${matchedVariant?.fields?.length || 0} fields`);
+      
       if (matchedVariant?.fields) {
-        // Use full schema field definitions
+        // Use full schema field definitions with recursive expansion
         matchedVariant.fields.forEach((fieldDef: any) => {
           const fieldValue = objectValue[fieldDef.id];
-          
-          // Handle nested fields (e.g., address with streetAddress, postalCode)
-          if (fieldDef.fields && Array.isArray(fieldDef.fields)) {
-            fieldDef.fields.forEach((nestedFieldDef: any) => {
-              const nestedValue = fieldValue && typeof fieldValue === 'object'
-                ? fieldValue[nestedFieldDef.id]
-                : null;
-              
-              const subField = this.createSubFieldFromSchema(
-                parentField,
-                `${fieldDef.id}.${nestedFieldDef.id}`,
-                nestedFieldDef,
-                nestedValue,
-                arrayIndex,
-                language
-              );
-              subFields.push(subField);
-            });
-          } else {
-            // Simple field
-            const subField = this.createSubFieldFromSchema(
-              parentField,
-              fieldDef.id,
-              fieldDef,
-              fieldValue,
-              arrayIndex,
-              language
-            );
-            subFields.push(subField);
-          }
+          this.expandFieldRecursively(
+            parentField,
+            fieldDef,
+            fieldValue,
+            '',
+            arrayIndex,
+            language,
+            subFields
+          );
         });
       }
     } else {
@@ -166,6 +161,69 @@ export class ShapeExpanderService {
     }
 
     return subFields;
+  }
+
+  /**
+   * Recursively expand a field and all its nested fields
+   * Supports unlimited nesting depth
+   * 
+   * This method is fully compatible with buildObjectFromFields():
+   * - Export: buildObjectFromFields() creates { address: { streetAddress: "..." } }
+   * - Import: expandFieldRecursively() reads that structure and creates sub-fields
+   * 
+   * The bidirectional compatibility ensures data integrity across save/load cycles.
+   */
+  private expandFieldRecursively(
+    parentField: CanvasFieldState,
+    fieldDef: any,
+    fieldValue: any,
+    pathPrefix: string,
+    arrayIndex: number,
+    language: 'de' | 'en',
+    subFields: CanvasFieldState[]
+  ): void {
+    // Build the full path for this field
+    const fullPath = pathPrefix ? `${pathPrefix}.${fieldDef.id}` : fieldDef.id;
+    
+    console.log(`🔄 expandFieldRecursively: path="${fullPath}", valueType=${typeof fieldValue}, hasNestedFields=${!!(fieldDef.fields && fieldDef.fields.length > 0)}`);
+    if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
+      console.log(`   Value keys:`, Object.keys(fieldValue));
+    }
+    
+    // Create sub-field for this level
+    const subField = this.createSubFieldFromSchema(
+      parentField,
+      fullPath,
+      fieldDef,
+      fieldValue,
+      arrayIndex,
+      language
+    );
+    subFields.push(subField);
+    console.log(`   ✅ Created sub-field: ${subField.fieldId}, value=${subField.value}, status=${subField.status}`);
+    
+    // If this field has nested fields, recursively expand them
+    if (fieldDef.fields && Array.isArray(fieldDef.fields) && fieldDef.fields.length > 0) {
+      console.log(`   🔽 Expanding ${fieldDef.fields.length} nested fields...`);
+      fieldDef.fields.forEach((nestedFieldDef: any) => {
+        const nestedValue = fieldValue && typeof fieldValue === 'object'
+          ? fieldValue[nestedFieldDef.id]
+          : null;
+        
+        console.log(`      Looking for "${nestedFieldDef.id}" in fieldValue:`, nestedValue);
+        
+        // Recursive call for nested field
+        this.expandFieldRecursively(
+          parentField,
+          nestedFieldDef,
+          nestedValue,
+          fullPath,  // Pass current path as prefix
+          arrayIndex,
+          language,
+          subFields
+        );
+      });
+    }
   }
 
   /**
@@ -229,6 +287,9 @@ export class ShapeExpanderService {
     const isRequired = fieldDef.system?.required || false;
     const aiFillable = fieldDef.system?.ai_fillable !== false;
 
+    // Check if this field has nested fields (making it a container)
+    const hasNestedFields = fieldDef.fields && Array.isArray(fieldDef.fields) && fieldDef.fields.length > 0;
+
     return {
       fieldId: fullPath,
       uri: fieldDef.system?.uri || `${parentField.uri}#${propertyPath}`,
@@ -249,6 +310,8 @@ export class ShapeExpanderService {
       parentFieldId: parentField.fieldId,
       path: propertyPath,
       arrayIndex: arrayIndex,
+      // Mark as parent if it has nested fields
+      isParent: hasNestedFields,
       // NEW: Add validation, normalization, vocabulary from schema
       validation: fieldDef.system?.validation,
       normalization: fieldDef.system?.normalization,
@@ -316,10 +379,41 @@ export class ShapeExpanderService {
   }
 
   /**
-   * Format property key to readable label
+   * Format property key to readable label with i18n support
    */
   private formatLabel(key: string): string {
-    // Convert camelCase/snake_case to Title Case
+    const language = this.localizer.getActiveLanguage();
+    
+    // i18n translation map for common field names
+    const translations: { [key: string]: { de: string, en: string } } = {
+      'contactType': { de: 'Kontakttyp', en: 'Contact Type' },
+      'email': { de: 'E-Mail', en: 'Email' },
+      'telephone': { de: 'Telefon', en: 'Telephone' },
+      'faxNumber': { de: 'Faxnummer', en: 'Fax Number' },
+      'availableLanguage': { de: 'Verfügbare Sprachen', en: 'Available Language' },
+      'name': { de: 'Name', en: 'Name' },
+      'value': { de: 'Wert', en: 'Value' },
+      'description': { de: 'Beschreibung', en: 'Description' },
+      'streetAddress': { de: 'Straße und Hausnummer', en: 'Street Address' },
+      'postalCode': { de: 'Postleitzahl', en: 'Postal Code' },
+      'addressLocality': { de: 'Stadt', en: 'City' },
+      'addressRegion': { de: 'Bundesland/Region', en: 'State/Region' },
+      'addressCountry': { de: 'Land', en: 'Country' },
+      'address': { de: 'Adresse', en: 'Address' },
+      'geo': { de: 'Koordinaten', en: 'Coordinates' },
+      'latitude': { de: 'Breitengrad', en: 'Latitude' },
+      'longitude': { de: 'Längengrad', en: 'Longitude' },
+      'sameAs': { de: 'Verweis', en: 'Reference' },
+      'accessibilitySummary': { de: 'Barrierefreiheits-Übersicht', en: 'Accessibility Summary' },
+      'accessibilitySupport': { de: 'Barrierefreiheits-Unterstützung', en: 'Accessibility Support' }
+    };
+    
+    // Check if we have a translation for this key
+    if (translations[key]) {
+      return translations[key][language];
+    }
+    
+    // Fallback: Convert camelCase/snake_case to Title Case
     return key
       .replace(/([A-Z])/g, ' $1')
       .replace(/_/g, ' ')
@@ -329,6 +423,23 @@ export class ShapeExpanderService {
 
   /**
    * Reconstruct object from sub-fields for JSON export
+   * 
+   * Complete data cycle:
+   * 1. AI Extraction → expandFieldRecursively() → creates sub-fields with paths
+   * 2. User Edits → sub-fields are modified
+   * 3. Export → reconstructObjectFromSubFields() → rebuilds nested objects
+   * 4. Import → expandFieldRecursively() → recreates sub-fields
+   * 
+   * Example:
+   *   Sub-fields: [
+   *     { path: "name", value: "metaVentis" },
+   *     { path: "address.streetAddress", value: "Am Horn 21 a" },
+   *     { path: "address.postalCode", value: "99425" }
+   *   ]
+   *   Reconstructed: {
+   *     name: "metaVentis",
+   *     address: { streetAddress: "Am Horn 21 a", postalCode: "99425" }
+   *   }
    */
   reconstructObjectFromSubFields(
     parentField: CanvasFieldState,
@@ -370,32 +481,85 @@ export class ShapeExpanderService {
   }
 
   /**
-   * Build object from flat sub-fields using paths
+   * Build object from flat sub-fields using paths (recursive-compatible)
+   * This method reconstructs nested objects from flattened sub-fields.
+   * The output can be re-imported using expandFieldRecursively().
+   * 
+   * Example: 
+   *   Input: [{ path: "address.streetAddress", value: "Am Horn 21 a" }]
+   *   Output: { address: { streetAddress: "Am Horn 21 a" } }
+   * 
+   * Supports unlimited nesting depth through iterative path traversal.
    */
   private buildObjectFromFields(fields: CanvasFieldState[]): any {
     const result: any = {};
+    const containerPaths = new Set<string>();
 
+    // First pass: identify all container paths (parent fields)
     fields.forEach(field => {
-      // Skip fields without value (but allow empty strings and 0)
-      if (!field.path || (field.value === null || field.value === undefined)) {
+      if (field.path && field.path.includes('.')) {
+        const pathParts = field.path.split('.');
+        // Build container path from all parts except the last one
+        for (let i = 1; i < pathParts.length; i++) {
+          const containerPath = pathParts.slice(0, i).join('.');
+          containerPaths.add(containerPath);
+        }
+      }
+    });
+
+    // Second pass: build the object structure
+    fields.forEach(field => {
+      if (!field.path) {
         return;
       }
 
       // Split path (e.g., "address.streetAddress" -> ["address", "streetAddress"])
       const pathParts = field.path.split('.');
 
+      // Navigate/create nested structure up to the last part
       let current = result;
       for (let i = 0; i < pathParts.length - 1; i++) {
         const part = pathParts[i];
+        
+        // Create nested object if it doesn't exist
+        if (!current[part] || typeof current[part] !== 'object') {
+          current[part] = {};
+        }
+        
+        // Move deeper into the structure
+        current = current[part];
+      }
+
+      // Set the final value at the deepest level
+      const lastPart = pathParts[pathParts.length - 1];
+      
+      // For container fields (isParent), ensure we have at least an empty object
+      // even if value is null/undefined
+      if (field.isParent) {
+        if (field.value === null || field.value === undefined) {
+          current[lastPart] = {};
+        } else if (typeof field.value === 'object' && !Array.isArray(field.value)) {
+          // Preserve existing object (might have nested data)
+          current[lastPart] = field.value;
+        } else {
+          current[lastPart] = field.value;
+        }
+      } else if (field.value !== null && field.value !== undefined) {
+        // Only set non-null/undefined values for leaf fields
+        current[lastPart] = field.value;
+      }
+    });
+
+    // Ensure all container paths exist as empty objects if they don't have data
+    containerPaths.forEach(containerPath => {
+      const pathParts = containerPath.split('.');
+      let current = result;
+      for (const part of pathParts) {
         if (!current[part]) {
           current[part] = {};
         }
         current = current[part];
       }
-
-      // Set the final value
-      const lastPart = pathParts[pathParts.length - 1];
-      current[lastPart] = field.value;
     });
 
     return result;

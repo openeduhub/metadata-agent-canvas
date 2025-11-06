@@ -52,6 +52,21 @@
     gap: 8px;
     min-width: 0; // Allow flex item to shrink below content size
 
+    &.sub-field-input-container.sub-field-disabled {
+      opacity: 0.75;
+      background: #f3f5fa;
+      border-radius: 8px;
+
+      .structured-field-preview {
+        color: #586280;
+      }
+
+      .field-input,
+      textarea {
+        pointer-events: none;
+      }
+    }
+
     .chip-container {
       display: flex;
       flex-wrap: wrap;
