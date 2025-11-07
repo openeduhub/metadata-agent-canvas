@@ -26,10 +26,30 @@
     animation: pulse 1.5s infinite;
   }
 
-  .status-icon {
-    font-size: 18px;
+  // Status Icon mit farbigen Material Icons
+  mat-icon.status-icon {
     min-width: 24px;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    
+    // Material Icon status colors (wie in Referenz)
+    &.status-filled {
+      color: #00874d !important; // Grün (Haken)
+    }
+    &.status-extracting {
+      color: #006693 !important; // Blau (Hourglass)
+    }
+    &.status-empty {
+      color: #8893a5 !important; // Grau (Circle/Warning)
+    }
+    &.status-error {
+      color: #ba1a1a !important; // Rot (Error)
+    }
   }
 
   .field-label {
@@ -40,8 +60,10 @@
     letter-spacing: 0.25px;
 
     .required-marker {
-      color: #d8615b;
-      margin-left: 4px;
+      color: #d32f2f; // Material Red
+      margin-left: 2px;
+      font-size: 16px;
+      vertical-align: top;
     }
   }
 
@@ -51,6 +73,67 @@
     flex-direction: column;
     gap: 8px;
     min-width: 0; // Allow flex item to shrink below content size
+    
+    // Material Form Field - kompakte einzeilige Darstellung
+    mat-form-field.field-input-wrapper,
+    mat-form-field.sub-field-input-wrapper {
+      width: 100%;
+      
+      ::ng-deep .mat-mdc-form-field-infix {
+        padding-top: 0;
+        padding-bottom: 0;
+        padding-right: 0; // Kein Padding rechts für Handle-Position
+        min-height: unset; // Keine feste Höhe
+      }
+      
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        padding-top: 0;
+        padding-right: 0; // Kein Padding rechts
+        width: 100%;
+      }
+      
+      // Entferne rechtes Padding von outline
+      ::ng-deep .mat-mdc-notched-outline {
+        .mdc-notched-outline__trailing {
+          padding-right: 0;
+        }
+      }
+      
+      // Einzeilige Textareas mit Auto-Resize via cdkTextareaAutosize
+      // Vertikale Zentrierung durch symmetrisches Padding auf Textarea
+      ::ng-deep textarea.mat-mdc-input-element {
+        resize: vertical;
+        min-height: 1.5em; // Start mit 1 Zeile
+        line-height: 1.5em;
+        padding: 8px 0 !important; // Symmetrisches Padding für Zentrierung
+        padding-right: 0 !important; // Kein Padding rechts
+        margin: 0;
+        margin-right: -18px; // Erweitere nach rechts um Handle ganz in Ecke zu schieben
+        overflow: auto; // Erlaubt Resize-Handle sichtbar zu sein
+        box-sizing: border-box;
+        
+        // Scrollbars ausblenden wenn nicht nötig (Webkit/Blink)
+        &::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+      }
+      
+      // Dunkelblauer Focus-Border (wie in Redaktionsumgebung)
+      ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-trailing,
+      ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-leading,
+      ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-notch {
+        border-color: rgba(0, 0, 0, 0.12) !important;
+      }
+      
+      // Focus: Corporate Design Blau (#003B7C)
+      &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-trailing,
+      &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-leading,
+      &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-notch {
+        border-color: #003B7C !important;
+        border-width: 2px !important;
+      }
+    }
 
     &.sub-field-input-container.sub-field-disabled {
       opacity: 0.75;
@@ -183,38 +266,57 @@
     }
   }
 
-  .geo-button,
-  .info-button {
-    flex: 0 0 32px;
-    width: 32px;
-    height: 32px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    color: #98a2b3;
-
-    &:hover {
+  // Material Icon Buttons
+  button[mat-icon-button] {
+    &.geo-button,
+    &.info-button {
+      flex: 0 0 40px;
+      width: 40px;
+      height: 40px;
+      color: #98a2b3;
+      
+      mat-icon {
+        font-size: 20px;
+      }
+    }
+    
+    &.geo-button:hover {
+      background: #e3f2ed;
+      color: #00874d;
+    }
+    
+    &.info-button:hover {
       background: #ecf2ff;
       color: #335fae;
-      transform: scale(1.1);
-    }
-
-    &:active {
-      transform: scale(0.95);
     }
   }
-
-  .geo-button {
-    &:hover {
-      background: var(--md-sys-color-tertiary-container);
-      color: var(--md-sys-color-on-tertiary-container);
+  
+  // Material Design V3 Chips (highlighted = kein Border)
+  mat-chip-set.chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    
+    mat-chip {
+      // Override Material Chip Colors
+      --mdc-chip-elevated-container-color: #B3C4D8;
+      --mdc-chip-label-text-color: #1A1C1E; // Fast schwarz wie in Referenz
+      --mdc-chip-with-icon-icon-color: #1A1C1E;
+      
+      // Entferne Border und Outline komplett
+      --mdc-chip-outline-width: 0;
+      --mdc-chip-outline-color: transparent;
+      --mdc-chip-flat-outline-color: transparent;
+      --mdc-chip-elevated-disabled-container-color: #B3C4D8;
+      
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 16px;
+      
+      // Hover State
+      &:hover {
+        --mdc-chip-elevated-container-color: #9FB3CA;
+      }
     }
   }
 
@@ -346,14 +448,29 @@
       box-shadow: 0 0px 0px rgba(31, 42, 61, 0.05);
       min-height: 56px;
 
-      .sub-field-status {
+      mat-icon.sub-field-status {
         font-size: 18px;
+        width: 18px;
+        height: 18px;
         min-width: 24px;
         text-align: center;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #3b6ec8;
+        
+        // Sub-Field Status colors (gleich wie Haupt-Fields)
+        &.status-filled {
+          color: #00874d !important;
+        }
+        &.status-extracting {
+          color: #006693 !important;
+        }
+        &.status-empty {
+          color: #8893a5 !important;
+        }
+        &.status-error {
+          color: #ba1a1a !important;
+        }
       }
 
       .sub-field-label {

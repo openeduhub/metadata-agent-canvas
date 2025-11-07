@@ -26,9 +26,9 @@ html {
 
 // Custom Material Design v3 Variables
 :root {
-  // Primary Colors
-  --md-sys-color-primary: #0062ac;
-  --md-sys-color-primary-rgb: 0, 98, 172;
+  // Primary Colors (Corporate Design Blue)
+  --md-sys-color-primary: #003B7C;
+  --md-sys-color-primary-rgb: 0, 59, 124;
   --md-sys-color-on-primary: #ffffff;
   --md-sys-color-primary-container: #d0e8ff;
   --md-sys-color-on-primary-container: #001d36;
@@ -97,4 +97,27 @@ html {
   --md-sys-state-focus-opacity: 0.12;
   --md-sys-state-pressed-opacity: 0.12;
   --md-sys-state-dragged-opacity: 0.16;
+}
+
+// Aggressive Chip Border Removal - Corporate Design
+.mat-mdc-chip,
+.mdc-evolution-chip,
+mat-chip {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  
+  &::before,
+  &::after {
+    border: 0 !important;
+    outline: 0 !important;
+  }
+}
+
+// All Chip Sub-Elements
+.mat-mdc-chip *,
+.mdc-evolution-chip *,
+mat-chip * {
+  border: 0 !important;
+  outline: 0 !important;
 }

@@ -1,8 +1,10 @@
 <div class="canvas-field" [ngClass]="getStatusClass()">
   <!-- Main field row -->
   <div class="main-field-row">
-    <!-- Status Icon -->
-    <span class="status-icon" [title]="field.status">{{ getStatusIcon() }}</span>
+    <!-- Status Icon (Material) -->
+    <mat-icon class="status-icon" [matTooltip]="field.status" [class]="'status-' + field.status">
+      {{ getStatusIconName() }}
+    </mat-icon>
     
     <!-- Label -->
     <label class="field-label">
@@ -17,60 +19,64 @@
       <span class="preview-text">{{ getStructuredPreview() }}</span>
     </div>
     
-    <!-- Chips for array fields with existing values (but NOT for parent fields) -->
-    <div *ngIf="!field.isParent && field.multiple && field.value && field.value.length > 0" class="chip-container">
-      <span *ngFor="let item of field.value" class="chip">
+    <!-- Material Chips for array fields -->
+    <mat-chip-set *ngIf="!field.isParent && field.multiple && field.value && field.value.length > 0" class="chip-container" aria-label="Field values">
+      <mat-chip *ngFor="let item of field.value" highlighted (removed)="removeChip(item)">
         {{ getVocabularyLabel(item) }}
-        <button class="chip-remove" (click)="removeChip(item)" type="button">×</button>
-      </span>
-    </div>
+        <button matChipRemove type="button">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip>
+    </mat-chip-set>
     
     <!-- Input field (hidden for parent fields) -->
-    <div *ngIf="!field.isParent" class="input-wrapper">
+    <mat-form-field *ngIf="!field.isParent" appearance="outline" class="field-input-wrapper">
       <textarea
         #textareaRef
-        class="field-input"
+        matInput
+        rows="1"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="5"
         [(ngModel)]="inputValue"
         (input)="onInput($event)"
         (blur)="onBlur()"
         (keypress)="onKeyPress($event)"
         [placeholder]="field.description"
         [disabled]="field.status === FieldStatus.EXTRACTING"
-        rows="1"
+        [matAutocomplete]="auto"
       ></textarea>
       
-      <!-- Autocomplete dropdown -->
-      <div *ngIf="showAutocomplete" class="autocomplete-dropdown">
-        <div 
-          *ngFor="let option of filteredOptions" 
-          class="autocomplete-option"
-          (click)="selectOption(option)"
-        >
+      <!-- Material Autocomplete -->
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectOption($event.option.value)">
+        <mat-option *ngFor="let option of filteredOptions" [value]="option">
           {{ option }}
-        </div>
-      </div>
-    </div>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
   </div>
   
-  <!-- Geo Button (for fields with coordinates) -->
+  <!-- Material Geo Button -->
   <button 
     *ngIf="hasGeoCoordinates()" 
+    mat-icon-button
     class="geo-button"
-    [title]="'FIELD.SHOW_ON_MAP' | translate"
+    [matTooltip]="'FIELD.SHOW_ON_MAP' | translate"
     (click)="openInOpenStreetMap()"
     type="button"
   >
-    🗺️
+    <mat-icon>map</mat-icon>
   </button>
   
-  <!-- Info Button (only for parent fields, not sub-fields) -->
+  <!-- Material Info Button -->
   <button 
     *ngIf="field.description && !field.parentFieldId" 
+    mat-icon-button
     class="info-button"
-    [title]="getTooltipText()"
+    [matTooltip]="getTooltipText()"
     type="button"
   >
-    ℹ️
+    <mat-icon>info</mat-icon>
   </button>
   </div>
   
@@ -88,7 +94,9 @@
       </div>
 
       <div class="sub-field-content">
-        <span class="status-icon sub-field-status" [title]="subField.status">{{ getStatusIconForField(subField) }}</span>
+        <mat-icon class="status-icon sub-field-status" [matTooltip]="subField.status" [class]="'status-' + subField.status">
+          {{ getStatusIconNameForField(subField) }}
+        </mat-icon>
 
         <label class="field-label sub-field-label">
           {{ subField.label }}
@@ -101,35 +109,41 @@
             <span class="preview-text">{{ getSubFieldPreview(subField) }}</span>
           </div>
 
-          <textarea
-            *ngIf="!shouldDisableSubFieldInput(subField)"
-            class="field-input sub-field-input"
-            [(ngModel)]="subField.value"
-            (blur)="onSubFieldValueChange(subField)"
-            [placeholder]="subField.description"
-            [disabled]="subField.status === FieldStatus.EXTRACTING"
-            rows="1"
-          ></textarea>
+          <mat-form-field *ngIf="!shouldDisableSubFieldInput(subField)" appearance="outline" class="sub-field-input-wrapper">
+            <textarea
+              matInput
+              rows="1"
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="1"
+              cdkAutosizeMaxRows="3"
+              [(ngModel)]="subField.value"
+              (blur)="onSubFieldValueChange(subField)"
+              [placeholder]="subField.description"
+              [disabled]="subField.status === FieldStatus.EXTRACTING"
+            ></textarea>
+          </mat-form-field>
         </div>
 
         <div class="sub-field-buttons">
           <button 
             *ngIf="subFieldHasGeoCoordinates(subField)" 
+            mat-icon-button
             class="geo-button sub-field-geo-button"
-            [title]="'FIELD.SHOW_ON_MAP' | translate"
+            [matTooltip]="'FIELD.SHOW_ON_MAP' | translate"
             (click)="openSubFieldInOpenStreetMap(subField)"
             type="button"
           >
-            🗺️
+            <mat-icon>map</mat-icon>
           </button>
 
           <button
             *ngIf="subField.description"
+            mat-icon-button
             class="info-button sub-field-info-button"
-            [title]="getTooltipTextForSubField(subField)"
+            [matTooltip]="getTooltipTextForSubField(subField)"
             type="button"
           >
-            ℹ️
+            <mat-icon>info</mat-icon>
           </button>
         </div>
       </div>

@@ -12,30 +12,32 @@
   font-family: 'Inter', 'Roboto', sans-serif;
 }
 
-/* Header for integration modes */
+/* Header for integration modes - Corporate Design */
 .canvas-header {
-  background: #3b6ec8;  /* Dunkles Blau wie "Extraktion starten" Button */
-  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #002D5E 0%, #003B7C 100%); /* Dunkelblau wie Button-Hover */
+  border-bottom: 2px solid #001D3F;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  min-height: 60px;
+
   .header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: var(--md-sys-color-inverse-on-surface);
-
-    .mode-badge {
-      background: #ffffff;  /* Weiß wie Buttons rechts */
-      color: #335fae;
-      font-weight: 600;
-      padding: 10px 16px;  /* Gleiche Höhe wie Buttons */
-      border-radius: 8px;  /* Konsistent mit anderen UI-Elementen */
-      font-size: 13px;
-      letter-spacing: 0.5px;
-      border: none;  /* Kein Rand */
+    gap: 16px;
+    
+    // Mode Badge als Material Chip
+    mat-chip-set {
+      mat-chip.mode-badge {
+        --mdc-chip-elevated-container-color: #ffffff;
+        --mdc-chip-label-text-color: #003B7C;
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      }
     }
 
     .user-info {
@@ -112,7 +114,7 @@
         
         &:hover {
           background: #f5f7fb;
-          border-color: #3b6ec8;
+          border-color: #003B7C; /* Corporate Blue */
         }
       }
 
@@ -138,7 +140,7 @@
 
     &:hover {
       background: #f5f7fb;
-      border-color: #3b6ec8;
+      border-color: #003B7C; /* Corporate Blue */
     }
   }
 }
@@ -247,6 +249,34 @@
   border-radius: 10px;
   margin: 24px 24px 16px;
   box-shadow: none;
+  
+  // Material Form Field Styles
+  mat-form-field {
+    width: 100%;
+    
+    // Dunkelblauer Focus-Border (wie in Redaktionsumgebung)
+    ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-trailing,
+    ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-leading,
+    ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-notch {
+      border-color: rgba(0, 0, 0, 0.12) !important;
+    }
+    
+    // Focus: Corporate Design Blau (#003B7C)
+    &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-trailing,
+    &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-leading,
+    &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-notch {
+      border-color: #003B7C !important;
+      border-width: 2px !important;
+    }
+  }
+  
+  // Textarea: manuelles Resize erlaubt (vertical), kein Auto-Resize
+  ::ng-deep textarea {
+    resize: vertical;
+    min-height: 96px; // 4 Zeilen
+    max-height: 300px; // Maximum für manuelles Resize
+    overflow: auto; // Scrollbar nur wenn Text über max-height hinausgeht
+  }
 
   .text-input {
     width: 100%;
@@ -279,7 +309,7 @@
     margin-top: 16px;
 
     .btn-primary {
-      background: #3b6ec8;
+      background: #003B7C; // Corporate Design Blau
       color: #ffffff;
       border: none;
       border-radius: 8px;
@@ -289,7 +319,7 @@
       transition: background 0.2s ease;
 
       &:hover:not(:disabled) {
-        background: #335fae;
+        background: #002D5E; // Dunkler bei Hover
       }
 
       &:disabled {
@@ -379,9 +409,43 @@
   /* Left: Content Type Section */
   .content-type-section {
     display: flex;
-    gap: 12px;
     align-items: center;
-    flex-shrink: 0;
+    
+    mat-chip-set {
+      .content-type-chip {
+        --mdc-chip-elevated-container-color: #003B7C;
+        --mdc-chip-label-text-color: #ffffff;
+        --mdc-chip-with-icon-icon-color: #ffffff;
+        
+        height: 36px;
+        padding: 0 16px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+        transition: all 0.2s ease;
+        
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+        
+        &:hover:not([disabled]) {
+          --mdc-chip-elevated-container-color: #002D5E;
+          box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+        }
+        
+        &[disabled] {
+          --mdc-chip-elevated-container-color: #9fb5e0;
+          cursor: not-allowed;
+        }
+      }
+    }
 
     .content-type-label {
       padding: 8px 16px;
@@ -656,6 +720,36 @@
         min-width: 180px;
       }
     }
+    
+    // Material Design Button Styles im Corporate Design
+    .footer-primary-button {
+      height: 44px;
+      padding: 0 24px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border-radius: 8px;
+      
+      &.footer-button-block {
+        width: 100%;
+      }
+    }
+    
+    .footer-secondary-button {
+      height: 44px;
+      padding: 0 24px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border-radius: 8px;
+      color: #003B7C;
+      border-color: #003B7C;
+      border-width: 2px;
+      
+      &:hover:not(:disabled) {
+        background: rgba(0, 59, 124, 0.04);
+      }
+    }
   }
 }
 
@@ -663,7 +757,7 @@
 .btn-primary,
 .footer-actions .btn-success {
   padding: 12px 22px;
-  background: #3b6ec8;
+  background: #003B7C; // Corporate Design Blau
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -673,7 +767,7 @@
   transition: background 0.2s ease, transform 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: #335fae;
+    background: #002D5E; // Dunkler bei Hover
   }
 
   &:active:not(:disabled) {

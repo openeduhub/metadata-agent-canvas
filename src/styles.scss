@@ -41,6 +41,83 @@ app-canvas-view {
   display: none;
 }
 
+/* Progress Bar - Corporate Blue */
+.mat-mdc-progress-bar {
+  --mdc-linear-progress-active-indicator-color: #003B7C;
+  --mdc-linear-progress-track-color: rgba(0, 59, 124, 0.12);
+}
+
+/* Material Chips - Remove all borders (Corporate Design) */
+.mat-mdc-chip {
+  border: none !important;
+  outline: none !important;
+  
+  &::before,
+  &::after {
+    display: none !important;
+  }
+}
+
+.mat-mdc-chip-action,
+.mat-mdc-chip-graphic,
+.mat-mdc-chip-trailing-icon {
+  border: none !important;
+}
+
+/* MDC Evolution Chip - Entferne alle inneren Borders */
+.mdc-evolution-chip,
+.mdc-evolution-chip__cell,
+.mdc-evolution-chip__action,
+.mdc-evolution-chip__graphic,
+.mdc-evolution-chip__text-label {
+  border: none !important;
+  outline: none !important;
+}
+
+.mdc-evolution-chip__cell--primary {
+  border: none !important;
+}
+
+/* Entferne Ripple/Focus Borders */
+.mat-mdc-chip-focus-overlay,
+.mat-mdc-chip-ripple {
+  border: none !important;
+}
+
+/* Chip Set Container */
+.mat-mdc-chip-set,
+.mat-mdc-chip-listbox {
+  border: none !important;
+}
+
+/* Chip Grid */
+.mat-mdc-chip-grid,
+.mat-mdc-chip-row {
+  border: none !important;
+}
+
+/* All Chip Variants */
+.mat-mdc-standard-chip,
+.mat-mdc-elevated-chip,
+.mat-mdc-chip-option,
+.mat-mdc-chip-remove {
+  border: 0 !important;
+  border-width: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Super Aggressive - Alle Chips und Kinder */
+[class*="chip"] {
+  border: 0 !important;
+  outline: 0 !important;
+  
+  * {
+    border: 0 !important;
+    outline: 0 !important;
+  }
+}
+
 /* Custom scrollbar - Material Design v3 */
 ::-webkit-scrollbar {
   width: 12px;

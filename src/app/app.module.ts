@@ -29,6 +29,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TextFieldModule } from '@angular/cdk/text-field';
 
 // Components
@@ -63,6 +69,12 @@ import { BApiModule } from 'ngx-edu-sharing-b-api';
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatChipsModule,
+    MatRadioModule,
+    MatSelectModule,
+    MatAutocompleteModule,
+    MatCardModule,
+    MatProgressBarModule,
     TextFieldModule,
     TranslateModule.forRoot({
       loader: {

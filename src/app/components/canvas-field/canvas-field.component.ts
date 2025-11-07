@@ -2,6 +2,15 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatOptionModule } from '@angular/material/core';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CanvasFieldState, FieldStatus } from '../../models/canvas-models';
@@ -10,7 +19,20 @@ import { I18nService } from '../../services/i18n.service';
 @Component({
   selector: 'app-canvas-field',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    TranslateModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatChipsModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatAutocompleteModule,
+    MatOptionModule,
+    TextFieldModule
+  ],
   templateUrl: './canvas-field.component.html',
   styleUrls: ['./canvas-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default  // Changed from OnPush for sub-fields support
@@ -179,7 +201,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
   }
 
   /**
-   * Get status icon
+   * Get status icon (legacy - kept for compatibility)
    */
   getStatusIcon(): string {
     switch (this.field.status) {
@@ -193,6 +215,42 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
         return '❌';
       default:
         return '⚪';
+    }
+  }
+
+  /**
+   * Get Material Icon name for status
+   */
+  getStatusIconName(): string {
+    switch (this.field.status) {
+      case FieldStatus.FILLED:
+        return 'check_circle';
+      case FieldStatus.EXTRACTING:
+        return 'hourglass_empty';
+      case FieldStatus.EMPTY:
+        return this.field.isRequired ? 'warning' : 'radio_button_unchecked';
+      case FieldStatus.ERROR:
+        return 'error';
+      default:
+        return 'radio_button_unchecked';
+    }
+  }
+
+  /**
+   * Get Material Icon name for a given field
+   */
+  getStatusIconNameForField(field: CanvasFieldState): string {
+    switch (field.status) {
+      case FieldStatus.FILLED:
+        return 'check_circle';
+      case FieldStatus.EMPTY:
+        return field.isRequired ? 'warning' : 'radio_button_unchecked';
+      case FieldStatus.EXTRACTING:
+        return 'hourglass_empty';
+      case FieldStatus.ERROR:
+        return 'error';
+      default:
+        return 'radio_button_unchecked';
     }
   }
 

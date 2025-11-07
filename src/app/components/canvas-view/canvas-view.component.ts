@@ -2,11 +2,25 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCardModule } from '@angular/material/card';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatOptionModule } from '@angular/material/core';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { EduSharingLlmService } from 'ngx-edu-sharing-b-api';
 import { CanvasService } from '../../services/canvas.service';
 import { SchemaLoaderService } from '../../services/schema-loader.service';
+import { SchemaLocalizerService } from '../../services/schema-localizer.service';
 import { IntegrationModeService } from '../../services/integration-mode.service';
 import { GuestSubmissionService } from '../../services/guest-submission.service';
 import { I18nService } from '../../services/i18n.service';
@@ -19,7 +33,27 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-canvas-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, CanvasFieldComponent, LanguageSwitcherComponent, JsonLoaderComponent],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    TranslateModule, 
+    CanvasFieldComponent, 
+    LanguageSwitcherComponent, 
+    JsonLoaderComponent,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressBarModule,
+    MatCardModule,
+    MatRadioModule,
+    MatSelectModule,
+    MatTooltipModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatOptionModule,
+    TextFieldModule
+  ],
   templateUrl: './canvas-view.component.html',
   styleUrls: ['./canvas-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -40,6 +74,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   constructor(
     private canvasService: CanvasService,
     private schemaLoader: SchemaLoaderService,
+    private schemaLocalizer: SchemaLocalizerService,
     private cdr: ChangeDetectorRef,
     private eduSharingLlmService: EduSharingLlmService,
     public integrationMode: IntegrationModeService,
@@ -80,10 +115,11 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         // Explicitly get updated state (important for OnPush)
         const newState = this.canvasService.getCurrentState();
         
-        console.log(`📝 Updating component state with new field references...`);
-        console.log(`   Core field 0 label: ${newState.coreFields[0]?.label}`);
-        console.log(`   Group 0 label: ${newState.fieldGroups[0]?.label}`);
-        console.log(`   Group 0 field 0 label: ${newState.fieldGroups[0]?.fields[0]?.label}`);
+        if (newState.coreFields.length > 0 || newState.fieldGroups.length > 0) {
+          console.log(`📝 Updating component state with new field references...`);
+          console.log(`   Core fields: ${newState.coreFields.length}`);
+          console.log(`   Field groups: ${newState.fieldGroups.length}`);
+        }
         
         // Force Angular to recognize the change by reassigning
         this.state = {
@@ -96,8 +132,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
           }))
         };
         
-        // Update content type dropdown options
-        this.updateContentTypeOptions();
+        // Update content type dropdown options (only if core schema is loaded)
+        if (this.schemaLoader.getCoreSchema()) {
+          this.updateContentTypeOptions();
+        }
         
         // Use setTimeout to ensure change detection runs after state assignment
         setTimeout(() => {
@@ -772,16 +810,37 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
 
     console.log('✅ Found content type field in schema:', contentTypeFieldDef);
 
-    // Load options from schema
-    this.contentTypeOptions = contentTypeFieldDef.system.vocabulary.concepts.map((concept: any) => ({
-      label: concept.label,
-      schemaFile: concept.schema_file || ''
-    }));
+    // Load options from schema with localization
+    const currentLang = this.i18n.getCurrentLanguage();
+    console.log('🌐 Current language for localization:', currentLang);
+    
+    this.contentTypeOptions = contentTypeFieldDef.system.vocabulary.concepts.map((concept: any) => {
+      console.log('📝 Processing concept:', {
+        label: concept.label,
+        schema_file: concept.schema_file
+      });
+      
+      const localizedLabel = this.schemaLocalizer.localizeString(concept.label, currentLang);
+      console.log('  → Localized label:', localizedLabel);
+      
+      return {
+        label: localizedLabel,
+        schemaFile: concept.schema_file || ''
+      };
+    });
 
-    console.log('✅ Loaded content type options:', this.contentTypeOptions);
+    console.log('✅ Loaded content type options (localized):', this.contentTypeOptions);
 
     // Show dropdown
     this.showContentTypeDropdown = true;
+  }
+
+  /**
+   * Get current content type object for mat-select
+   */
+  getCurrentContentType(): { label: string; schemaFile: string } | undefined {
+    const currentLabel = this.getContentTypeLabel();
+    return this.contentTypeOptions.find(opt => opt.label === currentLabel);
   }
 
   /**
@@ -824,11 +883,25 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    * Update content type dropdown options with localized labels
    */
   private updateContentTypeOptions(): void {
-    const availableSchemas = this.schemaLoader.getAvailableSpecialSchemas();
-    this.contentTypeOptions = availableSchemas.map(schemaFile => ({
-      label: this.schemaLoader.getContentTypeLabel(schemaFile),
-      schemaFile: schemaFile
+    // Re-load from core.json to get fresh localized labels
+    const coreSchema = this.schemaLoader.getCoreSchema();
+    if (!coreSchema) {
+      // Silently return - will be loaded later when schema is available
+      return;
+    }
+    
+    const contentTypeFieldDef = coreSchema.fields.find((f: any) => f.id === 'ccm:oeh_flex_lrt');
+    if (!contentTypeFieldDef?.system?.vocabulary) {
+      return;
+    }
+    
+    const currentLang = this.i18n.getCurrentLanguage();
+    this.contentTypeOptions = contentTypeFieldDef.system.vocabulary.concepts.map((concept: any) => ({
+      label: this.schemaLocalizer.localizeString(concept.label, currentLang),
+      schemaFile: concept.schema_file || ''
     }));
+    
+    console.log('✅ Updated content type options for language:', currentLang, this.contentTypeOptions);
   }
   
   /**

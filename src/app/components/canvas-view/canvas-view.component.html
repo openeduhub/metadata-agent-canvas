@@ -2,34 +2,40 @@
   <!-- Header with User Info (for integration modes) -->
   <div class="canvas-header" *ngIf="integrationMode.isBrowserExtension() || integrationMode.isBookmarklet()">
     <div class="header-left">
-      <span class="mode-badge edu-badge edu-badge-primary">
-        {{ integrationMode.getModeDisplayName() }}
-      </span>
+      <mat-chip-set>
+        <mat-chip class="mode-badge" highlighted>
+          {{ integrationMode.getModeDisplayName() }}
+        </mat-chip>
+      </mat-chip-set>
       <!-- User-Info ausgeblendet - Benutzermodus wird nicht korrekt aus WLO App erkannt -->
     </div>
     <div class="header-right">
       <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
       
       <button 
+        mat-icon-button
         class="control-button save-button"
         [class.active]="canSubmit()"
         [disabled]="!canSubmit()"
         (click)="downloadJson()"
-        title="JSON herunterladen">
-        💾
+        [matTooltip]="'JSON herunterladen'">
+        <mat-icon>save</mat-icon>
       </button>
       
       <button 
+        mat-icon-button
         class="control-button upload-button"
         [class.active]="canSubmit()"
         [disabled]="!canSubmit()"
         (click)="submitMetadata()"
-        title="An Plugin senden">
-        🌐
+        [matTooltip]="'An Plugin senden'">
+        <mat-icon>cloud_upload</mat-icon>
       </button>
       
       <app-language-switcher></app-language-switcher>
-      <button class="btn-close" (click)="closeCanvas()" [title]="'HEADER.CLOSE' | translate">×</button>
+      <button mat-icon-button class="btn-close" (click)="closeCanvas()" [matTooltip]="'HEADER.CLOSE' | translate">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
   </div>
 
@@ -38,21 +44,23 @@
     <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
     
     <button 
+      mat-icon-button
       class="control-button save-button"
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="downloadJson()"
-      title="JSON herunterladen">
-      💾
+      [matTooltip]="'JSON herunterladen'">
+      <mat-icon>save</mat-icon>
     </button>
     
     <button 
+      mat-icon-button
       class="control-button upload-button"
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="submitMetadata()"
-      title="An Plugin senden">
-      🌐
+      [matTooltip]="'An Plugin senden'">
+      <mat-icon>cloud_upload</mat-icon>
     </button>
     
     <app-language-switcher></app-language-switcher>
@@ -60,29 +68,37 @@
 
   <!-- Input Section -->
   <div class="input-section">
-    <textarea
-      class="text-input"
-      [(ngModel)]="userText"
-      [placeholder]="'INPUT.PLACEHOLDER' | translate"
-      rows="4"
-      [disabled]="state.isExtracting"
-    ></textarea>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'INPUT.PLACEHOLDER' | translate }}</mat-label>
+      <textarea
+        matInput
+        rows="4"
+        [(ngModel)]="userText"
+        [disabled]="state.isExtracting"
+      ></textarea>
+    </mat-form-field>
       
     <div class="header-actions">
       <button 
+        mat-raised-button
+        color="primary"
         class="btn-primary"
         (click)="startExtraction()"
         [disabled]="state.isExtracting || !userText.trim()"
       >
+        <mat-icon *ngIf="!state.isExtracting">play_arrow</mat-icon>
+        <mat-icon *ngIf="state.isExtracting">hourglass_empty</mat-icon>
         <span *ngIf="!state.isExtracting">{{ 'INPUT.START_EXTRACTION' | translate }}</span>
         <span *ngIf="state.isExtracting">{{ 'INPUT.EXTRACTING' | translate }}</span>
       </button>
       
       <button 
+        mat-stroked-button
         class="btn-secondary"
         (click)="reset()"
         [disabled]="state.isExtracting"
       >
+        <mat-icon>refresh</mat-icon>
         {{ 'INPUT.RESET' | translate }}
       </button>
     </div>
@@ -90,26 +106,30 @@
 
   <!-- Compact Status Bar: Content Type + Progress -->
   <div *ngIf="state.totalFields > 0" class="compact-status-bar">
-    <!-- Left: Content Type -->
+    <!-- Left: Content Type (Chip mit Dropdown) -->
     <div class="content-type-section">
-      <span class="content-type-label">
-        <span 
-          *ngIf="getContentTypeIcon()" 
-          class="content-type-icon"
-          [title]="getContentTypeTooltip()"
+      <mat-chip-set>
+        <mat-chip 
+          highlighted
+          class="content-type-chip"
+          [matMenuTriggerFor]="contentTypeMenu"
+          [disabled]="state.isExtracting"
         >
-          {{ getContentTypeIcon() }}
-        </span>
-        {{ getContentTypeLabel() }}
-      </span>
-      <button 
-        class="btn-change-content-type"
-        (click)="changeContentType()"
-        [disabled]="state.isExtracting"
-        [title]="'CONTENT_TYPE.CHANGE' | translate"
-      >
-        {{ 'CONTENT_TYPE.CHANGE' | translate }}
-      </button>
+          <mat-icon>category</mat-icon>
+          {{ getContentTypeLabel() }}
+          <mat-icon>arrow_drop_down</mat-icon>
+        </mat-chip>
+      </mat-chip-set>
+      
+      <mat-menu #contentTypeMenu="matMenu">
+        <button 
+          mat-menu-item 
+          *ngFor="let option of contentTypeOptions"
+          (click)="selectContentType(option)"
+        >
+          {{ option.label }}
+        </button>
+      </mat-menu>
     </div>
 
     <!-- Right: Progress Info -->
@@ -126,35 +146,13 @@
         </span>
         <span class="progress-emoji">{{ getProgressEmoji() }}</span>
       </div>
-      <div class="progress-bar-compact">
-        <div 
-          class="progress-fill" 
-          [style.width.%]="state.extractionProgress"
-        ></div>
-      </div>
+      <mat-progress-bar 
+        class="progress-bar-compact"
+        mode="determinate"
+        [value]="state.extractionProgress"
+      ></mat-progress-bar>
     </div>
 
-    <!-- Content Type Dropdown -->
-    <div *ngIf="showContentTypeDropdown" class="content-type-dropdown">
-      <div class="dropdown-overlay" (click)="closeContentTypeDropdown()"></div>
-      <div class="dropdown-menu">
-        <div class="dropdown-header">
-          <span>{{ 'CONTENT_TYPE.SELECT' | translate }}</span>
-          <button class="btn-close" (click)="closeContentTypeDropdown()">&times;</button>
-        </div>
-        <div class="dropdown-options">
-          <button 
-            *ngFor="let option of contentTypeOptions"
-            class="dropdown-option"
-            [class.active]="getContentTypeLabel() === option.label"
-            (click)="selectContentType(option)"
-          >
-            <span class="option-label">{{ option.label }}</span>
-            <span *ngIf="getContentTypeLabel() === option.label" class="option-checkmark">✓</span>
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Canvas Content Area -->
@@ -201,7 +199,9 @@
       <!-- Bookmarklet Mode: Beide Buttons -->
       <ng-container *ngIf="integrationMode.isBookmarklet()">
         <button 
-          class="btn-success btn-large edu-btn edu-btn-primary"
+          mat-raised-button
+          color="primary"
+          class="footer-primary-button"
           (click)="submitAsGuest()"
           [disabled]="!allRequiredFieldsFilled() || isSubmitting"
         >
@@ -211,7 +211,8 @@
         </button>
         
         <button 
-          class="btn-secondary btn-large edu-btn edu-btn-outline"
+          mat-stroked-button
+          class="footer-secondary-button"
           (click)="downloadJson()"
           [disabled]="!allRequiredFieldsFilled()"
         >
@@ -223,7 +224,9 @@
       <!-- Standalone: Beide Buttons (wie Bookmarklet) -->
       <ng-container *ngIf="integrationMode.isStandalone()">
         <button 
-          class="btn-success btn-large edu-btn edu-btn-primary"
+          mat-raised-button
+          color="primary"
+          class="footer-primary-button"
           (click)="submitAsGuest()"
           [disabled]="!allRequiredFieldsFilled() || isSubmitting"
         >
@@ -233,7 +236,8 @@
         </button>
         
         <button 
-          class="btn-secondary btn-large edu-btn edu-btn-outline"
+          mat-stroked-button
+          class="footer-secondary-button"
           (click)="downloadJson()"
           [disabled]="!allRequiredFieldsFilled()"
         >
@@ -245,7 +249,9 @@
       <!-- Browser Extension: Ein Button -->
       <button 
         *ngIf="integrationMode.isBrowserExtension()"
-        class="btn-success btn-large edu-btn edu-btn-primary edu-btn-block"
+        mat-raised-button
+        color="primary"
+        class="footer-primary-button footer-button-block"
         (click)="submitAsGuest()"
         [disabled]="!allRequiredFieldsFilled() || isSubmitting"
       >
