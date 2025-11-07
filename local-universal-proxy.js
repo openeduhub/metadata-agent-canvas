@@ -26,11 +26,18 @@ const PORT = 3001;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const B_API_KEY = process.env.B_API_KEY;
 
-// Repository Guest credentials
+// Repository Guest credentials from environment
 const REPO_GUEST = {
-  username: 'WLO-Upload',
-  password: 'wlo#upload!20'
+  username: process.env.WLO_GUEST_USERNAME,
+  password: process.env.WLO_GUEST_PASSWORD
 };
+
+const WLO_REPOSITORY_BASE_URL = process.env.WLO_REPOSITORY_BASE_URL || 'https://repository.staging.openeduhub.net/edu-sharing';
+
+// Parse repository URL to extract hostname and base path
+const repoUrl = new URL(WLO_REPOSITORY_BASE_URL);
+const REPO_HOSTNAME = repoUrl.hostname;
+const REPO_BASE_PATH = repoUrl.pathname === '/' ? '' : repoUrl.pathname;
 
 console.log('🚀 Starting Universal API Proxy...');
 console.log(`📡 Proxy listening on: http://localhost:${PORT}`);
@@ -294,9 +301,9 @@ function proxyRequest(config, postData = null) {
  */
 async function checkDuplicate(url, authHeader) {
   const config = {
-    hostname: 'repository.staging.openeduhub.net',
+    hostname: REPO_HOSTNAME,
     // Add query parameters like browser plugin does
-    path: '/edu-sharing/rest/search/v1/queries/-home-/mds_oeh/ngsearch?contentType=FILES&maxItems=1&skipCount=0&propertyFilter=-all-',
+    path: `${REPO_BASE_PATH}/rest/search/v1/queries/-home-/mds_oeh/ngsearch?contentType=FILES&maxItems=1&skipCount=0&propertyFilter=-all-`,
     method: 'POST',
     headers: {
       'Authorization': authHeader,
@@ -391,8 +398,8 @@ async function createNode(metadata, authHeader) {
   console.log(`   📊 Data preview:`, JSON.stringify(normalizedMetadata, null, 2).substring(0, 500));
   
   const config = {
-    hostname: 'repository.staging.openeduhub.net',
-    path: `/edu-sharing/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm%3Aio&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`,
+    hostname: REPO_HOSTNAME,
+    path: `${REPO_BASE_PATH}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm:io&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`,
     method: 'POST',
     headers: {
       'Authorization': authHeader,
@@ -557,8 +564,8 @@ async function setMetadata(nodeId, metadata, authHeader) {
   console.log(`   📊 Complete data being sent:`, JSON.stringify(normalizedMetadata, null, 2));
   
   const config = {
-    hostname: 'repository.staging.openeduhub.net',
-    path: `/edu-sharing/rest/node/v1/nodes/-home-/${nodeId}/metadata?versionComment=METADATA_UPDATE`,
+    hostname: REPO_HOSTNAME,
+    path: `${REPO_BASE_PATH}/rest/node/v1/nodes/-home-/${nodeId}/metadata?versionComment=METADATA_UPDATE`,
     method: 'POST',
     headers: {
       'Authorization': authHeader,
@@ -588,8 +595,8 @@ async function setCollections(nodeId, collectionIds, authHeader) {
   for (const collectionId of extractedIds) {
     try {
       const config = {
-        hostname: 'repository.staging.openeduhub.net',
-        path: `/edu-sharing/rest/collection/v1/collections/-home-/${collectionId}/references/${nodeId}`,
+        hostname: REPO_HOSTNAME,
+        path: `${REPO_BASE_PATH}/rest/collection/v1/collections/-home-/${collectionId}/references/${nodeId}`,
         method: 'PUT',
         headers: {
           'Authorization': authHeader,
@@ -609,8 +616,8 @@ async function setCollections(nodeId, collectionIds, authHeader) {
 
 async function startWorkflow(nodeId, authHeader) {
   const config = {
-    hostname: 'repository.staging.openeduhub.net',
-    path: `/edu-sharing/rest/node/v1/nodes/-home-/${nodeId}/workflow`,
+    hostname: REPO_HOSTNAME,
+    path: `${REPO_BASE_PATH}/rest/node/v1/nodes/-home-/${nodeId}/workflow`,
     method: 'PUT',
     headers: {
       'Authorization': authHeader,
@@ -622,7 +629,8 @@ async function startWorkflow(nodeId, authHeader) {
   const workflowBody = {
     receiver: [{ authorityName: 'GROUP_ORG_WLO-Uploadmanager' }],
     comment: 'Upload via Canvas Webkomponente (Gast)',
-    status: '200_tocheck'
+    status: '200_tocheck',
+    logLevel: 'info'
   };
   
   await proxyRequest(config, workflowBody);

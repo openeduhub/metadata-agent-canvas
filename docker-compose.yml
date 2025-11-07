@@ -31,6 +31,12 @@ services:
       
       # B-API Configuration (if LLM_PROVIDER=b-api-openai or b-api-academiccloud)
       - B_API_KEY=${B_API_KEY:-}
+      
+      # WLO Repository Guest Upload Configuration
+      # IMPORTANT: Required for guest uploads in bookmarklet/container mode
+      - WLO_GUEST_USERNAME=${WLO_GUEST_USERNAME}
+      - WLO_GUEST_PASSWORD=${WLO_GUEST_PASSWORD}
+      - WLO_REPOSITORY_BASE_URL=${WLO_REPOSITORY_BASE_URL:-https://repository.staging.openeduhub.net/edu-sharing}
     
     # Security: Read-only root filesystem (except /tmp)
     read_only: true

@@ -74,47 +74,52 @@
     align-items: center;
     gap: 8px;
 
-    .control-button {
+    button.control-button.mat-mdc-icon-button {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 40px;
       height: 40px;
-      background: #ffffff;  /* Weiß wie im lokalen Modus */
-      border: 1px solid #d4d9e3;  /* Helle Border */
-      border-radius: 10px;  /* Konsistent mit lokalem Modus */
+      background: #ffffff !important;  /* Weiß wie im lokalen Modus */
+      border: 1px solid #d4d9e3 !important;  /* Helle Border */
+      border-radius: 10px !important;  /* Konsistent mit lokalem Modus */
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 0;
-      font-size: 20px;
-      line-height: 1;
-      color: var(--md-sys-color-on-surface-variant);  /* Dunkle Icons */
+      padding: 0 !important;
+      color: rgba(0, 0, 0, 0.87) !important;  /* Dunkle Icons */
       position: relative;
+      
+      mat-icon {
+        color: rgba(0, 0, 0, 0.87) !important;
+        font-size: 20px;
+      }
+      
+      // Override Material ripple für rechteckige Form
+      ::ng-deep .mat-mdc-button-persistent-ripple,
+      ::ng-deep .mat-ripple-element {
+        border-radius: 10px !important;
+      }
+      
+      // Hover-Effekt für alle Buttons
+      &:hover:not(:disabled) {
+        background: #f5f7fb !important;
+        border-color: #003B7C !important; /* Corporate Blue */
+      }
 
       &:disabled {
         cursor: not-allowed;
-        color: rgba(0, 0, 0, 0.26);
+        background: #ffffff !important;
+        border-color: #d4d9e3 !important;
+        opacity: 0.6;
         
-        /* Halbtransparente Schicht über dem weißen Hintergrund */
-        &::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(255, 255, 255, 0.6);
-          border-radius: 10px;
-          pointer-events: none;
+        mat-icon {
+          color: rgba(0, 0, 0, 0.26) !important;
         }
       }
 
       &.active:not(:disabled) {
-        color: var(--md-sys-color-on-surface);
-        
-        &:hover {
-          background: #f5f7fb;
-          border-color: #003B7C; /* Corporate Blue */
+        mat-icon {
+          color: #003B7C !important; // Corporate Blue for active
         }
       }
 
@@ -123,24 +128,74 @@
       }
     }
 
-    /* JSON-Loader und Language-Switcher behalten ihre weißen Component-Styles */
+    /* Override Material Icon Buttons für JSON-Loader und Language-Switcher */
+    ::ng-deep app-json-loader button.mat-mdc-icon-button,
+    ::ng-deep app-language-switcher button.mat-mdc-icon-button {
+      background: #ffffff !important;
+      border: 1px solid #d4d9e3 !important;
+      border-radius: 10px !important;
+      width: 40px;
+      height: 40px;
+      color: rgba(0, 0, 0, 0.87) !important;
+      
+      mat-icon {
+        color: rgba(0, 0, 0, 0.87) !important;
+      }
+      
+      mat-spinner {
+        svg circle {
+          stroke: #003B7C !important; // Corporate Blue spinner
+        }
+      }
+      
+      .mat-mdc-button-persistent-ripple,
+      .mat-ripple-element {
+        border-radius: 10px !important;
+      }
+      
+      &:hover:not(:disabled) {
+        background: #f5f7fb !important;
+        border-color: #003B7C !important;
+      }
+      
+      &:disabled {
+        background: #ffffff !important;
+        border-color: #d4d9e3 !important;
+        opacity: 0.6;
+      }
+    }
+    
+    /* Override Language Switcher Menu */
+    ::ng-deep app-language-switcher .mat-mdc-menu-panel {
+      border: 1px solid #d4d9e3 !important;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.12) !important;
+    }
   }
 
-  .btn-close {
-    background: #ffffff;
-    color: var(--md-sys-color-on-surface);
-    border: 1px solid #d4d9e3;
-    padding: 4px 12px;
-    font-size: 24px;
-    font-weight: 300;
-    line-height: 1;
+  button.btn-close.mat-mdc-icon-button {
+    background: #ffffff !important;
+    border: 1px solid #d4d9e3 !important;
+    border-radius: 10px !important;
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
     cursor: pointer;
-    border-radius: 10px;
-    transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    mat-icon {
+      color: rgba(0, 0, 0, 0.87) !important;
+      font-size: 24px;
+    }
+    
+    // Override Material ripple für rechteckige Form
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mat-ripple-element {
+      border-radius: 10px !important;
+    }
 
     &:hover {
-      background: #f5f7fb;
-      border-color: #003B7C; /* Corporate Blue */
+      background: #f5f7fb !important;
+      border-color: #003B7C !important; /* Corporate Blue */
     }
   }
 }
@@ -171,6 +226,18 @@
     line-height: 1;
     color: var(--md-sys-color-on-surface-variant);
     position: relative;
+    
+    // Override Material ripple für rechteckige Form
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mat-ripple-element {
+      border-radius: 10px !important;
+    }
+    
+    // Hover-Effekt für alle Buttons
+    &:hover:not(:disabled) {
+      background: #f5f7fb;
+      border-color: #003B7C; /* Corporate Blue */
+    }
 
     &:disabled {
       cursor: not-allowed;
@@ -192,11 +259,6 @@
 
     &.active:not(:disabled) {
       color: var(--md-sys-color-on-surface);
-      
-      &:hover {
-        background: #f5f7fb;
-        border-color: #3b6ec8;
-      }
     }
 
     &:active:not(:disabled) {
@@ -409,48 +471,14 @@
   /* Left: Content Type Section */
   .content-type-section {
     display: flex;
+    gap: 12px;
     align-items: center;
-    
-    mat-chip-set {
-      .content-type-chip {
-        --mdc-chip-elevated-container-color: #003B7C;
-        --mdc-chip-label-text-color: #ffffff;
-        --mdc-chip-with-icon-icon-color: #ffffff;
-        
-        height: 36px;
-        padding: 0 16px;
-        font-size: 14px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-        transition: all 0.2s ease;
-        
-        mat-icon {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-        }
-        
-        &:hover:not([disabled]) {
-          --mdc-chip-elevated-container-color: #002D5E;
-          box-shadow: 0 3px 6px rgba(0,0,0,0.16);
-        }
-        
-        &[disabled] {
-          --mdc-chip-elevated-container-color: #9fb5e0;
-          cursor: not-allowed;
-        }
-      }
-    }
+    flex-shrink: 0;
 
     .content-type-label {
       padding: 8px 16px;
       background: #ecf2ff;
-      color: #335fae;
+      color: #003B7C; // Corporate Blue
       border-radius: 8px;
       font-size: 15px;
       font-weight: 600;
@@ -460,38 +488,93 @@
       gap: 8px;
       letter-spacing: 0.15px;
 
-      .content-type-icon {
+      mat-icon {
         font-size: 20px;
-        cursor: help;
-        transition: transform 0.2s;
-
-        &:hover {
-          transform: scale(1.2);
-        }
+        width: 20px;
+        height: 20px;
       }
     }
 
     .btn-change-content-type {
-      padding: 8px 14px;
-      background: #ffffff;
-      border: 1px solid #335fae;
-      color: #335fae;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
+      border-color: #003B7C;
+      color: #003B7C;
       font-weight: 600;
+      font-size: 13px;
       letter-spacing: 0.4px;
-      transition: background 0.2s ease, color 0.2s ease;
+      
+      mat-icon {
+        margin-left: 4px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
 
       &:hover:not(:disabled) {
-        background: #335fae;
+        background: #003B7C;
         color: #ffffff;
+        
+        mat-icon {
+          color: #ffffff;
+        }
       }
 
       &:disabled {
         color: #98a2b3;
         border-color: #d4d9e3;
-        cursor: not-allowed;
+      }
+    }
+  }
+
+  /* Material Menu Styling (Content Type Dropdown) */
+  ::ng-deep .content-type-menu.mat-mdc-menu-panel {
+    min-width: 280px;
+    max-width: 400px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    
+    .mat-mdc-menu-content {
+      padding: 8px;
+    }
+    
+    .mat-mdc-menu-item {
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+      transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      span {
+        flex: 1;
+        font-weight: 500;
+      }
+      
+      &.active {
+        background: #ecf2ff;
+        color: #003B7C;
+        font-weight: 600;
+        
+        span {
+          font-weight: 600;
+        }
+        
+        .checkmark {
+          color: #003B7C;
+        }
+      }
+      
+      &:hover:not(.active) {
+        background: #f5f7fb;
+      }
+      
+      .checkmark {
+        margin-left: auto;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
     }
   }
@@ -547,10 +630,15 @@
         }
       }
 
-      .progress-emoji {
-        font-size: 20px;
+      .progress-icon {
+        font-size: 24px;
         margin-left: auto;
+        color: #5b667a;
         animation: bounceIn 0.5s;
+        
+        &.progress-complete {
+          color: #00874d; // Success Green
+        }
       }
     }
 

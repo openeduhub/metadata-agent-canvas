@@ -16,7 +16,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatOptionModule } from '@angular/material/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { EduSharingLlmService } from 'ngx-edu-sharing-b-api';
 import { CanvasService } from '../../services/canvas.service';
 import { SchemaLoaderService } from '../../services/schema-loader.service';
@@ -29,16 +29,6 @@ import { CanvasFieldComponent } from '../canvas-field/canvas-field.component';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { JsonLoaderComponent, LoadedJsonData } from '../json-loader/json-loader.component';
 import { environment } from '../../../environments/environment';
-
-// Angular Material imports
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { TextFieldModule } from '@angular/cdk/text-field';
 
 @Component({
   selector: 'app-canvas-view',
@@ -72,7 +62,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   state: CanvasState;
   userText = '';
   FieldStatus = FieldStatus;
-  showContentTypeDropdown = false;
   isSubmitting = false;
   contentTypeOptions: Array<{ label: string; schemaFile: string }> = [];
   llmProvider = environment.llmProvider; // Active LLM provider
@@ -98,7 +87,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     console.log('🚀 CanvasView ngOnInit started');
     
     // Pre-load core schema (non-blocking - runs in background)
-    this.canvasService.ensureCoreSchemaLoaded();
+    this.canvasService.ensureCoreSchemaLoaded().then(() => {
+      // Load content type options after schema is loaded
+      this.updateContentTypeOptions();
+    });
     
     // Subscribe to state changes
     this.canvasService.state$
@@ -113,7 +105,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     
     // Subscribe to language changes to re-localize fields
     this.i18n.currentLanguage$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        distinctUntilChanged(), // Only trigger when language actually changes
+        takeUntil(this.destroy$)
+      )
       .subscribe(async (language) => {
         console.log(`🔔 Language Observable fired: ${language}`);
 
@@ -142,10 +137,8 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
           }))
         };
         
-        // Update content type dropdown options (only if core schema is loaded)
-        if (this.schemaLoader.getCoreSchema()) {
-          this.updateContentTypeOptions();
-        }
+        // Update content type dropdown options when language changes
+        this.updateContentTypeOptions();
         
         // Use setTimeout to ensure change detection runs after state assignment
         setTimeout(() => {
@@ -451,7 +444,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    * Send metadata to parent window (Extension or Bookmarklet)
    */
   private sendMetadataToParent(): void {
-    // For Browser-Extension: Use Repository-API format (URI strings, not {label, uri} objects)
+    // For Browser-Extension: Use structured format with repoField flags
     // For Bookmarklet: Use enriched format with {label, uri}
     const metadata = this.integrationMode.isBrowserExtension()
       ? this.canvasService.getMetadataForPlugin()
@@ -485,14 +478,13 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
     
     try {
-      const json = this.canvasService.getMetadataJson();
-      const metadata = JSON.parse(json);
+      const metadata = this.canvasService.getMetadataForRepository();
       
       // BROWSER-EXTENSION MODE: Send to plugin via postMessage
       if (this.integrationMode.isBrowserExtension()) {
         console.log('📤 Sending metadata to Browser-Plugin...');
         
-        // Use Repository-API format (URI strings, not {label, uri} objects)
+        // Use new structured format with repoField flags for Browser-Plugin
         const pluginMetadata = this.canvasService.getMetadataForPlugin();
         
         // Debug: Log essential fields that Plugin will use for createNode
@@ -641,7 +633,22 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get progress emoji based on percentage (Gamification)
+   * Get progress icon based on percentage (Material Design)
+   */
+  getProgressIcon(): string {
+    const percentage = this.getProgressPercentage();
+    
+    if (percentage === 100) return 'celebration';  // Alles fertig!
+    if (percentage >= 80) return 'sentiment_very_satisfied';  // Fast fertig
+    if (percentage >= 60) return 'sentiment_satisfied';  // Guter Fortschritt
+    if (percentage >= 40) return 'sentiment_neutral';  // Hälfte geschafft
+    if (percentage >= 20) return 'sentiment_dissatisfied';  // Noch viel zu tun
+    return 'pending';  // Gerade gestartet
+  }
+  
+  /**
+   * Get progress emoji based on percentage (Gamification) - DEPRECATED
+   * @deprecated Use getProgressIcon() instead
    */
   getProgressEmoji(): string {
     const percentage = this.getProgressPercentage();
@@ -755,95 +762,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     };
   }
 
-  /**
-   * Toggle content type dropdown
-   */
-  changeContentType(): void {
-    console.log('🔧 changeContentType called');
-    
-    // Search in ALL fields (core + special)
-    const allFields = [...this.state.coreFields, ...this.state.specialFields];
-    console.log('All field IDs:', allFields.map(f => f.fieldId));
-    
-    const contentTypeField = allFields.find(f => f.fieldId === 'ccm:oeh_flex_lrt');
-    console.log('Content type field:', contentTypeField);
-    
-    if (!contentTypeField) {
-      console.warn('⚠️ Content type field not found in any field list!');
-      console.warn('Available fields:', allFields.map(f => f.fieldId));
-      
-      // Fallback: Load options directly from schema loader
-      this.loadContentTypeOptionsFromSchema();
-      return;
-    }
-    
-    if (!contentTypeField.vocabulary) {
-      console.warn('⚠️ No vocabulary found on content type field!');
-      this.loadContentTypeOptionsFromSchema();
-      return;
-    }
-
-    console.log('Vocabulary concepts:', contentTypeField.vocabulary.concepts);
-
-    // Load content type options from vocabulary
-    this.contentTypeOptions = contentTypeField.vocabulary.concepts.map((concept: any) => ({
-      label: concept.label,
-      schemaFile: concept.schema_file || ''
-    }));
-
-    console.log('Content type options:', this.contentTypeOptions);
-
-    // Toggle dropdown
-    this.showContentTypeDropdown = !this.showContentTypeDropdown;
-    console.log('Dropdown visible:', this.showContentTypeDropdown);
-  }
-
-  /**
-   * Fallback: Load content type options directly from schema loader
-   */
-  private loadContentTypeOptionsFromSchema(): void {
-    console.log('📦 Loading content type options from schema loader');
-    
-    // Get core schema
-    const coreSchema = this.schemaLoader.getCoreSchema();
-    if (!coreSchema || !coreSchema.fields) {
-      console.error('❌ Core schema not loaded!');
-      return;
-    }
-
-    // Find content type field definition
-    const contentTypeFieldDef = coreSchema.fields.find((f: any) => f.id === 'ccm:oeh_flex_lrt');
-    if (!contentTypeFieldDef || !contentTypeFieldDef.system?.vocabulary) {
-      console.error('❌ Content type field definition not found in schema!');
-      return;
-    }
-
-    console.log('✅ Found content type field in schema:', contentTypeFieldDef);
-
-    // Load options from schema with localization
-    const currentLang = this.i18n.getCurrentLanguage();
-    console.log('🌐 Current language for localization:', currentLang);
-    
-    this.contentTypeOptions = contentTypeFieldDef.system.vocabulary.concepts.map((concept: any) => {
-      console.log('📝 Processing concept:', {
-        label: concept.label,
-        schema_file: concept.schema_file
-      });
-      
-      const localizedLabel = this.schemaLocalizer.localizeString(concept.label, currentLang);
-      console.log('  → Localized label:', localizedLabel);
-      
-      return {
-        label: localizedLabel,
-        schemaFile: concept.schema_file || ''
-      };
-    });
-
-    console.log('✅ Loaded content type options (localized):', this.contentTypeOptions);
-
-    // Show dropdown
-    this.showContentTypeDropdown = true;
-  }
 
   /**
    * Get current content type object for mat-select
@@ -860,9 +778,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     console.log('📝 Content type selected:', option);
     console.log('Schema file to load:', option.schemaFile);
     
-    // Close dropdown
-    this.showContentTypeDropdown = false;
-    
     // Update field value first
     this.onFieldChange({ fieldId: 'ccm:oeh_flex_lrt', value: option.label });
     
@@ -871,16 +786,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     await this.canvasService.changeContentTypeManually(option.schemaFile);
   }
 
-  /**
-   * Close dropdown when clicking outside
-   */
-  closeContentTypeDropdown(event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.showContentTypeDropdown = false;
-  }
-  
   /**
    * Re-localize all fields when language changes
    */
@@ -891,6 +796,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   
   /**
    * Update content type dropdown options with localized labels
+   * Only updates if options are empty or have changed to prevent flicker
    */
   private updateContentTypeOptions(): void {
     // Re-load from core.json to get fresh localized labels
@@ -906,12 +812,21 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     }
     
     const currentLang = this.i18n.getCurrentLanguage();
-    this.contentTypeOptions = contentTypeFieldDef.system.vocabulary.concepts.map((concept: any) => ({
+    const newOptions = contentTypeFieldDef.system.vocabulary.concepts.map((concept: any) => ({
       label: this.schemaLocalizer.localizeString(concept.label, currentLang),
       schemaFile: concept.schema_file || ''
     }));
     
-    console.log('✅ Updated content type options for language:', currentLang, this.contentTypeOptions);
+    // Only update if options changed (prevent unnecessary re-renders and flicker)
+    const optionsChanged = 
+      this.contentTypeOptions.length === 0 || 
+      this.contentTypeOptions.length !== newOptions.length ||
+      this.contentTypeOptions.some((opt, i) => opt.label !== newOptions[i].label);
+    
+    if (optionsChanged) {
+      this.contentTypeOptions = newOptions;
+      console.log('✅ Updated content type options for language:', currentLang, this.contentTypeOptions);
+    }
   }
   
   /**

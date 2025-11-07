@@ -2,29 +2,28 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { I18nService, LanguageConfig, SupportedLanguage } from '../../services/i18n.service';
 import { TranslateModule } from '@ngx-translate/core';
-
-// Angular Material imports
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-language-switcher',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     TranslateModule,
     MatButtonModule,
+    MatIconModule,
     MatMenuModule,
-    MatIconModule
+    MatTooltipModule
   ],
   templateUrl: './language-switcher.component.html',
-  styleUrls: ['./language-switcher.component.scss'],
+  styleUrls: ['./language-switcher.component.scss']
 })
 export class LanguageSwitcherComponent implements OnInit {
   currentLanguage: LanguageConfig;
   languages: LanguageConfig[];
-  showDropdown = false;
 
   constructor(public i18nService: I18nService) {
     this.languages = i18nService.languages;
@@ -39,25 +38,10 @@ export class LanguageSwitcherComponent implements OnInit {
   }
 
   /**
-   * Toggle language dropdown
-   */
-  toggleDropdown(): void {
-    this.showDropdown = !this.showDropdown;
-  }
-
-  /**
-   * Close dropdown
-   */
-  closeDropdown(): void {
-    this.showDropdown = false;
-  }
-
-  /**
-   * Select a language
+   * Select a language (mat-menu handles close automatically)
    */
   selectLanguage(lang: SupportedLanguage): void {
     this.i18nService.setLanguage(lang);
-    this.closeDropdown();
   }
 
   /**

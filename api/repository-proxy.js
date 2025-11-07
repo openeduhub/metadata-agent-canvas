@@ -4,14 +4,28 @@
  * Compatible with Netlify Function API
  */
 
-// WLO Guest credentials
+// WLO Guest credentials from environment variables
 const GUEST_CONFIG = {
-  username: 'WLO-Upload',
-  password: 'wlo#upload!20',
-  baseUrl: 'https://repository.staging.openeduhub.net/edu-sharing'
+  username: process.env.WLO_GUEST_USERNAME,
+  password: process.env.WLO_GUEST_PASSWORD,
+  baseUrl: process.env.WLO_REPOSITORY_BASE_URL || 'https://repository.staging.openeduhub.net/edu-sharing'
 };
 
+// Validate credentials on startup
+if (!GUEST_CONFIG.username || !GUEST_CONFIG.password) {
+  console.error('❌ WLO_GUEST_USERNAME and WLO_GUEST_PASSWORD are required!');
+  console.error('   Set these in Vercel Dashboard → Settings → Environment Variables');
+}
+
 export default async function handler(req, res) {
+  // Check credentials before processing
+  if (!GUEST_CONFIG.username || !GUEST_CONFIG.password) {
+    return res.status(500).json({
+      error: 'Server configuration error',
+      message: 'WLO Guest credentials not configured',
+      hint: 'Administrator: Set WLO_GUEST_USERNAME and WLO_GUEST_PASSWORD in environment variables'
+    });
+  }
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -126,7 +140,7 @@ async function checkDuplicate(url, authHeader) {
  */
 async function createNode(metadata, authHeader) {
   const inboxId = '21144164-30c0-4c01-ae16-264452197063';
-  const createUrl = `${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm%3Aio&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`;
+  const createUrl = `${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm:io&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`;
   
   // Filter: Only 5 essential fields for node creation
   const essentialFields = [
@@ -385,7 +399,8 @@ async function startWorkflow(nodeId, authHeader) {
     body: JSON.stringify({
       receiver: [{ authorityName: 'GROUP_ORG_WLO-Uploadmanager' }],
       comment: 'Upload via Canvas Webkomponente (Gast)',
-      status: '200_tocheck'
+      status: '200_tocheck',
+      logLevel: 'info'
     })
   });
   

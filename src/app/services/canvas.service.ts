@@ -1057,7 +1057,7 @@ export class CanvasService {
     const allFields = [...state.coreFields, ...state.specialFields];
     
     // Create a map of fieldId to field object
-    const fieldMap = new Map<string, any>();
+    const fieldMap = new Map<string, CanvasFieldState>();
     allFields.forEach(field => {
       fieldMap.set(field.fieldId, field);
     });
@@ -1066,7 +1066,7 @@ export class CanvasService {
     const subFieldIds = new Set<string>();
     allFields.forEach(field => {
       if (field.isParent && field.subFields) {
-        field.subFields.forEach((sf: any) => subFieldIds.add(sf.fieldId));
+        field.subFields.forEach((sf: CanvasFieldState) => subFieldIds.add(sf.fieldId));
       }
     });
     
@@ -1113,22 +1113,22 @@ export class CanvasService {
           processedValue = value
             .filter(v => v !== null && v !== undefined && v !== '')
             .map(v => {
-              if (typeof v === 'object' && v.uri) {
-                return v.uri; // Already {label, uri} format
+              if (typeof v === 'object' && (v as any).uri) {
+                return (v as any).uri; // Already {label, uri} format
               }
               // Find URI from vocabulary
-              const concept = field.vocabulary.concepts.find((c: any) => 
+              const concept = field.vocabulary!.concepts.find((c: any) => 
                 c.uri === v || c.label === v || (c.altLabels && c.altLabels.includes(v))
               );
               return concept ? concept.uri : v;
             });
         } else if (value !== null && value !== undefined && value !== '') {
           // Single value: Extract URI
-          if (typeof value === 'object' && value.uri) {
-            processedValue = [value.uri]; // Repository expects array
+          if (typeof value === 'object' && (value as any).uri) {
+            processedValue = [(value as any).uri]; // Repository expects array
           } else {
             // Find URI from vocabulary
-            const concept = field.vocabulary.concepts.find((c: any) => 
+            const concept = field.vocabulary!.concepts.find((c: any) => 
               c.uri === value || c.label === value || (c.altLabels && c.altLabels.includes(value))
             );
             processedValue = concept ? [concept.uri] : [value];
@@ -1142,7 +1142,7 @@ export class CanvasService {
           value: processedValue,
           repoField: repoField,
           hasVocabulary: true,
-          vocabularyType: field.vocabulary.vocabularyType || 'closed'
+          vocabularyType: (field.vocabulary as any).vocabularyType || field.vocabulary.type || 'closed'
         };
       } else {
         // Non-vocabulary field: ensure arrays
@@ -1162,6 +1162,114 @@ export class CanvasService {
     
     console.log('📦 Metadata prepared for Plugin (NEW format with repoField flag)');
     return output;
+  }
+
+  /**
+   * Get metadata formatted for repository submission (legacy format)
+   * Mirrors the behavior of the previously working web component and browser plugin
+   * - Vocabulary values become URI strings
+   * - Multi-value fields are arrays
+   * - Complex objects are reconstructed from sub-fields
+   */
+  getMetadataForRepository(): Record<string, any> {
+    const state = this.getCurrentState();
+    const allFields = [...state.coreFields, ...state.specialFields];
+
+    const fieldMap = new Map<string, CanvasFieldState>();
+    allFields.forEach(field => fieldMap.set(field.fieldId, field));
+
+    const subFieldIds = new Set<string>();
+    allFields.forEach(field => {
+      if (field.isParent && field.subFields) {
+        field.subFields.forEach(subField => subFieldIds.add(subField.fieldId));
+      }
+    });
+
+    const normalizeVocabularyValue = (value: any, field: CanvasFieldState): string | null => {
+      if (value === null || value === undefined || value === '') {
+        return null;
+      }
+
+      if (typeof value === 'object' && value !== null && 'uri' in value) {
+        return (value as any).uri || null;
+      }
+
+      const concept = field.vocabulary?.concepts.find(con => {
+        if (!con) {
+          return false;
+        }
+        if (con.uri && con.uri === value) {
+          return true;
+        }
+        if (con.label && con.label === value) {
+          return true;
+        }
+        return Array.isArray(con.altLabels) && con.altLabels.includes(value);
+      });
+
+      return concept?.uri || (typeof value === 'string' ? value : null);
+    };
+
+    const result: Record<string, any> = {};
+
+    Object.entries(state.metadata).forEach(([fieldId, rawValue]) => {
+      const field = fieldMap.get(fieldId);
+
+      if (field && subFieldIds.has(fieldId)) {
+        // Sub-fields are handled when reconstructing their parent field
+        return;
+      }
+
+      if (field && field.isParent && field.subFields && field.subFields.length > 0) {
+        result[fieldId] = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
+        return;
+      }
+
+      if (field && field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
+        const valuesArray = Array.isArray(rawValue)
+          ? rawValue
+          : (rawValue === null || rawValue === undefined || rawValue === '' ? [] : [rawValue]);
+
+        const normalized = valuesArray
+          .map(entry => normalizeVocabularyValue(entry, field))
+          .filter((entry): entry is string => entry !== null && entry !== undefined && entry !== '');
+
+        result[fieldId] = normalized;
+        return;
+      }
+
+      if (field) {
+        if (field.multiple) {
+          if (Array.isArray(rawValue)) {
+            result[fieldId] = rawValue.filter(item => item !== null && item !== undefined && item !== '');
+          } else if (rawValue === null || rawValue === undefined || rawValue === '') {
+            result[fieldId] = [];
+          } else {
+            result[fieldId] = [rawValue];
+          }
+        } else {
+          if (Array.isArray(rawValue)) {
+            const first = rawValue.find(item => item !== null && item !== undefined && item !== '');
+            result[fieldId] = first !== undefined ? first : null;
+          } else if (rawValue === undefined) {
+            result[fieldId] = null;
+          } else {
+            result[fieldId] = rawValue;
+          }
+        }
+        return;
+      }
+
+      // Fallback for fields not in schema (e.g., virtual fields)
+      if (Array.isArray(rawValue)) {
+        result[fieldId] = rawValue.filter(item => item !== null && item !== undefined && item !== '');
+      } else {
+        result[fieldId] = rawValue;
+      }
+    });
+
+    console.log('📦 Metadata prepared for Repository submission (legacy format)');
+    return result;
   }
 
   /**

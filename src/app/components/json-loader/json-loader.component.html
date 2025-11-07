@@ -9,13 +9,13 @@
   
   <button 
     mat-icon-button
+    class="control-button load-button"
     (click)="triggerFileInput()"
     [disabled]="isLoading"
-    [title]="'JSON laden'"
-    class="load-button"
+    [matTooltip]="'JSON laden'"
   >
     <mat-icon *ngIf="!isLoading">folder_open</mat-icon>
-    <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
+    <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
   </button>
 
   <div class="error-toast" *ngIf="showError">

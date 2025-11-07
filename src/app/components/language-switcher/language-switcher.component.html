@@ -1,14 +1,13 @@
 <div class="language-switcher">
   <!-- Current Language Button -->
   <button 
-    mat-button
+    mat-icon-button
+    class="control-button language-button"
     [matMenuTriggerFor]="languageMenu"
-    [title]="'LANGUAGE.CURRENT' | translate"
-    class="language-button"
+    [matTooltip]="'LANGUAGE.CURRENT' | translate"
   >
     <span class="flag">{{ currentLanguage.flag }}</span>
     <span class="language-code">{{ currentLanguage.code.toUpperCase() }}</span>
-    <mat-icon>arrow_drop_down</mat-icon>
   </button>
 
   <!-- Language Menu -->
@@ -16,7 +15,6 @@
     <button
       mat-menu-item
       *ngFor="let lang of languages"
-      [class.active]="isActive(lang.code)"
       (click)="selectLanguage(lang.code)"
     >
       <span class="flag">{{ lang.flag }}</span>

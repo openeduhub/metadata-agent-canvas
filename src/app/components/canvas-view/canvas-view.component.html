@@ -20,8 +20,6 @@
         (click)="downloadJson()"
         [matTooltip]="'JSON herunterladen'">
         <mat-icon>save</mat-icon>
-        [matTooltip]="'JSON herunterladen'">
-        <mat-icon>save</mat-icon>
       </button>
       
       <button 
@@ -30,8 +28,6 @@
         [class.active]="canSubmit()"
         [disabled]="!canSubmit()"
         (click)="submitMetadata()"
-        [matTooltip]="'An Plugin senden'">
-        <mat-icon>cloud_upload</mat-icon>
         [matTooltip]="'An Plugin senden'">
         <mat-icon>cloud_upload</mat-icon>
       </button>
@@ -43,7 +39,7 @@
     </div>
   </div>
 
-  <!-- Language Switcher & JSON Loader for Standalone Mode -->
+  <!-- Language Switcher & JSON Loader for Standalone Mode (no browser extension header) -->
   <div class="standalone-controls" *ngIf="!integrationMode.isBrowserExtension() && !integrationMode.isBookmarklet()">
     <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
     
@@ -55,8 +51,6 @@
       (click)="downloadJson()"
       [matTooltip]="'JSON herunterladen'">
       <mat-icon>save</mat-icon>
-      [matTooltip]="'JSON herunterladen'">
-      <mat-icon>save</mat-icon>
     </button>
     
     <button 
@@ -65,8 +59,6 @@
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="submitMetadata()"
-      [matTooltip]="'An Plugin senden'">
-      <mat-icon>cloud_upload</mat-icon>
       [matTooltip]="'An Plugin senden'">
       <mat-icon>cloud_upload</mat-icon>
     </button>
@@ -96,8 +88,6 @@
       >
         <mat-icon *ngIf="!state.isExtracting">play_arrow</mat-icon>
         <mat-icon *ngIf="state.isExtracting">hourglass_empty</mat-icon>
-        <mat-icon *ngIf="!state.isExtracting">play_arrow</mat-icon>
-        <mat-icon *ngIf="state.isExtracting">hourglass_empty</mat-icon>
         <span *ngIf="!state.isExtracting">{{ 'INPUT.START_EXTRACTION' | translate }}</span>
         <span *ngIf="state.isExtracting">{{ 'INPUT.EXTRACTING' | translate }}</span>
       </button>
@@ -109,7 +99,6 @@
         [disabled]="state.isExtracting"
       >
         <mat-icon>refresh</mat-icon>
-        <mat-icon>refresh</mat-icon>
         {{ 'INPUT.RESET' | translate }}
       </button>
     </div>
@@ -117,28 +106,30 @@
 
   <!-- Compact Status Bar: Content Type + Progress -->
   <div *ngIf="state.totalFields > 0" class="compact-status-bar">
-    <!-- Left: Content Type (Chip mit Dropdown) -->
+    <!-- Left: Content Type -->
     <div class="content-type-section">
-      <mat-chip-set>
-        <mat-chip 
-          highlighted
-          class="content-type-chip"
-          [matMenuTriggerFor]="contentTypeMenu"
-          [disabled]="state.isExtracting"
-        >
-          <mat-icon>category</mat-icon>
-          {{ getContentTypeLabel() }}
-          <mat-icon>arrow_drop_down</mat-icon>
-        </mat-chip>
-      </mat-chip-set>
+      <span class="content-type-label">
+        <mat-icon>category</mat-icon>
+        {{ getContentTypeLabel() }}
+      </span>
+      <button 
+        mat-stroked-button
+        [matMenuTriggerFor]="contentTypeMenu"
+        [disabled]="state.isExtracting"
+        class="btn-change-content-type">
+        {{ 'CONTENT_TYPE.CHANGE' | translate }}
+        <mat-icon>expand_more</mat-icon>
+      </button>
       
-      <mat-menu #contentTypeMenu="matMenu">
+      <!-- Material Menu -->
+      <mat-menu #contentTypeMenu="matMenu" class="content-type-menu">
         <button 
           mat-menu-item 
           *ngFor="let option of contentTypeOptions"
           (click)="selectContentType(option)"
-        >
-          {{ option.label }}
+          [class.active]="getContentTypeLabel() === option.label">
+          <span>{{ option.label }}</span>
+          <mat-icon *ngIf="getContentTypeLabel() === option.label" class="checkmark">check</mat-icon>
         </button>
       </mat-menu>
     </div>
@@ -155,7 +146,9 @@
           [class.required-incomplete]="!allRequiredFieldsFilled()">
           {{ 'PROGRESS.REQUIRED' | translate }}: {{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }}
         </span>
-        <span class="progress-emoji">{{ getProgressEmoji() }}</span>
+        <mat-icon class="progress-icon" [class.progress-complete]="getProgressPercentage() === 100">
+          {{ getProgressIcon() }}
+        </mat-icon>
       </div>
       <mat-progress-bar 
         class="progress-bar-compact"
@@ -174,9 +167,8 @@
       <div class="group-header">
         <h3>📋 {{ group.label }}</h3>
         <div class="group-badges">
-          <span class="group-badge schema-badge" [matBadge]="getFilledFieldsCount(group) + ' / ' + group.fields.length" matBadgeOverlap="false">
-            {{ group.schemaName }}
-          </span>
+          <span class="group-badge schema-badge">{{ group.schemaName }}</span>
+          <span class="group-badge count-badge">{{ getFilledFieldsCount(group) }} / {{ group.fields.length }}</span>
           <span class="badge-text">{{ 'PROGRESS.FIELDS_RECOGNIZED' | translate }}</span>
         </div>
       </div>
@@ -193,7 +185,7 @@
   <!-- Empty State -->
   <div *ngIf="state.fieldGroups.length === 0" class="empty-state">
     <div class="empty-state-content">
-      <mat-icon class="empty-icon">description</mat-icon>
+      <div class="empty-icon">📝</div>
       <h3>{{ 'EMPTY_STATE.TITLE' | translate }}</h3>
       <p>{{ 'EMPTY_STATE.MESSAGE' | translate }}</p>
     </div>
@@ -217,8 +209,6 @@
           (click)="submitAsGuest()"
           [disabled]="!allRequiredFieldsFilled() || isSubmitting"
         >
-          <mat-icon *ngIf="!isSubmitting">cloud_upload</mat-icon>
-          <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
           <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SUBMIT_GUEST' | translate }}</span>
           <span *ngIf="isSubmitting">{{ 'FOOTER.SUBMITTING' | translate }}</span>
           <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
@@ -230,7 +220,6 @@
           (click)="downloadJson()"
           [disabled]="!allRequiredFieldsFilled()"
         >
-          <mat-icon>download</mat-icon>
           <span *ngIf="allRequiredFieldsFilled()">{{ 'FOOTER.DOWNLOAD_JSON' | translate }}</span>
           <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
         </button>
@@ -245,8 +234,6 @@
           (click)="submitAsGuest()"
           [disabled]="!allRequiredFieldsFilled() || isSubmitting"
         >
-          <mat-icon *ngIf="!isSubmitting">cloud_upload</mat-icon>
-          <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
           <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SUBMIT_GUEST' | translate }}</span>
           <span *ngIf="isSubmitting">{{ 'FOOTER.SUBMITTING' | translate }}</span>
           <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
@@ -258,7 +245,6 @@
           (click)="downloadJson()"
           [disabled]="!allRequiredFieldsFilled()"
         >
-          <mat-icon>download</mat-icon>
           <span *ngIf="allRequiredFieldsFilled()">{{ 'FOOTER.DOWNLOAD_JSON' | translate }}</span>
           <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
         </button>
@@ -273,8 +259,6 @@
         (click)="submitAsGuest()"
         [disabled]="!allRequiredFieldsFilled() || isSubmitting"
       >
-        <mat-icon *ngIf="!isSubmitting">send</mat-icon>
-        <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
         <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SEND_TO_PLUGIN' | translate }}</span>
         <span *ngIf="isSubmitting">{{ 'FOOTER.SENDING' | translate }}</span>
         <span *ngIf="!isSubmitting && !allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>

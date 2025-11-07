@@ -1,11 +1,9 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-// Angular Material imports
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
 export interface LoadedJsonData {
   metadata: any;
@@ -20,11 +18,11 @@ export interface LoadedJsonData {
     CommonModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatTooltipModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './json-loader.component.html',
-  styleUrls: ['./json-loader.component.scss'],
+  styleUrls: ['./json-loader.component.scss']
 })
 export class JsonLoaderComponent {
   @Output() jsonLoaded = new EventEmitter<LoadedJsonData>();

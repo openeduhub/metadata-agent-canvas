@@ -27,21 +27,31 @@
 #   remote_images = ["https://cdn.example.com/.*"]
 
 # =======================================================================
-# Security: API Keys Configuration
+# Security: API Keys & Credentials Configuration
 # =======================================================================
-# API keys are NEVER stored in code or committed to Git.
+# API keys and credentials are NEVER stored in code or committed to Git.
 # 
 # Set these in Netlify Dashboard → Site Settings → Environment Variables:
 # 
 # Required for LLM functionality:
-#   B_API_KEY = your-uuid-key-here           (for b-api-openai / b-api-academiccloud)
-#   OPENAI_API_KEY = sk-proj-...            (only if using direct OpenAI)
+#   B_API_KEY = your-uuid-key-here           (for b-api-openai / b-api-academiccloud) ✅ SECRET
+#   OPENAI_API_KEY = sk-proj-...            (only if using direct OpenAI) ✅ SECRET
+# 
+# Required for Repository Guest Uploads:
+#   WLO_GUEST_USERNAME = WLO-Upload         
+#   WLO_GUEST_PASSWORD = your-password       ✅ SECRET
+#   WLO_REPOSITORY_BASE_URL = https://repository.staging.openeduhub.net/edu-sharing
 # 
 # Optional (will be read from environment.ts if not set):
 #   LLM_PROVIDER = b-api-openai             (options: openai, b-api-openai, b-api-academiccloud)
 # 
+# ⚠️ IMPORTANT: Mark as "Sensitive variable" in Netlify Dashboard:
+#   - OPENAI_API_KEY ✅
+#   - B_API_KEY ✅
+#   - WLO_GUEST_PASSWORD ✅
+# 
 # The Netlify Functions (netlify/functions/*.js) read these from process.env
-# Angular frontend NEVER receives the API keys - they stay server-side!
+# Angular frontend NEVER receives the credentials - they stay server-side!
 # =======================================================================
 
 # External APIs used by the application:

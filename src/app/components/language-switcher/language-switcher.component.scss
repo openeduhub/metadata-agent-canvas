@@ -3,139 +3,62 @@
   display: flex;
   align-items: center;
 
+  // Button nutzt control-button Styling vom Header
   .language-button {
-    display: flex;
+    display: flex !important;
     align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    background: #ffffff;  /* Immer weißer Hintergrund */
-    border: 1px solid #d4d9e3;  /* Helle Border wie andere UI-Rahmen */
-    border-radius: 10px;  /* Konsistent mit anderen Rahmen */
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-
+    justify-content: center;
+    gap: 4px;
+    padding: 0 8px !important; // Kompaktes Padding
+    min-width: 64px; // Mindestbreite für Flagge + Code
+    height: 40px;
+    
     .flag {
       font-size: 20px;
       line-height: 1;
+      flex-shrink: 0;
     }
 
     .language-code {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       letter-spacing: 0.5px;
-    }
-
-    &:hover {
-      background: #f5f7fb;
-      border-color: #3b6ec8;
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-  }
-
-  .language-dropdown {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 2000;
-
-    .dropdown-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.3);
-      animation: fadeIn 0.2s;
-    }
-
-    .dropdown-menu {
-      position: absolute;
-      top: 60px;
-      right: 20px;
-      background: #ffffff;
-      border: 1px solid #d4d9e3;
-      border-radius: 10px;
-      min-width: 180px;
-      overflow: hidden;
-      animation: slideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-      .dropdown-option {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        border: none;
-        background: var(--md-sys-color-surface);
-        text-align: left;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        color: var(--md-sys-color-on-surface);
-        font-size: 14px;
-        border-bottom: 1px solid var(--md-sys-color-outline-variant);
-
-        &:last-child {
-          border-bottom: none;
-        }
-
-        .flag {
-          font-size: 24px;
-          line-height: 1;
-          flex-shrink: 0;
-        }
-
-        .language-name {
-          flex: 1;
-          font-weight: 500;
-        }
-
-        .checkmark {
-          font-size: 18px;
-          color: var(--md-sys-color-primary);
-          font-weight: bold;
-        }
-
-        &:hover {
-          background: var(--md-sys-color-surface-variant);
-        }
-
-        &.active {
-          background: var(--md-sys-color-primary-container);
-          color: var(--md-sys-color-on-primary-container);
-
-          .checkmark {
-            color: var(--md-sys-color-on-primary-container);
-          }
-        }
-      }
+      text-transform: uppercase;
+      color: inherit;
+      white-space: nowrap;
     }
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+// Material Menu Items Styling
+::ng-deep .mat-mdc-menu-panel {
+  min-width: 160px;
+  
+  .mat-mdc-menu-item {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px !important;
+    min-height: 40px;
+    
+    .flag {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+    }
+    
+    .language-name {
+      flex: 1;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    .checkmark {
+      color: #003B7C; // Corporate Blue
+      font-size: 20px;
+      flex-shrink: 0;
+    }
   }
 }
