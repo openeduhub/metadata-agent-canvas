@@ -14,6 +14,7 @@
       
       <button 
         mat-icon-button
+        class="control-button save-button"
         [class.active]="canSubmit()"
         [disabled]="!canSubmit()"
         (click)="downloadJson()"
@@ -25,6 +26,7 @@
       
       <button 
         mat-icon-button
+        class="control-button upload-button"
         [class.active]="canSubmit()"
         [disabled]="!canSubmit()"
         (click)="submitMetadata()"
@@ -35,7 +37,7 @@
       </button>
       
       <app-language-switcher></app-language-switcher>
-      <button mat-icon-button (click)="closeCanvas()" [matTooltip]="'HEADER.CLOSE' | translate">
+      <button mat-icon-button class="btn-close" (click)="closeCanvas()" [matTooltip]="'HEADER.CLOSE' | translate">
         <mat-icon>close</mat-icon>
       </button>
     </div>
@@ -47,6 +49,7 @@
     
     <button 
       mat-icon-button
+      class="control-button save-button"
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="downloadJson()"
@@ -58,6 +61,7 @@
     
     <button 
       mat-icon-button
+      class="control-button upload-button"
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="submitMetadata()"
@@ -72,22 +76,21 @@
 
   <!-- Input Section -->
   <div class="input-section">
-    <mat-form-field appearance="outline" class="text-input-field">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'INPUT.PLACEHOLDER' | translate }}</mat-label>
       <textarea
         matInput
+        rows="4"
         [(ngModel)]="userText"
         [disabled]="state.isExtracting"
-        cdkTextareaAutosize
-        cdkAutosizeMinRows="4"
-        cdkAutosizeMaxRows="8"
       ></textarea>
     </mat-form-field>
       
     <div class="header-actions">
       <button 
-        mat-flat-button
+        mat-raised-button
         color="primary"
+        class="btn-primary"
         (click)="startExtraction()"
         [disabled]="state.isExtracting || !userText.trim()"
       >
@@ -101,6 +104,7 @@
       
       <button 
         mat-stroked-button
+        class="btn-secondary"
         (click)="reset()"
         [disabled]="state.isExtracting"
       >
@@ -154,36 +158,12 @@
         <span class="progress-emoji">{{ getProgressEmoji() }}</span>
       </div>
       <mat-progress-bar 
-        mode="determinate" 
-        [value]="state.extractionProgress"
         class="progress-bar-compact"
+        mode="determinate"
+        [value]="state.extractionProgress"
       ></mat-progress-bar>
     </div>
 
-    <!-- Content Type Dropdown -->
-    <div *ngIf="showContentTypeDropdown" class="content-type-dropdown">
-      <div class="dropdown-overlay" (click)="closeContentTypeDropdown()"></div>
-      <div class="dropdown-menu">
-        <div class="dropdown-header">
-          <span>{{ 'CONTENT_TYPE.SELECT' | translate }}</span>
-          <button mat-icon-button (click)="closeContentTypeDropdown()">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-        <div class="dropdown-options">
-          <button 
-            mat-button
-            *ngFor="let option of contentTypeOptions"
-            class="dropdown-option"
-            [class.active]="getContentTypeLabel() === option.label"
-            (click)="selectContentType(option)"
-          >
-            <span class="option-label">{{ option.label }}</span>
-            <mat-icon *ngIf="getContentTypeLabel() === option.label" class="option-checkmark">check</mat-icon>
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Canvas Content Area -->
