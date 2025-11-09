@@ -78,7 +78,7 @@
         "uri": "oeh:eventType",
         "datatype": "array",
         "multiple": true,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {
@@ -1506,7 +1506,7 @@
         "uri": "https://schema.org/startDate",
         "datatype": "date",
         "multiple": false,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {
@@ -1802,7 +1802,7 @@
         "uri": "https://schema.org/location",
         "datatype": "array",
         "multiple": true,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {

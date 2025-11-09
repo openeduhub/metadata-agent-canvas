@@ -181,15 +181,19 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
       // Log incoming message for debugging
       console.log('📬 postMessage received from:', event.origin, 'Type:', event.data?.type);
       
-      // Security: Accept messages from any HTTPS origin or localhost (for bookmarklet usage)
+      // Security: Accept messages from HTTPS, localhost, or Chrome extensions
       const isSecureOrigin = event.origin.startsWith('https://') || 
                              event.origin.includes('localhost') ||
-                             event.origin.includes('127.0.0.1');
+                             event.origin.includes('127.0.0.1') ||
+                             event.origin.startsWith('chrome-extension://') ||
+                             event.origin.startsWith('moz-extension://');
       
       if (!isSecureOrigin) {
         console.warn('⚠️ Message from untrusted origin rejected:', event.origin);
         return;
       }
+      
+      console.log('✅ Message origin accepted:', event.origin);
       
       // Handle legacy SET_TEXT (backward compatibility)
       if (event.data.type === 'SET_TEXT' && event.data.text) {
@@ -274,18 +278,24 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
       
       // Handle PLUGIN_PAGE_DATA (Browser-Plugin with page extraction)
       if (event.data.type === 'PLUGIN_PAGE_DATA') {
-        console.log('📨 Received page data from Browser Plugin:');
+        console.log('📨 Received PLUGIN_PAGE_DATA from Browser Plugin:');
         console.log('  - URL:', event.data.url);
         console.log('  - Title:', event.data.title);
         console.log('  - Mode:', event.data.mode);
+        console.log('  - Text length:', event.data.text?.length || 0);
+        console.log('  - HTML length:', event.data.html?.length || 0);
+        console.log('  - Text preview:', event.data.text?.substring(0, 100));
         
         // Update mode to browser-extension
         if (event.data.mode === 'browser-extension') {
           this.integrationMode.setMode('browser-extension');
+          console.log('✅ Mode set to browser-extension');
         }
         
         // Set text in textarea (use text or html)
-        this.userText = event.data.text || event.data.html;
+        const newText = event.data.text || event.data.html || '';
+        console.log('📝 Setting userText to:', newText.length, 'characters');
+        this.userText = newText;
         
         // Store URL for later use
         if (event.data.url) {
@@ -295,20 +305,30 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         // Store metadata if provided
         if (event.data.metadata) {
           sessionStorage.setItem('canvas_plugin_metadata', JSON.stringify(event.data.metadata));
+          console.log('✅ Metadata stored in sessionStorage');
         }
         
         // Trigger change detection
         this.cdr.detectChanges();
+        console.log('✅ Change detection triggered');
         
         // Send confirmation back to plugin
         if (event.source) {
-          (event.source as Window).postMessage({
-            type: 'PLUGIN_DATA_RECEIVED',
-            success: true
-          }, event.origin);
+          try {
+            (event.source as Window).postMessage({
+              type: 'PLUGIN_DATA_RECEIVED',
+              success: true,
+              textLength: this.userText.length
+            }, event.origin);
+            console.log('✅ Confirmation sent back to plugin');
+          } catch (error) {
+            console.error('❌ Error sending confirmation:', error);
+          }
+        } else {
+          console.warn('⚠️ No event.source, cannot send confirmation');
         }
         
-        console.log('✅ Plugin page data successfully set in canvas');
+        console.log('✅ Plugin page data successfully set in canvas, userText length:', this.userText.length);
       }
     });
   }
@@ -498,13 +518,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         
         this.integrationMode.sendMetadataToParent(pluginMetadata);
         
-        // Show success message
-        alert(this.i18n.instant('ALERTS.PLUGIN.SENT') + '\n\n' + this.i18n.instant('ALERTS.PLUGIN.MESSAGE'));
-        
-        // Close canvas after short delay
+        // Close canvas immediately after sending
         setTimeout(() => {
           this.integrationMode.requestClose();
-        }, 1500);
+        }, 500);
         
         this.isSubmitting = false;
         return;
@@ -525,30 +542,15 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
           }
         }, 500);
       } else if (result.duplicate) {
-        // DUPLICATE
-        const viewInRepo = confirm(
-          this.i18n.instant('ALERTS.DUPLICATE.TITLE') + '\n\n' + 
-          result.error + '\n\n' + 
-          this.i18n.instant('ALERTS.DUPLICATE.NODE_ID') + ' ' + result.nodeId + '\n\n' + 
-          this.i18n.instant('ALERTS.VIEW_IN_REPO')
-        );
-        
-        if (viewInRepo && result.nodeId) {
-          const repoUrl = `${environment.repository.baseUrl}/components/render/${result.nodeId}`;
-          window.open(repoUrl, '_blank');
-        }
+        // DUPLICATE - Show custom dialog
+        this.showDuplicateDialog(result.nodeId!, result.error || '');
       } else {
-        // ERROR
-        alert(
-          this.i18n.instant('ALERTS.ERROR.SUBMISSION_ERROR') + '\n\n' +
-          (result.error || 'Unknown Error') + '\n\n' +
-          this.i18n.instant('ALERTS.ERROR.TRY_AGAIN')
-        );
+        // ERROR - Show custom dialog
+        this.showErrorDialog(result.error || 'Unknown Error');
       }
     } catch (error) {
       console.error('Submission error:', error);
-      alert(
-        this.i18n.instant('ALERTS.ERROR.TECHNICAL_ERROR') + '\n\n' +
+      this.showErrorDialog(
         this.i18n.instant('ALERTS.ERROR.DETAILS') + ' ' +
         (error instanceof Error ? error.message : 'Unknown')
       );
@@ -579,29 +581,153 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   showSuccessDialog(nodeId: string): void {
     const repoUrl = `${environment.repository.baseUrl}/components/render/${nodeId}`;
     
-    // Create modal HTML with translations
+    // Create modal HTML with translations and QR code
     const dialogHTML = `
-      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;">
-        <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          <h2 style="margin: 0 0 20px 0; color: #28a745;">${this.i18n.instant('ALERTS.SUCCESS.TITLE')}</h2>
+      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(2px);">
+        <div style="background: white; padding: 24px; border-radius: 16px; max-width: 520px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
           
-          <p style="margin-bottom: 15px;">${this.i18n.instant('ALERTS.SUCCESS.MESSAGE')}</p>
-          
-          <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-            <p style="margin: 0 0 10px 0;"><strong>${this.i18n.instant('ALERTS.SUCCESS.NODE_ID')}</strong></p>
-            <a href="${repoUrl}" target="_blank" style="color: #007bff; text-decoration: none; word-break: break-all; font-family: monospace;">${nodeId}</a>
-            <p style="margin: 15px 0 0 0;"><strong>${this.i18n.instant('ALERTS.SUCCESS.STATUS')}</strong></p>
-            <p style="margin: 10px 0 0 0;"><strong>${this.i18n.instant('ALERTS.SUCCESS.REPOSITORY')}</strong></p>
+          <!-- Info Section -->
+          <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%); border-left: 4px solid #003B7C; box-shadow: 0 1px 3px rgba(0, 59, 124, 0.08); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <div style="margin-bottom: 16px;">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <span style="font-size: 20px; flex-shrink: 0;">🔑</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 11px; color: #003B7C; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">${this.i18n.instant('ALERTS.SUCCESS.NODE_ID')}</div>
+                  <div style="font-size: 12px; color: #003B7C; font-family: monospace; font-weight: 500;">${nodeId}</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <span style="font-size: 20px; flex-shrink: 0;">🔗</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 11px; color: #003B7C; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Repository-Link</div>
+                  <a href="${repoUrl}" target="_blank" style="font-size: 12px; color: #003B7C; text-decoration: none; word-break: break-all; font-weight: 500;">${repoUrl}</a>
+                </div>
+              </div>
+            </div>
           </div>
           
-          <p style="margin-bottom: 20px;">${this.i18n.instant('ALERTS.SUCCESS.THANK_YOU')}</p>
+          <!-- QR Code Section -->
+          <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align: center;">
+            <div style="font-size: 11px; color: #003B7C; font-weight: 600; text-transform: uppercase; margin-bottom: 12px;">📱 QR-Code zum Teilen</div>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(repoUrl)}" 
+                 alt="QR Code" 
+                 style="width: 150px; height: 150px; border-radius: 8px;"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; color: #718096; font-size: 12px; padding: 20px;">QR-Code konnte nicht geladen werden</div>
+            <div style="font-size: 11px; color: #718096; margin-top: 8px;">Inhalt im Repository öffnen</div>
+          </div>
           
-          <div style="display: flex; gap: 10px;">
-            <a href="${repoUrl}" target="_blank" style="flex: 1; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; text-align: center;">
-              ${this.i18n.instant('ALERTS.SUCCESS.VIEW_IN_REPO_BTN')}
+          <!-- Buttons -->
+          <div style="display: flex; gap: 12px;">
+            <a href="${repoUrl}" target="_blank" style="flex: 1; background-color: #003B7C !important; background-image: linear-gradient(135deg, #003B7C 0%, #004a99 100%) !important; color: #ffffff !important; padding: 14px 20px; text-decoration: none !important; border-radius: 10px; text-align: center; font-weight: 600; box-shadow: 0 2px 8px rgba(0,59,124,0.25); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span style="font-size: 18px;">👁️</span>
+              <span>${this.i18n.instant('ALERTS.SUCCESS.VIEW_IN_REPO_BTN')}</span>
             </a>
-            <button onclick="this.closest('[style*=\\'position: fixed\\']').remove()" style="flex: 1; background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
-              ${this.i18n.instant('HEADER.CLOSE')}
+            <button onclick="this.closest('[style*=\\'position: fixed\\']').remove()" style="flex: 1; background: #f5f7fb; color: #003B7C; border: 2px solid #d4d9e3; padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span style="font-size: 18px;">✓</span>
+              <span>${this.i18n.instant('HEADER.CLOSE')}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert dialog into DOM
+    const dialogElement = document.createElement('div');
+    dialogElement.innerHTML = dialogHTML;
+    document.body.appendChild(dialogElement.firstElementChild!);
+  }
+
+  /**
+   * Show duplicate dialog with clickable link to existing repository node
+   */
+  showDuplicateDialog(nodeId: string, errorMessage: string): void {
+    const repoUrl = `${environment.repository.baseUrl}/components/render/${nodeId}`;
+    
+    // Create modal HTML with translations and QR code
+    const dialogHTML = `
+      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(2px);">
+        <div style="background: white; padding: 24px; border-radius: 16px; max-width: 520px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+          
+          <!-- Warning Box -->
+          <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe8cc 100%); padding: 16px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ff9800; box-shadow: 0 1px 3px rgba(255, 152, 0, 0.1);">
+            <div style="font-weight: 600; color: #e65100; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <span>🔗</span>
+              <span>${this.i18n.instant('ALERTS.DUPLICATE.TITLE')}</span>
+            </div>
+            <div style="font-size: 14px; color: #e65100; line-height: 1.5;">${errorMessage}</div>
+          </div>
+          
+          <!-- Info Section -->
+          <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%); border-left: 4px solid #003B7C; box-shadow: 0 1px 3px rgba(0, 59, 124, 0.08); border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+            <div>
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <span style="font-size: 20px; flex-shrink: 0;">🔑</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 11px; color: #003B7C; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">${this.i18n.instant('ALERTS.DUPLICATE.NODE_ID')}</div>
+                  <div style="font-size: 12px; color: #003B7C; font-family: monospace; font-weight: 500;">${nodeId}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- QR Code Section -->
+          <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;">
+            <div style="font-size: 11px; color: #003B7C; font-weight: 600; text-transform: uppercase; margin-bottom: 12px;">📱 QR-Code zum vorhandenen Inhalt</div>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(repoUrl)}" 
+                 alt="QR Code" 
+                 style="width: 150px; height: 150px; border-radius: 8px;"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; color: #718096; font-size: 12px; padding: 20px;">QR-Code konnte nicht geladen werden</div>
+            <div style="font-size: 11px; color: #718096; margin-top: 8px;">Vorhandenen Inhalt im Repository öffnen</div>
+          </div>
+          
+          <!-- Buttons -->
+          <div style="display: flex; gap: 12px;">
+            <a href="${repoUrl}" target="_blank" style="flex: 1; background-color: #003B7C !important; background-image: linear-gradient(135deg, #003B7C 0%, #004a99 100%) !important; color: #ffffff !important; padding: 14px 20px; text-decoration: none !important; border-radius: 10px; text-align: center; font-weight: 600; box-shadow: 0 2px 8px rgba(0,59,124,0.25); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span style="font-size: 18px;">👁️</span>
+              <span>Im Repository ansehen</span>
+            </a>
+            <button onclick="this.closest('[style*=\\'position: fixed\\']').remove()" style="flex: 1; background: #f5f7fb; color: #003B7C; border: 2px solid #d4d9e3; padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span style="font-size: 18px;">✓</span>
+              <span>${this.i18n.instant('HEADER.CLOSE')}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert dialog into DOM
+    const dialogElement = document.createElement('div');
+    dialogElement.innerHTML = dialogHTML;
+    document.body.appendChild(dialogElement.firstElementChild!);
+  }
+
+  /**
+   * Show error dialog
+   */
+  showErrorDialog(errorMessage: string): void {
+    // Create modal HTML with translations
+    const dialogHTML = `
+      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(2px);">
+        <div style="background: white; padding: 24px; border-radius: 16px; max-width: 520px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+          
+          <!-- Error Box -->
+          <div style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); padding: 16px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ba1a1a; box-shadow: 0 1px 3px rgba(186, 26, 26, 0.1);">
+            <div style="font-weight: 600; color: #ba1a1a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <span>⚠️</span>
+              <span>${this.i18n.instant('ALERTS.ERROR.SUBMISSION_ERROR')}</span>
+            </div>
+            <p style="margin: 0; font-weight: 500; color: #ba1a1a; font-size: 14px; line-height: 1.5;">${errorMessage}</p>
+          </div>
+          
+          <!-- Button -->
+          <div style="display: flex; gap: 12px;">
+            <button onclick="this.closest('[style*=\\'position: fixed\\']').remove()" style="flex: 1; background-color: #003B7C !important; background-image: linear-gradient(135deg, #003B7C 0%, #004a99 100%) !important; color: #ffffff !important; padding: 14px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,59,124,0.25); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span style="font-size: 18px;">✓</span>
+              <span>${this.i18n.instant('HEADER.CLOSE')}</span>
             </button>
           </div>
         </div>

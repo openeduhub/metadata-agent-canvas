@@ -122,8 +122,8 @@
       "NODE_ID": "📋 Node ID:"
     },
     "PLUGIN": {
-      "SENT": "📤 Metadata sent to browser plugin!",
-      "MESSAGE": "The data has been successfully transferred to the browser plugin.\nThe plugin will now publish to the repository.\n\nThank you! 🎉"
+      "SENT": "Successfully transferred!",
+      "MESSAGE": "The metadata has been passed to the browser plugin and will now be published to the repository."
     }
   },
   "LANGUAGE": {

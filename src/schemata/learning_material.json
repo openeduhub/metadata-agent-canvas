@@ -74,7 +74,7 @@
         "uri": "http://w3id.org/openeduhub/vocabs/new_lrt/",
         "datatype": "array",
         "multiple": true,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {

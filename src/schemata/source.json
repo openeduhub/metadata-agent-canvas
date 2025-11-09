@@ -66,7 +66,7 @@
         "uri": "sdo:additionalType",
         "datatype": "array",
         "multiple": true,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {

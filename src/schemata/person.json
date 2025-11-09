@@ -79,7 +79,7 @@
         "uri": "sdo:name",
         "datatype": "string",
         "multiple": false,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {
@@ -112,7 +112,7 @@
         "uri": "sdo:givenName",
         "datatype": "string",
         "multiple": false,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {
@@ -144,7 +144,7 @@
         "uri": "sdo:familyName",
         "datatype": "string",
         "multiple": false,
-        "required": true,
+        "required": false,
         "ask_user": true,
         "ai_fillable": true,
         "index": {
