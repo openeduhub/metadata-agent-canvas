@@ -21,8 +21,8 @@ jobs:
           submodules: true
       - uses: azure/docker-login@v1
         with:
-          username: ${{ secrets.DOCKER_EDU_HUB_REGISTRY_USERNAME }}
-          password: ${{ secrets.DOCKER_EDU_HUB_REGISTRY_PASSWORD }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
       - name: Build Docker image
