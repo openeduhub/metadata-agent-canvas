@@ -22,7 +22,7 @@ jobs:
       - uses: azure/docker-login@v1
         with:
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          password: ${{ secrets.DOCKER_EDU_HUB_REGISTRY_PASSWORD }}
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
       - name: Build Docker image
