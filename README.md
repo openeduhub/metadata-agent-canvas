@@ -684,6 +684,102 @@ Nach dem Deployment:
 
 ---
 
+### Deployment auf Docker (Production)
+
+**🚀 Production URL:** https://metadata-agent-canvas.staging.openeduhub.net/
+
+#### 1. Environment Variables konfigurieren
+
+Erstellen Sie eine `.env` Datei basierend auf `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+**Erforderliche Variables:**
+
+```bash
+# Server Configuration
+NODE_ENV=production
+PORT=3000
+
+# CORS Configuration (wichtig!)
+# Comma-separated list of allowed origins
+ALLOWED_ORIGINS=https://your-domain.com,https://app.your-domain.com
+
+# Rate Limits (Optional, Defaults sind für 20 parallel workers)
+RATE_LIMIT_LLM_MAX=1000      # LLM requests per minute
+RATE_LIMIT_API_MAX=10000     # API requests per 15 minutes
+
+# LLM Provider
+LLM_PROVIDER=b-api-openai
+
+# API Keys (NIEMALS committen!)
+B_API_KEY=your-uuid-key-here
+OPENAI_API_KEY=sk-proj-your-key-here
+
+# OpenAI Model (Optional)
+OPENAI_MODEL=gpt-4.1-mini
+
+# WLO Repository Credentials
+WLO_GUEST_USERNAME=WLO-Upload
+WLO_GUEST_PASSWORD=your-password-here
+WLO_REPOSITORY_BASE_URL=https://repository.staging.openeduhub.net/edu-sharing
+```
+
+#### 2. Docker Build & Run
+
+**Mit Docker Compose (empfohlen):**
+```bash
+docker-compose up -d
+```
+
+**Oder manuell:**
+```bash
+# Build
+docker build -t metadata-agent-canvas .
+
+# Run
+docker run -d \
+  --name metadata-agent-canvas \
+  -p 3000:3000 \
+  --env-file .env \
+  metadata-agent-canvas
+```
+
+#### 3. Testen
+
+Nach dem Start:
+- Öffnen Sie `http://localhost:3000` oder Ihre Production-URL
+- Browser-Konsole sollte zeigen:
+  ```
+  🐳 Platform: Docker
+  🚀 Production: B-API-OPENAI via Docker → /api/llm
+  ```
+- API-Keys sind nicht im Code sichtbar ✅
+
+#### 🛡️ Security Best Practices
+
+**Environment Variables:**
+- ✅ NIEMALS `.env` File in Git committen (ist in `.gitignore`)
+- ✅ API-Keys geheim halten
+- ✅ `ALLOWED_ORIGINS` in Production einschränken (NICHT `*` verwenden)
+- ✅ HTTPS in Production verwenden
+- ✅ Starke Passwörter für WLO-Credentials
+- ✅ Docker Secrets für sensible Daten erwägen
+
+**CORS Configuration:**
+- **Development:** `http://localhost:3000`
+- **Production:** Nur vertrauenswürdige Domains (komma-separiert)
+- **Beispiel:** `https://metadata-agent-canvas.staging.openeduhub.net,https://repository.staging.openeduhub.net`
+
+**Rate Limiting:**
+- Standard-Werte sind für 20 parallele Worker optimiert
+- Bei Bedarf erhöhen (z.B. mehr concurrent Extraktionen)
+- Schützt vor API-Überlastung
+
+---
+
 ### Platform-Kompatibilität
 
 | Feature | Docker 🐳 | Netlify | Vercel | Lokal |
