@@ -15,7 +15,7 @@
   
   // Create iframe
   const iframe = d.createElement('iframe');
-  iframe.src = 'https://metadata-agent-canvas.vercel.app/?mode=bookmarklet';
+  iframe.src = 'https://metadata-agent-canvas.staging.openeduhub.net/?mode=bookmarklet';
   iframe.style.cssText = 'width:100%;height:100%;border:none';
   container.appendChild(iframe);
   d.body.appendChild(container);

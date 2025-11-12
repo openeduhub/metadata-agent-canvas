@@ -4,6 +4,8 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 
 **✨ Multi-Mode Integration:** Läuft als Standalone-App, Bookmarklet-Overlay oder integriert im Browser-Plugin!
 
+**🚀 Production URL:** https://metadata-agent-canvas.staging.openeduhub.net/
+
 ## 🎯 Features
 
 ### 🆕 **NEU in v2.1.0 (November 2025)**
@@ -31,7 +33,7 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 - 🔖 **Bookmarklet**: Als Overlay auf beliebigen Webseiten
 - 🧩 **Browser-Plugin**: Integriert in WLO Browser Extension
 - 🔄 **Auto-Detection**: Erkennt automatisch den Betriebsmodus
-- 📤 **Smart Submit**: Mode-abhängige Daten-Submission (Netlify Functions oder postMessage)
+- 📤 **Smart Submit**: Mode-abhängige Daten-Submission (Server API oder postMessage)
 
 ---
 
@@ -60,7 +62,7 @@ cp .env.example .env
 
 ```bash
 # ⚠️ WICHTIG: Deployment Platform (steuert API-Endpunkte)
-# Optionen: local, vercel, netlify, auto
+# Optionen: local, vercel, netlify, docker, auto
 DEPLOYMENT_PLATFORM=local
 
 # LLM Provider (openai, b-api-openai, b-api-academiccloud)
@@ -80,11 +82,13 @@ Diese Variable ist nur für **lokale Entwicklung** relevant:
 | `local` | `http://localhost:3001/*` | Lokale Entwicklung (Standard) |
 | `vercel` | `/api/*` | Lokales Testen der Vercel-Config |
 | `netlify` | `/.netlify/functions/*` | Lokales Testen der Netlify-Config |
+| `docker` | Relative Pfade (`/api/*`) | Docker Container (Production) |
 
 **⚠️ Für Production/Deployment:**
 - ✅ **Auto-Detection** (Runtime) - Erkennt Platform automatisch
-- ✅ Funktioniert für **Vercel UND Netlify** ohne Config
+- ✅ Funktioniert für **Vercel, Netlify UND Docker** ohne Config
 - ✅ Kein Setup nötig - Just deploy!
+- 🐳 **Production läuft auf Docker:** https://metadata-agent-canvas.staging.openeduhub.net/
 
 ---
 
@@ -224,7 +228,7 @@ npm run build:safe
 npm run build
 
 # Output in dist/ Verzeichnis
-# Bereit für Deployment auf Netlify/Vercel
+# Bereit für Deployment (Netlify, Vercel, Docker, etc.)
 ```
 
 **💡 Tipp:** `build:safe` validiert, dass keine API-Keys im Bundle landen!
@@ -539,12 +543,15 @@ styles.*.css         | styles     | 89 kB    | 7.5 kB
 
 ---
 
-### 🌐 Universal Deployment - Netlify & Vercel
+### 🌐 Universal Deployment - Multi-Platform Support
 
-Die Canvas-App funktioniert auf **beiden** Plattformen automatisch dank **Platform-Detection**!
+Die Canvas-App funktioniert auf **mehreren Plattformen** automatisch dank **Platform-Detection**!
+
+**🚀 Production läuft auf Docker:** https://metadata-agent-canvas.staging.openeduhub.net/
 
 #### ✨ Auto-Detection Features
 
+- ✅ **Docker:** `/api/*` (Production) 🐳
 - ✅ **Netlify:** `/.netlify/functions/openai-proxy`
 - ✅ **Vercel:** `/api/openai-proxy`
 - ✅ **Lokal:** `http://localhost:3001/llm`
@@ -679,15 +686,18 @@ Nach dem Deployment:
 
 ### Platform-Kompatibilität
 
-| Feature | Netlify | Vercel | Lokal |
-|---------|---------|--------|-------|
-| **LLM Proxy** | ✅ | ✅ | ✅ |
-| **Geocoding** | ✅ | ✅ | ✅ |
-| **Browser-Plugin** | ✅ | ✅ | ✅ |
-| **Auto-Detection** | ✅ | ✅ | ✅ |
-| **Zero Config** | ✅ | ✅ | ✅ |
+| Feature | Docker 🐳 | Netlify | Vercel | Lokal |
+|---------|---------|---------|--------|-------|
+| **LLM Proxy** | ✅ | ✅ | ✅ | ✅ |
+| **Geocoding** | ✅ | ✅ | ✅ | ✅ |
+| **Repository API** | ✅ | ✅ | ✅ | ✅ |
+| **Browser-Plugin** | ✅ | ✅ | ✅ | ✅ |
+| **Auto-Detection** | ✅ | ✅ | ✅ | ✅ |
+| **Zero Config** | ✅ | ✅ | ✅ | ✅ |
 
-**Tipp:** Dual-Deployment möglich - deploye auf beide Plattformen für Redundanz!
+**🚀 Production:** Docker Container (https://metadata-agent-canvas.staging.openeduhub.net/)
+
+**Tipp:** Multi-Platform Deployment möglich - deploye auf mehrere Plattformen für Redundanz!
 
 ---
 
@@ -697,12 +707,14 @@ Die Canvas-Komponente unterstützt **drei Betriebsmodi** und erkennt automatisch
 
 ### 1. 🌐 Standalone Mode
 
-**Wann:** Direkter Zugriff auf die deployed URL (z.B. `https://your-site.netlify.app`)
+**Wann:** Direkter Zugriff auf die deployed URL
+
+**Production URL:** https://metadata-agent-canvas.staging.openeduhub.net/
 
 **Features:**
 - ✅ Vollständige Canvas-UI
 - ✅ Manuelle Text-Eingabe
-- ✅ Submit zu Netlify Functions (Repository API)
+- ✅ Submit zu Server API (Repository API)
 - ✅ JSON-Download
 - ❌ Kein Close-Button (volle Seite)
 
@@ -719,20 +731,20 @@ Die Canvas-Komponente unterstützt **drei Betriebsmodi** und erkennt automatisch
 - ✅ Close-Button (×)
 - ✅ Mode-Badge: "Bookmarklet"
 - ✅ URL automatisch übergeben via postMessage
-- ✅ Submit zu Netlify Functions
+- ✅ Submit zu Server API
 - ✅ Automatisches Schließen nach Submit
 
 **Workflow:**
 ```
 Bookmarklet-Script ausführen
   ↓
-Canvas öffnet als iframe
+Canvas öffnet als iframe (von Docker-URL)
   ↓
 postMessage: SET_PAGE_DATA (URL, Text)
   ↓
 User extrahiert Metadaten
   ↓
-Submit → Netlify Functions → Repository
+Submit → Server API → Repository
   ↓
 Canvas schließt sich
 ```
@@ -831,7 +843,7 @@ async submitAsGuest() {
     return;  // Kein Repository-Call!
   }
   
-  // STANDALONE/BOOKMARKLET: Netlify Functions
+  // STANDALONE/BOOKMARKLET: Server API
   const result = await this.guestSubmission.submitAsGuest(metadata);
   // ... Repository-Submission
 }
@@ -977,9 +989,9 @@ Die App reichert Adressdaten **automatisch mit Geo-Koordinaten** an, bevor der J
 **🛡️ Technische Details:**
 - **Rate Limiting:** 1 Request/Sekunde (Photon API-Limit)
 - **Sequenzielle Verarbeitung:** Mehrere Adressen werden nacheinander verarbeitet
-- **Netlify-Proxy:** Production-Build nutzt Server-side Proxy
+- **Server-Proxy:** Production nutzt Server-side Proxy (Docker/Netlify/Vercel)
 - **Lokal:** Direkter API-Zugriff ohne Proxy
-- **Caching:** 10 Minuten Cache auf Netlify (gleiche Adresse = kein erneuter Request)
+- **Caching:** 10 Minuten Cache in Production (gleiche Adresse = kein erneuter Request)
 
 ### Konfiguration
 
@@ -988,7 +1000,7 @@ Die Geocoding-Funktion ist **standardmäßig aktiviert** und benötigt keine Kon
 **Services:**
 - `geocoding.service.ts` - Photon API Integration
 - `canvas.service.ts` - Anreicherungs-Logik vor Export
-- `netlify/functions/photon.js` - Server-side Proxy für Production
+- `server/` - Server-side Proxy für Production (Docker/Functions)
 
 **Logging:**
 ```
