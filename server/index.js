@@ -58,7 +58,7 @@ app.use(helmet({
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3001"],
       frameSrc: ["'self'"],
-      frameAncestors: ["* chrome-extension://randomletters"],
+      frameAncestors: ["* chrome-extension://*"],
     },
   },
   crossOriginEmbedderPolicy: false,
