@@ -1,46 +1,5 @@
 <div class="canvas-container">
-  <!-- Header with User Info (for integration modes) -->
-  <div class="canvas-header" *ngIf="integrationMode.isBrowserExtension() || integrationMode.isBookmarklet()">
-    <div class="header-left">
-      <mat-chip-set>
-        <mat-chip class="mode-badge" highlighted>
-          {{ integrationMode.getModeDisplayName() }}
-        </mat-chip>
-      </mat-chip-set>
-      <!-- User-Info ausgeblendet - Benutzermodus wird nicht korrekt aus WLO App erkannt -->
-    </div>
-    <div class="header-right">
-      <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
-      
-      <button 
-        mat-icon-button
-        class="control-button save-button"
-        [class.active]="canSubmit()"
-        [disabled]="!canSubmit()"
-        (click)="downloadJson()"
-        [matTooltip]="'JSON herunterladen'">
-        <mat-icon>save</mat-icon>
-      </button>
-      
-      <button 
-        mat-icon-button
-        class="control-button upload-button"
-        [class.active]="canSubmit()"
-        [disabled]="!canSubmit()"
-        (click)="submitMetadata()"
-        [matTooltip]="'An Plugin senden'">
-        <mat-icon>cloud_upload</mat-icon>
-      </button>
-      
-      <app-language-switcher></app-language-switcher>
-      <button mat-icon-button class="btn-close" (click)="closeCanvas()" [matTooltip]="'HEADER.CLOSE' | translate">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  </div>
-
-  <!-- Language Switcher & JSON Loader for Standalone Mode (no browser extension header) -->
-  <div class="standalone-controls" *ngIf="!integrationMode.isBrowserExtension() && !integrationMode.isBookmarklet()">
+  <div class="canvas-controls">
     <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
     
     <button 
@@ -49,7 +8,7 @@
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="downloadJson()"
-      [matTooltip]="'JSON herunterladen'">
+      [matTooltip]="'TOOLTIPS.DOWNLOAD_JSON' | translate">
       <mat-icon>save</mat-icon>
     </button>
     
@@ -59,11 +18,20 @@
       [class.active]="canSubmit()"
       [disabled]="!canSubmit()"
       (click)="submitMetadata()"
-      [matTooltip]="'An Plugin senden'">
+      [matTooltip]="'TOOLTIPS.SUBMIT_SUGGESTION' | translate">
       <mat-icon>cloud_upload</mat-icon>
     </button>
     
     <app-language-switcher></app-language-switcher>
+
+    <button 
+      *ngIf="integrationMode.isBrowserExtension() || integrationMode.isBookmarklet()"
+      mat-icon-button
+      class="control-button btn-close"
+      (click)="closeCanvas()"
+      [matTooltip]="'HEADER.CLOSE' | translate">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 
   <!-- Input Section -->
@@ -168,13 +136,13 @@
         <h3>📋 {{ group.label }}</h3>
         <div class="group-badges">
           <span class="group-badge schema-badge">{{ group.schemaName }}</span>
-          <span class="group-badge count-badge">{{ getFilledFieldsCount(group) }} / {{ group.fields.length }}</span>
+          <span class="group-badge count-badge">{{ getFilledFieldsCount(group) }} / {{ getFlattenedFields(group.fields).length }}</span>
           <span class="badge-text">{{ 'PROGRESS.FIELDS_RECOGNIZED' | translate }}</span>
         </div>
       </div>
       <div class="group-fields">
         <app-canvas-field
-          *ngFor="let field of group.fields; trackBy: trackByFieldId"
+          *ngFor="let field of getFlattenedFields(group.fields); trackBy: trackByFieldId"
           [field]="field"
           (fieldChange)="onFieldChange($event)"
         ></app-canvas-field>
@@ -203,65 +171,67 @@
       <!-- Bookmarklet Mode: Beide Buttons -->
       <ng-container *ngIf="integrationMode.isBookmarklet()">
         <button 
-          mat-raised-button
-          color="primary"
-          class="footer-primary-button"
-          (click)="submitAsGuest()"
-          [disabled]="!allRequiredFieldsFilled() || isSubmitting"
+          mat-icon-button
+          class="control-button save-button"
+          [class.active]="allRequiredFieldsFilled()"
+          [disabled]="!allRequiredFieldsFilled()"
+          (click)="downloadJson()"
+          [matTooltip]="allRequiredFieldsFilled() ? ('TOOLTIPS.DOWNLOAD_JSON' | translate) : ('FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total })"
         >
-          <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SUBMIT_GUEST' | translate }}</span>
-          <span *ngIf="isSubmitting">{{ 'FOOTER.SUBMITTING' | translate }}</span>
-          <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
+          <mat-icon>save</mat-icon>
         </button>
         
         <button 
-          mat-stroked-button
-          class="footer-secondary-button"
-          (click)="downloadJson()"
-          [disabled]="!allRequiredFieldsFilled()"
+          mat-icon-button
+          class="control-button upload-button"
+          [class.active]="allRequiredFieldsFilled() && !isSubmitting"
+          [disabled]="!allRequiredFieldsFilled() || isSubmitting"
+          (click)="submitAsGuest()"
+          [matTooltip]="isSubmitting ? ('FOOTER.SUBMITTING' | translate) : allRequiredFieldsFilled() ? ('TOOLTIPS.SUBMIT_SUGGESTION' | translate) : ('FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total })"
         >
-          <span *ngIf="allRequiredFieldsFilled()">{{ 'FOOTER.DOWNLOAD_JSON' | translate }}</span>
-          <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
+          <mat-icon *ngIf="!isSubmitting">cloud_upload</mat-icon>
+          <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
         </button>
       </ng-container>
       
       <!-- Standalone: Beide Buttons (wie Bookmarklet) -->
       <ng-container *ngIf="integrationMode.isStandalone()">
         <button 
-          mat-raised-button
-          color="primary"
-          class="footer-primary-button"
-          (click)="submitAsGuest()"
-          [disabled]="!allRequiredFieldsFilled() || isSubmitting"
+          mat-icon-button
+          class="control-button save-button"
+          [class.active]="allRequiredFieldsFilled()"
+          [disabled]="!allRequiredFieldsFilled()"
+          (click)="downloadJson()"
+          [matTooltip]="allRequiredFieldsFilled() ? ('TOOLTIPS.DOWNLOAD_JSON' | translate) : ('FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total })"
         >
-          <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SUBMIT_GUEST' | translate }}</span>
-          <span *ngIf="isSubmitting">{{ 'FOOTER.SUBMITTING' | translate }}</span>
-          <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
+          <mat-icon>save</mat-icon>
         </button>
         
         <button 
-          mat-stroked-button
-          class="footer-secondary-button"
-          (click)="downloadJson()"
-          [disabled]="!allRequiredFieldsFilled()"
+          mat-icon-button
+          class="control-button upload-button"
+          [class.active]="allRequiredFieldsFilled() && !isSubmitting"
+          [disabled]="!allRequiredFieldsFilled() || isSubmitting"
+          (click)="submitAsGuest()"
+          [matTooltip]="isSubmitting ? ('FOOTER.SUBMITTING' | translate) : allRequiredFieldsFilled() ? ('TOOLTIPS.SUBMIT_SUGGESTION' | translate) : ('FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total })"
         >
-          <span *ngIf="allRequiredFieldsFilled()">{{ 'FOOTER.DOWNLOAD_JSON' | translate }}</span>
-          <span *ngIf="!allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
+          <mat-icon *ngIf="!isSubmitting">cloud_upload</mat-icon>
+          <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
         </button>
       </ng-container>
       
       <!-- Browser Extension: Ein Button -->
       <button 
         *ngIf="integrationMode.isBrowserExtension()"
-        mat-raised-button
-        color="primary"
-        class="footer-primary-button footer-button-block"
-        (click)="submitAsGuest()"
+        mat-icon-button
+        class="control-button upload-button"
+        [class.active]="allRequiredFieldsFilled() && !isSubmitting"
         [disabled]="!allRequiredFieldsFilled() || isSubmitting"
+        (click)="submitAsGuest()"
+        [matTooltip]="isSubmitting ? ('FOOTER.SENDING' | translate) : allRequiredFieldsFilled() ? ('TOOLTIPS.SUBMIT_SUGGESTION' | translate) : ('FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total })"
       >
-        <span *ngIf="!isSubmitting && allRequiredFieldsFilled()">{{ 'FOOTER.SEND_TO_PLUGIN' | translate }}</span>
-        <span *ngIf="isSubmitting">{{ 'FOOTER.SENDING' | translate }}</span>
-        <span *ngIf="!isSubmitting && !allRequiredFieldsFilled()">{{ 'FOOTER.REQUIRED_FIELDS_MISSING' | translate:{ filled: getRequiredFieldsStatus().filled, total: getRequiredFieldsStatus().total } }}</span>
+        <mat-icon *ngIf="!isSubmitting">cloud_upload</mat-icon>
+        <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
       </button>
     </div>
   </div>

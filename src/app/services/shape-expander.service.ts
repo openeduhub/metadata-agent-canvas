@@ -308,6 +308,7 @@ export class ShapeExpanderService {
       datatype: datatype,
       multiple: fieldDef.system?.multiple || false,
       parentFieldId: parentField.fieldId,
+      parentFieldLabel: parentField.label,  // Store parent label for display
       path: propertyPath,
       arrayIndex: arrayIndex,
       // Mark as parent if it has nested fields
@@ -354,6 +355,7 @@ export class ShapeExpanderService {
       datatype: datatype,
       multiple: false,
       parentFieldId: parentField.fieldId,
+      parentFieldLabel: parentField.label,  // Store parent label for display
       path: propertyPath,
       arrayIndex: arrayIndex
     };

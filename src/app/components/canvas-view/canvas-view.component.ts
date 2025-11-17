@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -45,6 +46,7 @@ import { environment } from '../../../environments/environment';
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatCardModule,
     MatRadioModule,
     MatSelectModule,
@@ -862,10 +864,11 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get filled fields count for a group
+   * Get filled fields count for a group (only actual input fields)
    */
   getFilledFieldsCount(group: FieldGroup): number {
-    return group.fields.filter(f => f.status === FieldStatus.FILLED).length;
+    const flatFields = this.getFlattenedFields(group.fields);
+    return flatFields.filter(f => f.status === FieldStatus.FILLED).length;
   }
 
   /**
@@ -983,6 +986,26 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    */
   trackByFieldId(index: number, field: any): string {
     return field.fieldId;
+  }
+
+  /**
+   * Flatten fields to include subfields (but skip parent containers)
+   */
+  getFlattenedFields(fields: any[]): any[] {
+    const flattened: any[] = [];
+    
+    for (const field of fields) {
+      if (field.isParent && field.subFields && field.subFields.length > 0) {
+        // Skip parent, add all subfields
+        flattened.push(...field.subFields);
+      } else if (!field.isParent) {
+        // Add regular field
+        flattened.push(field);
+      }
+      // If parent has no subfields, skip it entirely
+    }
+    
+    return flattened;
   }
 
   /**

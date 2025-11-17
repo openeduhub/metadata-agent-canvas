@@ -39,13 +39,13 @@
   },
   "INPUT": {
     "PLACEHOLDER": "Beschreiben Sie die Ressource, die Sie erschließen möchten...",
-    "START_EXTRACTION": "🚀 Extraktion starten",
-    "EXTRACTING": "⏳ Extrahiere...",
-    "RESET": "🔄 Zurücksetzen"
+    "START_EXTRACTION": "Extraktion starten",
+    "EXTRACTING": "Extrahiere...",
+    "RESET": "Zurücksetzen"
   },
   "CONTENT_TYPE": {
     "LABEL": "Inhaltsart",
-    "CHANGE": "✏️ ÄNDERN",
+    "CHANGE": "ÄNDERN",
     "SELECT": "Inhaltsart wählen",
     "NOT_DETECTED": "Nicht erkannt",
     "CONFIDENCE": "Konfidenz"
@@ -68,11 +68,19 @@
     "ADD_CHIP": "Hinzufügen",
     "REMOVE_CHIP": "Entfernen",
     "SHOW_ON_MAP": "Auf OpenStreetMap anzeigen",
-    "FIELD_INFO": "Feldinfo"
+    "FIELD_INFO": "Feldinfo",
+    "MULTIPLE_HINT": "Mehrere Werte möglich. Wähle aus dem Dropdown oder gib Werte ein.",
+    "REQUIRED_HINT": "⚠️ Pflichtfeld",
+    "VOCABULARY_CONTROLLED": "Nutze ausschließlich Begriffe aus dem geschlossenen Vokabular.",
+    "VOCABULARY_OPEN": "Nutze bevorzugt Begriffe aus dem Vokabular."
   },
   "EMPTY_STATE": {
     "TITLE": "Bereit für die Extraktion",
     "MESSAGE": "Geben Sie eine Beschreibung ein und klicken Sie auf \"Extraktion starten\""
+  },
+  "TOOLTIPS": {
+    "SUBMIT_SUGGESTION": "Vorschlag einreichen",
+    "DOWNLOAD_JSON": "JSON herunterladen"
   },
   "FOOTER": {
     "FIELDS_INFO": "von {{total}} Feldern gefüllt",

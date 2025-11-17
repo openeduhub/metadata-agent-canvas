@@ -8,11 +8,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { CanvasFieldState, FieldStatus } from '../../models/canvas-models';
 import { I18nService } from '../../services/i18n.service';
 
@@ -41,6 +40,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
   @Input() field!: CanvasFieldState;
   @Output() fieldChange = new EventEmitter<{ fieldId: string; value: any }>();
   @ViewChild('textareaRef') textareaRef?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('mainAutocomplete') autocompleteTrigger?: MatAutocompleteTrigger;
   
   private destroy$ = new Subject<void>();
 
@@ -48,6 +48,13 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
   filteredOptions: string[] = [];
   showAutocomplete = false;
   inputValue = '';  // Collapsed by default
+
+  private supportIdCache = new Map<string, string>();
+  
+  // Cached text to avoid recalculation on every change detection
+  supportText: string = '';
+  errorText: string = '';
+  hasError: boolean = false;
 
   constructor(
     public i18n: I18nService,
@@ -59,8 +66,134 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
     if (this.field.vocabulary) {
       this.filteredOptions = this.field.vocabulary.concepts.map(c => c.label);
     }
+    // Initialize cached texts
+    this.updateCachedTexts();
   }
-  
+
+  private updateCachedTexts(): void {
+    this.supportText = this.calculateSupportingText();
+    this.hasError = this.calculateErrorState();
+    this.errorText = this.hasError ? this.calculateErrorMessage() : '';
+  }
+
+  /**
+   * Supporting text beneath field
+   */
+  /**
+   * Get display label for field (includes parent label for subfields)
+   */
+  getFieldLabel(field: CanvasFieldState = this.field): string {
+    if (!field.parentFieldId) {
+      return field.label;
+    }
+
+    // For subfields, use the stored parent label
+    if (field.parentFieldLabel) {
+      return `${field.parentFieldLabel} (${field.label})`;
+    }
+
+    return field.label;
+  }
+
+  private calculateSupportingText(): string {
+    const field = this.field;
+
+    // Only show description if available
+    if (field.description) {
+      return field.description;
+    }
+
+    return '';
+  }
+
+  getSupportId(fieldId: string): string {
+    if (!this.supportIdCache.has(fieldId)) {
+      this.supportIdCache.set(fieldId, `${fieldId.replace(/[^a-zA-Z0-9_-]/g, '-')}-support`);
+    }
+    return this.supportIdCache.get(fieldId)!;
+  }
+
+  private calculateErrorState(): boolean {
+    return this.field.status === FieldStatus.ERROR || (this.field.isRequired && !this.isValuePresent(this.field.value));
+  }
+
+  private calculateErrorMessage(): string {
+    if (this.field.status === FieldStatus.ERROR && this.field.extractionError) {
+      return this.field.extractionError;
+    }
+    if (this.field.isRequired && !this.isValuePresent(this.field.value)) {
+      return this.i18n.instant('VALIDATION.REQUIRED_FIELD');
+    }
+    if (this.field.validation?.pattern) {
+      return this.i18n.instant('VALIDATION.INVALID_FORMAT');
+    }
+    return '';
+  }
+
+  // Keep public methods for template backward compatibility
+  hasErrorState(): boolean {
+    return this.hasError;
+  }
+
+  getErrorMessage(): string {
+    return this.errorText;
+  }
+
+  getSupportingText(): string {
+    return this.supportText;
+  }
+
+  getStatusTooltip(status: FieldStatus): string {
+    switch (status) {
+      case FieldStatus.FILLED:
+        return this.i18n.instant('FIELD.FILLED');
+      case FieldStatus.EXTRACTING:
+        return this.i18n.instant('FIELD.EXTRACTING');
+      case FieldStatus.ERROR:
+        return this.i18n.instant('FIELD.ERROR');
+      case FieldStatus.EMPTY:
+      default:
+        return this.i18n.instant('FIELD.EMPTY');
+    }
+  }
+
+  onFocus(trigger: MatAutocompleteTrigger): void {
+    if (this.field.vocabulary && !this.showAutocomplete) {
+      this.openAutocomplete(trigger);
+    }
+  }
+
+  openAutocomplete(trigger: MatAutocompleteTrigger): void {
+    if (!this.field.vocabulary) {
+      return;
+    }
+
+    if (!this.inputValue) {
+      this.filteredOptions = this.field.vocabulary.concepts.map(c => c.label).slice(0, 10);
+    }
+
+    trigger.openPanel();
+    this.showAutocomplete = true;
+  }
+
+  toggleAutocomplete(trigger: MatAutocompleteTrigger): void {
+    if (!this.field.vocabulary) {
+      return;
+    }
+
+    if (trigger.panelOpen) {
+      trigger.closePanel();
+      this.showAutocomplete = false;
+    } else {
+      this.openAutocomplete(trigger);
+    }
+  }
+
+  onDropdownMouseDown(event: MouseEvent): void {
+    // Prevent textarea blur when pressing the suffix button
+    event.preventDefault();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -86,6 +219,9 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
     if (changes['field']) {
       const currentField = changes['field'].currentValue as CanvasFieldState;
       const previousField = changes['field'].previousValue as CanvasFieldState;
+      
+      // Update cached support/error texts
+      this.updateCachedTexts();
       
       // Update if value has changed
       if (!previousField || currentField.value !== previousField.value) {
@@ -306,21 +442,51 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    * Select autocomplete option
    */
   selectOption(option: string): void {
+    console.log(`🎯 selectOption called for ${this.field.fieldId}:`, {
+      option,
+      multiple: this.field.multiple,
+      currentValue: this.field.value,
+      isArray: Array.isArray(this.field.value)
+    });
+    
     if (this.field.multiple) {
       // Add to array
       const currentValues = Array.isArray(this.field.value) ? this.field.value : [];
+      console.log(`📊 Current values:`, currentValues);
+      
       if (!currentValues.includes(option)) {
         const newValue = [...currentValues, option];
+        console.log(`➕ Adding to array. New value:`, newValue);
+        
+        // Update field.value immediately to avoid stale state
+        this.field.value = newValue;
         this.emitChange(newValue);
+      } else {
+        console.log(`⚠️ Option "${option}" already exists in array`);
       }
       // Clear input after selecting
       this.inputValue = '';
+      
+      // Keep autocomplete open for multiple selection
+      // Refocus and reopen panel
+      setTimeout(() => {
+        if (this.textareaRef && this.autocompleteTrigger) {
+          // Clear textarea element directly to ensure it's empty
+          this.textareaRef.nativeElement.value = '';
+          this.textareaRef.nativeElement.focus();
+          // Show all options again
+          if (this.field.vocabulary) {
+            this.filteredOptions = this.field.vocabulary.concepts.map(c => c.label).slice(0, 10);
+          }
+          // Reopen the panel explicitly
+          this.autocompleteTrigger.openPanel();
+        }
+      }, 50);
     } else {
       this.inputValue = option;
       this.emitChange(option);
+      this.showAutocomplete = false;
     }
-    
-    this.showAutocomplete = false;
   }
 
   /**
@@ -328,13 +494,16 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    */
   onBlur(): void {
     console.log(`🔵 onBlur ${this.field.fieldId}: inputValue="${this.inputValue}"`);
-    
+
     // Delay to allow click on autocomplete
     setTimeout(() => {
-      this.showAutocomplete = false;
+      // Don't close if it's a multiple field and panel is about to reopen
+      if (!this.field.multiple || !this.autocompleteTrigger?.panelOpen) {
+        this.showAutocomplete = false;
+      }
       
-      // Process input value (for all fields)
-      if (this.inputValue.trim()) {
+      // Process input value (for non-multiple fields or if input is not empty)
+      if (this.inputValue.trim() && !this.field.multiple) {
         console.log(`🔵 Processing input for ${this.field.fieldId}`);
         this.processInputValue();
       }
@@ -402,10 +571,17 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
   /**
    * Remove chip item (for array fields)
    */
-  removeChip(item: string): void {
-    if (Array.isArray(this.field.value)) {
-      const newValue = this.field.value.filter(v => v !== item);
+  removeChip(item: string, targetField: CanvasFieldState = this.field): void {
+    if (!Array.isArray(targetField.value)) {
+      return;
+    }
+
+    const newValue = targetField.value.filter(v => v !== item);
+
+    if (targetField === this.field) {
       this.emitChange(newValue);
+    } else {
+      this.fieldChange.emit({ fieldId: targetField.fieldId, value: newValue });
     }
   }
 
@@ -424,51 +600,6 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    */
   isContentTypeField(): boolean {
     return this.field.fieldId === 'ccm:oeh_flex_lrt';
-  }
-
-  /**
-   * Get tooltip info for field
-   */
-  getTooltipInfo(): string {
-    let tooltip = `${this.field.label}\n\n`;
-    
-    if (this.field.description) {
-      tooltip += `${this.field.description}\n\n`;
-    }
-    
-    tooltip += `Typ: ${this.field.datatype}${this.field.multiple ? ' (Mehrfach)' : ''}\n`;
-    
-    if (this.field.isRequired) {
-      tooltip += `⚠️ Pflichtfeld\n`;
-    }
-    
-    if (this.field.vocabulary && this.field.vocabulary.concepts.length > 0) {
-      tooltip += `\nVerfügbare Optionen:\n`;
-      const maxShow = 10;
-      const concepts = this.field.vocabulary.concepts.slice(0, maxShow);
-      concepts.forEach(c => {
-        tooltip += `• ${c.label}\n`;
-        if (c.altLabels && c.altLabels.length > 0) {
-          tooltip += `  (auch: ${c.altLabels.join(', ')})\n`;
-        }
-      });
-      
-      if (this.field.vocabulary.concepts.length > maxShow) {
-        tooltip += `\n... und ${this.field.vocabulary.concepts.length - maxShow} weitere\n`;
-      }
-      
-      tooltip += `\nHinweis: Tippen Sie, um Vorschläge zu sehen`;
-    }
-    
-    if (this.field.validation?.pattern) {
-      tooltip += `\nFormat: ${this.field.validation.pattern}`;
-    }
-    
-    if (this.field.multiple) {
-      tooltip += `\nTrennen Sie mehrere Werte mit Enter oder Komma`;
-    }
-    
-    return tooltip;
   }
 
   /**

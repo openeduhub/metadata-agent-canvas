@@ -39,13 +39,13 @@
   },
   "INPUT": {
     "PLACEHOLDER": "Describe the resource you want to catalog...",
-    "START_EXTRACTION": "🚀 Start Extraction",
-    "EXTRACTING": "⏳ Extracting...",
-    "RESET": "🔄 Reset"
+    "START_EXTRACTION": "Start Extraction",
+    "EXTRACTING": "Extracting...",
+    "RESET": "Reset"
   },
   "CONTENT_TYPE": {
     "LABEL": "Content Type",
-    "CHANGE": "✏️ CHANGE",
+    "CHANGE": "CHANGE",
     "SELECT": "Select Content Type",
     "NOT_DETECTED": "Not Detected",
     "CONFIDENCE": "Confidence"
@@ -68,11 +68,19 @@
     "ADD_CHIP": "Add",
     "REMOVE_CHIP": "Remove",
     "SHOW_ON_MAP": "Show on OpenStreetMap",
-    "FIELD_INFO": "Field Info"
+    "FIELD_INFO": "Field Info",
+    "MULTIPLE_HINT": "Multiple values allowed. Select from dropdown or enter values.",
+    "REQUIRED_HINT": "⚠️ Required field",
+    "VOCABULARY_CONTROLLED": "Use only terms from the controlled vocabulary.",
+    "VOCABULARY_OPEN": "Prefer terms from the vocabulary."
   },
   "EMPTY_STATE": {
     "TITLE": "Ready for Extraction",
     "MESSAGE": "Enter a description and click \"Start Extraction\""
+  },
+  "TOOLTIPS": {
+    "SUBMIT_SUGGESTION": "Submit Suggestion",
+    "DOWNLOAD_JSON": "Download JSON"
   },
   "FOOTER": {
     "FIELDS_INFO": "of {{total}} fields filled",

@@ -852,6 +852,15 @@ export class FieldNormalizerService {
     // Check if vocabulary has URIs
     const hasUris = concepts.some(c => c.uri);
 
+    // 0. Check if value is already a valid URI from this vocabulary
+    if (hasUris) {
+      const uriMatch = concepts.find(c => c.uri === value);
+      if (uriMatch) {
+        console.log(`✅ URI match: "${value}" (already valid URI)`);
+        return value; // Keep the URI as-is
+      }
+    }
+
     // 1. Check exact match (case-insensitive)
     const exactMatch = concepts.find(c => 
       c.label.toLowerCase() === valueLower ||

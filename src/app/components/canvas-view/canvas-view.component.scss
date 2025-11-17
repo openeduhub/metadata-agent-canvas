@@ -10,25 +10,23 @@
   margin: 0;
   color: #1f2a3d;
   font-family: 'Inter', 'Roboto', sans-serif;
+  position: relative;
 }
 
-/* Header for integration modes - Corporate Design */
-.canvas-header {
+/* Unified top controls */
+.canvas-controls {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  z-index: 100;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, #002D5E 0%, #003B7C 100%); /* Dunkelblau wie Button-Hover */
-  border-bottom: 2px solid #001D3F;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  min-height: 60px;
+  gap: 8px;
+  flex-wrap: wrap;
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    
-    // Mode Badge als Material Chip
+  .mode-chip {
+    margin-right: 4px;
+
     mat-chip-set {
       mat-chip.mode-badge {
         --mdc-chip-elevated-container-color: #ffffff;
@@ -36,179 +34,10 @@
         font-weight: 600;
         font-size: 13px;
         letter-spacing: 0.5px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      }
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .guest-badge {
-        display: none;  /* Gast-Modus wird nicht korrekt erkannt, daher ausblenden */
-      }
-
-      .user-badge {
-        background: var(--md-sys-color-tertiary);
-        color: var(--md-sys-color-on-tertiary);
-        padding: 6px 12px;
-        border-radius: var(--md-sys-shape-corner-small);
-        font-size: 13px;
-        font-weight: 500;
-      }
-
-      .edu-badge-secondary {
-        background: rgba(255, 255, 255, 0.12);
-        color: var(--md-sys-color-inverse-on-surface);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 6px 12px;
-        border-radius: var(--md-sys-shape-corner-small);
-        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
       }
     }
   }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    button.control-button.mat-mdc-icon-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: #ffffff !important;  /* Weiß wie im lokalen Modus */
-      border: 1px solid #d4d9e3 !important;  /* Helle Border */
-      border-radius: 10px !important;  /* Konsistent mit lokalem Modus */
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 0 !important;
-      color: rgba(0, 0, 0, 0.87) !important;  /* Dunkle Icons */
-      position: relative;
-      
-      mat-icon {
-        color: rgba(0, 0, 0, 0.87) !important;
-        font-size: 20px;
-      }
-      
-      // Override Material ripple für rechteckige Form
-      ::ng-deep .mat-mdc-button-persistent-ripple,
-      ::ng-deep .mat-ripple-element {
-        border-radius: 10px !important;
-      }
-      
-      // Hover-Effekt für alle Buttons
-      &:hover:not(:disabled) {
-        background: #f5f7fb !important;
-        border-color: #003B7C !important; /* Corporate Blue */
-      }
-
-      &:disabled {
-        cursor: not-allowed;
-        background: #ffffff !important;
-        border-color: #d4d9e3 !important;
-        opacity: 0.6;
-        
-        mat-icon {
-          color: rgba(0, 0, 0, 0.26) !important;
-        }
-      }
-
-      &.active:not(:disabled) {
-        mat-icon {
-          color: #003B7C !important; // Corporate Blue for active
-        }
-      }
-
-      &:active:not(:disabled) {
-        transform: scale(0.98);
-      }
-    }
-
-    /* Override Material Icon Buttons für JSON-Loader und Language-Switcher */
-    ::ng-deep app-json-loader button.mat-mdc-icon-button,
-    ::ng-deep app-language-switcher button.mat-mdc-icon-button {
-      background: #ffffff !important;
-      border: 1px solid #d4d9e3 !important;
-      border-radius: 10px !important;
-      width: 40px;
-      height: 40px;
-      color: rgba(0, 0, 0, 0.87) !important;
-      
-      mat-icon {
-        color: rgba(0, 0, 0, 0.87) !important;
-      }
-      
-      mat-spinner {
-        svg circle {
-          stroke: #003B7C !important; // Corporate Blue spinner
-        }
-      }
-      
-      .mat-mdc-button-persistent-ripple,
-      .mat-ripple-element {
-        border-radius: 10px !important;
-      }
-      
-      &:hover:not(:disabled) {
-        background: #f5f7fb !important;
-        border-color: #003B7C !important;
-      }
-      
-      &:disabled {
-        background: #ffffff !important;
-        border-color: #d4d9e3 !important;
-        opacity: 0.6;
-      }
-    }
-    
-    /* Override Language Switcher Menu */
-    ::ng-deep app-language-switcher .mat-mdc-menu-panel {
-      border: 1px solid #d4d9e3 !important;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.12) !important;
-    }
-  }
-
-  button.btn-close.mat-mdc-icon-button {
-    background: #ffffff !important;
-    border: 1px solid #d4d9e3 !important;
-    border-radius: 10px !important;
-    width: 40px;
-    height: 40px;
-    padding: 0 !important;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    mat-icon {
-      color: rgba(0, 0, 0, 0.87) !important;
-      font-size: 24px;
-    }
-    
-    // Override Material ripple für rechteckige Form
-    ::ng-deep .mat-mdc-button-persistent-ripple,
-    ::ng-deep .mat-ripple-element {
-      border-radius: 10px !important;
-    }
-
-    &:hover {
-      background: #f5f7fb !important;
-      border-color: #003B7C !important; /* Corporate Blue */
-    }
-  }
-}
-
-/* Standalone Controls (positioned at top-right) */
-.standalone-controls {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 
   .control-button {
     display: flex;
@@ -216,9 +45,9 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: #ffffff;  /* Immer weißer Hintergrund im lokalen Modus */
-    border: 1px solid #d4d9e3;  /* Border wie andere UI-Rahmen */
-    border-radius: 10px;  /* Wie andere Rahmen im UX */
+    background: #ffffff;
+    border: 1px solid #d4d9e3;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
@@ -226,24 +55,21 @@
     line-height: 1;
     color: var(--md-sys-color-on-surface-variant);
     position: relative;
-    
-    // Override Material ripple für rechteckige Form
+
     ::ng-deep .mat-mdc-button-persistent-ripple,
     ::ng-deep .mat-ripple-element {
       border-radius: 10px !important;
     }
-    
-    // Hover-Effekt für alle Buttons
+
     &:hover:not(:disabled) {
       background: #f5f7fb;
-      border-color: #003B7C; /* Corporate Blue */
+      border-color: #003B7C;
     }
 
     &:disabled {
       cursor: not-allowed;
       color: rgba(0, 0, 0, 0.26);
-      
-      /* Halbtransparente Schicht über dem weißen Hintergrund */
+
       &::after {
         content: '';
         position: absolute;
@@ -266,40 +92,107 @@
     }
   }
 
-  /* Override child component styles for standalone mode */
-  ::ng-deep {
-    app-json-loader .json-loader .load-button {
-      background: #ffffff !important;
-      border: 1px solid #d4d9e3 !important;
-      border-radius: 10px !important;
-      box-shadow: none !important;
-      color: var(--md-sys-color-on-surface) !important;
+  // Upload button specific styling
+  .upload-button.active:not(:disabled) {
+    background: var(--md-sys-color-primary) !important;
+    color: #ffffff !important;
+    border-color: var(--md-sys-color-primary) !important;
+    animation: pulse-glow 2s ease-in-out infinite;
+    box-shadow: 0 0 0 0 rgba(0, 59, 124, 0.4);
 
-      &:hover:not(:disabled) {
-        background: #f5f7fb !important;
-        border-color: #3b6ec8 !important;
-        box-shadow: none !important;
+    mat-icon {
+      color: #ffffff !important;
+    }
+
+    &:hover {
+      background: #002d5e !important;
+      animation: none;
+      box-shadow: 0 4px 12px rgba(0, 59, 124, 0.3);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(0, 59, 124, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(0, 59, 124, 0);
+    }
+  }
+
+  button.btn-close {
+    mat-icon {
+      font-size: 24px;
+    }
+  }
+
+  ::ng-deep app-json-loader button.mat-mdc-icon-button,
+  ::ng-deep app-language-switcher button.mat-mdc-icon-button {
+    background: #ffffff !important;
+    border: 1px solid #d4d9e3 !important;
+    border-radius: 10px !important;
+    width: 40px;
+    height: 40px;
+    color: rgba(0, 0, 0, 0.87) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+
+    mat-icon {
+      color: rgba(0, 0, 0, 0.87) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+    }
+
+    mat-spinner {
+      svg circle {
+        stroke: #003B7C !important;
       }
     }
 
-    app-language-switcher .language-switcher .language-button {
-      background: #ffffff !important;
-      border: 1px solid #d4d9e3 !important;
+    .mat-mdc-button-persistent-ripple,
+    .mat-ripple-element {
       border-radius: 10px !important;
-      box-shadow: none !important;
-      color: var(--md-sys-color-on-surface) !important;
-
-      &:hover {
-        background: #f5f7fb !important;
-        border-color: #3b6ec8 !important;
-        box-shadow: none !important;
-      }
     }
 
-    app-language-switcher .language-dropdown .dropdown-menu {
-      box-shadow: none !important;
-      border: 1px solid #d4d9e3 !important;
+    &:hover:not(:disabled) {
+      background: #f5f7fb !important;
+      border-color: #003B7C !important;
     }
+
+    &:disabled {
+      background: #ffffff !important;
+      border-color: #d4d9e3 !important;
+      opacity: 0.6;
+    }
+  }
+
+  ::ng-deep app-language-switcher .mat-mdc-menu-panel {
+    border: 1px solid #d4d9e3 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  ::ng-deep app-json-loader .json-loader .load-button,
+  ::ng-deep app-language-switcher .language-switcher .language-button {
+    background: #ffffff !important;
+    border: 1px solid #d4d9e3 !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    color: var(--md-sys-color-on-surface) !important;
+
+    &:hover:not(:disabled) {
+      background: #f5f7fb !important;
+      border-color: #3b6ec8 !important;
+      box-shadow: none !important;
+    }
+  }
+
+  ::ng-deep app-language-switcher .language-dropdown .dropdown-menu {
+    box-shadow: none !important;
+    border: 1px solid #d4d9e3 !important;
   }
 }
 
@@ -309,7 +202,7 @@
   padding: 24px;
   border: 1px solid #d4d9e3;
   border-radius: 10px;
-  margin: 24px 24px 16px;
+  margin: 21px 21px 16px;
   box-shadow: none;
   
   // Material Form Field Styles
@@ -420,7 +313,7 @@
   padding: 20px 24px;
   border: 1px solid #d4d9e3;
   border-radius: 10px;
-  margin: 0 24px 16px;
+  margin: 0 21px 16px;
   box-shadow: none;
 
   .progress-info {
@@ -466,7 +359,7 @@
   display: flex;
   gap: 24px;
   align-items: center;
-  margin: 0 24px 16px;
+  margin: 0 21px 6px;
 
   /* Left: Content Type Section */
   .content-type-section {
@@ -662,7 +555,7 @@
 .canvas-content {
   background: transparent;
   padding: 0;
-  margin: 16px 24px 24px;
+  margin: 13px 21px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -776,7 +669,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 24px 24px;
+  margin: 0 21px 24px;
 
   .footer-info {
     font-size: 14px;
@@ -798,14 +691,55 @@
 
   .footer-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
+    align-items: center;
     
-    &.multi-button {
-      flex-direction: row;
+    // Ensure footer buttons inherit all control-button styles including animations
+    .control-button {
+      background: #ffffff !important;
+      border: 1px solid #d4d9e3 !important;
+      border-radius: 10px !important;
       
-      button {
-        flex: 1;
-        min-width: 180px;
+      // Spinner styling
+      mat-spinner {
+        ::ng-deep circle {
+          stroke: #ffffff !important;
+        }
+      }
+    }
+    
+    // Ensure upload button glow animation works in footer too
+    .upload-button.active:not(:disabled) {
+      background: var(--md-sys-color-primary) !important;
+      color: #ffffff !important;
+      border-color: var(--md-sys-color-primary) !important;
+      animation: pulse-glow 2s ease-in-out infinite !important;
+      box-shadow: 0 0 0 0 rgba(0, 59, 124, 0.4);
+
+      mat-icon {
+        color: #ffffff !important;
+      }
+
+      &:hover {
+        background: #002d5e !important;
+        animation: none !important;
+        box-shadow: 0 4px 12px rgba(0, 59, 124, 0.3);
+      }
+    }
+    
+    // Save button styling
+    .save-button {
+      &:not(:disabled) {
+        color: var(--md-sys-color-on-surface-variant) !important;
+      }
+      
+      &.active:not(:disabled) {
+        color: var(--md-sys-color-on-surface) !important;
+      }
+      
+      &:hover:not(:disabled) {
+        background: #f5f7fb !important;
+        border-color: #003B7C !important;
       }
     }
     

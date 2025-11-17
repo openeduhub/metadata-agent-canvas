@@ -72,6 +72,7 @@ export interface CanvasFieldState {
   // Nested/Sub-field support for complex objects
   isParent?: boolean;  // True if this field has sub-fields (complex object)
   parentFieldId?: string;  // Reference to parent field (for sub-fields)
+  parentFieldLabel?: string;  // Parent field label for display (e.g., "Address (City)")
   subFields?: CanvasFieldState[];  // Child fields (for parent fields)
   path?: string;  // JSON path for sub-field (e.g., "address.streetAddress")
   arrayIndex?: number;  // For items in arrays (e.g., location[0], location[1])

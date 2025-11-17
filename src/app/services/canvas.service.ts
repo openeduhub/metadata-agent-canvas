@@ -248,7 +248,7 @@ export class CanvasService {
       || state.detectedContentType;
 
     if (!target) {
-      console.warn('⚠️ getContentTypeConcept: No target to search for');
+      // Silently return null if no content type is selected yet (normal during initialization)
       return null;
     }
 
@@ -258,7 +258,6 @@ export class CanvasService {
     const concepts = this.schemaLoader.getContentTypeConcepts();
     
     if (!concepts || concepts.length === 0) {
-      console.warn('⚠️ getContentTypeConcept: No concepts available from SchemaLoader');
       return null;
     }
 
@@ -277,10 +276,6 @@ export class CanvasService {
         || labelDe === normalizedTarget
         || labelEn === normalizedTarget;
     }) || null;
-    
-    if (!foundConcept) {
-      console.warn('⚠️ getContentTypeConcept: No concept found for target:', target, 'normalized:', normalizedTarget);
-    }
     
     return foundConcept;
   }

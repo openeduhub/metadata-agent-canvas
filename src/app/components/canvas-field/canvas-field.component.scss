@@ -2,358 +2,183 @@
 .canvas-field {
   display: flex;
   flex-direction: column;
-  padding: 14px 16px;
-  margin-bottom: 10px;
-  background: #ffffff;
-  border: 1px solid #d4d9e3;
-  border-radius: 10px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: transparent;
 
-  //Main field row
-  .main-field-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  &:hover {
-    border-color: #b7bfd3;
-    box-shadow: 0 4px 10px rgba(31, 42, 61, 0.08);
-  }
-
-  // Status-specific styles
   &.status-extracting {
-    animation: pulse 1.5s infinite;
+    animation: pulse 1.6s infinite;
   }
 
-  // Status Icon mit farbigen Material Icons
-  mat-icon.status-icon {
-    min-width: 24px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    
-    // Material Icon status colors (wie in Referenz)
-    &.status-filled {
-      color: #00874d !important; // Grün (Haken)
-    }
-    &.status-extracting {
-      color: #006693 !important; // Blau (Hourglass)
-    }
-    &.status-empty {
-      color: #8893a5 !important; // Grau (Circle/Warning)
-    }
-    &.status-error {
-      color: #ba1a1a !important; // Rot (Error)
-    }
+  .required-marker {
+    color: #ba1a1a;
+    margin-left: 2px;
   }
 
-  .field-label {
-    flex: 0 0 180px;
-    font-weight: 600;
-    color: #1f2a3d;
-    font-size: 14px;
-    letter-spacing: 0.25px;
+  .md3-text-field {
+    width: 100%;
 
-    .required-marker {
-      color: #d32f2f; // Material Red
-      margin-left: 2px;
-      font-size: 16px;
-      vertical-align: top;
-    }
-  }
-
-  .field-input-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0; // Allow flex item to shrink below content size
-    
-    // Material Form Field - kompakte einzeilige Darstellung
-    mat-form-field.field-input-wrapper,
-    mat-form-field.sub-field-input-wrapper {
-      width: 100%;
-      
-      ::ng-deep .mat-mdc-form-field-infix {
-        padding-top: 0;
-        padding-bottom: 0;
-        padding-right: 0; // Kein Padding rechts für Handle-Position
-        min-height: unset; // Keine feste Höhe
-      }
-      
-      ::ng-deep .mat-mdc-text-field-wrapper {
-        padding-top: 0;
-        padding-right: 0; // Kein Padding rechts
-        width: 100%;
-      }
-      
-      // Entferne rechtes Padding von outline
-      ::ng-deep .mat-mdc-notched-outline {
-        .mdc-notched-outline__trailing {
-          padding-right: 0;
-        }
-      }
-      
-      // Einzeilige Textareas mit Auto-Resize via cdkTextareaAutosize
-      // Vertikale Zentrierung durch symmetrisches Padding auf Textarea
-      ::ng-deep textarea.mat-mdc-input-element {
-        resize: vertical;
-        min-height: 1.5em; // Start mit 1 Zeile
-        line-height: 1.5em;
-        padding: 8px 0 !important; // Symmetrisches Padding für Zentrierung
-        padding-right: 0 !important; // Kein Padding rechts
-        margin: 0;
-        margin-right: -18px; // Erweitere nach rechts um Handle ganz in Ecke zu schieben
-        overflow: auto; // Erlaubt Resize-Handle sichtbar zu sein
-        box-sizing: border-box;
-        
-        // Scrollbars ausblenden wenn nicht nötig (Webkit/Blink)
-        &::-webkit-scrollbar {
-          width: 0;
-          height: 0;
-        }
-      }
-      
-      // Dunkelblauer Focus-Border (wie in Redaktionsumgebung)
-      ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-trailing,
-      ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-leading,
-      ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-notch {
-        border-color: rgba(0, 0, 0, 0.12) !important;
-      }
-      
-      // Focus: Corporate Design Blau (#003B7C)
-      &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-trailing,
-      &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-leading,
-      &.mat-focused ::ng-deep .mat-mdc-notched-outline .mat-mdc-notched-outline-notch {
-        border-color: #003B7C !important;
-        border-width: 2px !important;
-      }
+    ::ng-deep .mat-mdc-form-field-flex {
+      align-items: center;
+      gap: 6px;
     }
 
-    &.sub-field-input-container.sub-field-disabled {
-      opacity: 0.75;
-      background: #f3f5fa;
-      border-radius: 8px;
-
-      .structured-field-preview {
-        color: #586280;
-      }
-
-      .field-input,
-      textarea {
-        pointer-events: none;
-      }
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      border-radius: 12px;
+      background: #ffffff;
+      padding-left: 8px;
     }
 
-    .chip-container {
+    ::ng-deep .mat-mdc-form-field-infix {
+      padding: 8px 0;
+      min-height: 56px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-      .chip {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        background: #e8eefb;
-        border: 1px solid #c3cde6;
-        border-radius: 999px;
-        font-size: 13px;
-        color: #335fae;
-        font-weight: 500;
-        letter-spacing: 0.1px;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    ::ng-deep .mat-mdc-form-field-appearance-outline .mat-mdc-notched-outline {
+      --mdc-outlined-text-field-outline-color: #c9cfdd;
+    }
 
-        &:hover {
-          box-shadow: 0 2px 6px rgba(51, 95, 174, 0.2);
-        }
+    &.mat-focused ::ng-deep .mat-mdc-form-field-appearance-outline .mat-mdc-notched-outline {
+      --mdc-outlined-text-field-outline-color: #003b7c;
+      border-width: 2px;
+    }
 
-        .chip-remove {
-          margin-left: 8px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 16px;
-          line-height: 1;
-          color: inherit;
-          padding: 0;
-          width: 20px;
-          height: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-          &:hover {
-            color: #d8615b;
-          }
-        }
+    &.has-error {
+      // Status icon should be red
+      mat-icon.status-icon {
+        color: #ba1a1a !important;
       }
     }
 
-    .input-wrapper {
-      position: relative;
-
-      .field-input {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1px solid #c3cde6;
-        border-radius: 8px;
-        font-size: 14px;
-        font-family: inherit;
-        line-height: 1.5;
-        resize: none;
-        overflow: hidden;
-        min-height: 40px;
-        background: #f9fbff;
-        color: #1f2a3d;
-        transition: border-color 0.2s ease, background 0.2s ease;
-
-        &:focus {
-          outline: none;
-          border-color: #3b6ec8;
-          background: #ffffff;
-        }
-
-        &:disabled {
-          background: #f1f3f7;
-          color: #98a2b3;
-          cursor: not-allowed;
-          opacity: 0.6;
-        }
-      }
-
-      .autocomplete-dropdown {
-        position: absolute;
-        top: calc(100% + 4px);
-        left: 0;
-        right: 0;
-        max-height: 320px;
-        overflow-y: auto;
-        background: #ffffff;
-        border: 1px solid #c3cde6;
-        border-radius: 10px;
-        box-shadow: 0 12px 24px rgba(31, 42, 61, 0.1);
-        z-index: 1000;
-        margin-top: 4px;
-
-        .autocomplete-option {
-          padding: 12px 16px;
-          cursor: pointer;
-          font-size: 14px;
-          color: #1f2a3d;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          border-bottom: 1px solid #ecf0f6;
-
-          &:last-child {
-            border-bottom: none;
-          }
-
-          &:hover {
-            background: #ecf2ff;
-            color: #335fae;
-          }
-
-          &:active {
-            background: #d9e4ff;
-          }
-        }
-      }
+    &.is-disabled ::ng-deep .mat-mdc-text-field-wrapper {
+      background: #f4f6fb;
     }
+
+    ::ng-deep textarea.mat-mdc-input-element {
+      resize: vertical;
+      min-height: 32px;
+      line-height: 1.5;
+      padding: 4px 0;
+      margin: 0;
+    }
+
   }
 
-  // Material Icon Buttons
-  button[mat-icon-button] {
-    &.geo-button,
-    &.info-button {
-      flex: 0 0 40px;
-      width: 40px;
-      height: 40px;
-      color: #98a2b3;
-      
-      mat-icon {
-        font-size: 20px;
-      }
-    }
-    
-    &.geo-button:hover {
-      background: #e3f2ed;
-      color: #00874d;
-    }
-    
-    &.info-button:hover {
-      background: #ecf2ff;
-      color: #335fae;
-    }
+  // Support text and error text below fields
+  .support-text {
+    padding: 0 12px;
+    color: #5f6d7e;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: -11px;
+    padding-top: 4px;
   }
-  
-  // Material Design V3 Chips (highlighted = kein Border)
-  mat-chip-set.chip-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    
-    mat-chip {
-      // Override Material Chip Colors
-      --mdc-chip-elevated-container-color: #B3C4D8;
-      --mdc-chip-label-text-color: #1A1C1E; // Fast schwarz wie in Referenz
-      --mdc-chip-with-icon-icon-color: #1A1C1E;
-      
-      // Entferne Border und Outline komplett
-      --mdc-chip-outline-width: 0;
-      --mdc-chip-outline-color: transparent;
-      --mdc-chip-flat-outline-color: transparent;
-      --mdc-chip-elevated-disabled-container-color: #B3C4D8;
-      
-      font-size: 13px;
-      font-weight: 500;
-      border-radius: 16px;
-      
-      // Hover State
-      &:hover {
-        --mdc-chip-elevated-container-color: #9FB3CA;
-      }
-    }
+
+  .error-text {
+    padding: 0 12px;
+    color: #ba1a1a;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 500;
+    margin-top: -11px;
+    padding-top: 4px;
+  }
+
+  mat-icon.status-icon {
+    font-size: 20px;
+    color: #8893a5;
+    &.status-filled { color: #00874d !important; }
+    &.status-extracting { color: #006693 !important; }
+    &.status-empty { color: #8893a5 !important; }
+    &.status-error { color: #ba1a1a !important; }
   }
 
   .info-icon {
-    flex: 0 0 24px;
-    background: none;
-    border: none;
-    cursor: help;
-    font-size: 16px;
-    opacity: 0.6;
-    transition: opacity 0.3s;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
 
     &:hover {
       opacity: 1;
     }
   }
 
-  .confidence-badge {
-    flex: 0 0 auto;
-    padding: 4px 12px;
-    background: #ecf2ff;
-    color: #335fae;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.4px;
+  .field-actions {
+    display: flex;
+    gap: 8px;
   }
 
-  .error-message {
+  button[mat-icon-button].geo-button {
+    color: #5a647a;
+
+    &:hover {
+      background: rgba(0, 135, 77, 0.08);
+      color: #00874d;
+    }
+  }
+
+  button[mat-icon-button].info-button,
+  .info-icon {
+    color: #5a647a;
+
+    &:hover {
+      background: rgba(0, 59, 124, 0.08);
+      color: #003b7c;
+    }
+  }
+
+  mat-chip-set.chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    mat-chip {
+      --mdc-chip-elevated-container-color: #e2e8f6;
+      --mdc-chip-label-text-color: #1f2a3d;
+      font-size: 13px;
+      font-weight: 500;
+
+      &:hover {
+        --mdc-chip-elevated-container-color: #d4def4;
+      }
+    }
+
+    &.inline {
+      margin-bottom: 4px;
+      padding-top: 4px;
+    }
+  }
+
+  .selected-pill-row {
     width: 100%;
-    margin-top: 4px;
-    padding: 10px 16px;
-    background: #fef3f2;
-    border: 1px solid #f5c2c0;
-    color: #b42318;
-    font-size: 13px;
-    border-radius: 8px;
+    padding: 4px 0;
+  }
+
+  .structured-field-preview {
+    padding: 12px 14px;
+    background: #f4f6fb;
+    border-radius: 12px;
+    border: 1px solid #d9deea;
+    color: #3e4658;
+    font-size: 14px;
+
+    &.nested-preview {
+      margin-top: 4px;
+    }
+
+    .supporting-text {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #5d677c;
+    }
+
+    .error-text {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #ba1a1a;
+    }
   }
 }
 
@@ -363,220 +188,5 @@
   }
   50% {
     opacity: 0.6;
-  }
-}
-
-// Structured field preview (for parent fields)
-.structured-field-preview {
-  flex: 1;
-  padding: 8px 12px;
-  background: var(--md-sys-color-surface-variant);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-small);
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: 14px;
-  font-style: italic;
-
-  .preview-text {
-    display: inline-block;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-// Sub-fields tree structure (inside parent canvas-field)
-.sub-fields-tree {
-  margin-top: 12px;
-  margin-left: -24px;
-  width: calc(100% + 24px);
-  padding-left: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  .sub-field-tree-row {
-    position: relative;
-    display: block;
-
-    .tree-branch {
-      position: absolute;
-      left: -24px;
-      top: 0;
-      bottom: 0;
-      width: 72px;
-
-      .tree-line-vertical {
-        position: absolute;
-        left: 36px;
-        top: 0;
-        bottom: -10px; // extend slightly to overlap spacing
-        width: 2px;
-        background: var(--md-sys-color-outline);
-        opacity: 0.6;
-      }
-
-      .tree-line-horizontal {
-        position: absolute;
-        left: 36px;
-        top: calc(50% + 2px);
-        transform: translateY(-50%);
-        width: 30px;
-        height: 2px;
-        background: var(--md-sys-color-outline);
-        opacity: 0.6;
-      }
-
-      &.tree-branch-last {
-        .tree-line-vertical {
-          bottom: 50%;
-        }
-      }
-    }
-
-    .sub-field-content {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: 40px;
-      width: calc(100% - 40px);
-      padding: 12px 16px 12px 16x;
-      background: #ffffff;
-      border: 0px solid #d4d9e3;
-      border-radius: 10px;
-      box-shadow: 0 0px 0px rgba(31, 42, 61, 0.05);
-      min-height: 56px;
-
-      mat-icon.sub-field-status {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        min-width: 24px;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        
-        // Sub-Field Status colors (gleich wie Haupt-Fields)
-        &.status-filled {
-          color: #00874d !important;
-        }
-        &.status-extracting {
-          color: #006693 !important;
-        }
-        &.status-empty {
-          color: #8893a5 !important;
-        }
-        &.status-error {
-          color: #ba1a1a !important;
-        }
-      }
-
-      .sub-field-label {
-        flex: 0 0 168px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #1f2a3d;
-        letter-spacing: 0.2px;
-        display: flex;
-        align-items: center;
-        font-family: inherit;
-
-        .required-marker {
-          color: #d8615b;
-        }
-      }
-
-      .sub-field-input-container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        min-width: 0;
-
-        .sub-field-input {
-          width: 100%;
-          padding: 12px 14px;
-          border: 1px solid #c3cde6;
-          border-radius: 8px;
-          background: #f9fbff;
-          color: #1f2a3d;
-          font-size: 14px;
-          font-family: inherit;
-          line-height: 1.5;
-          resize: none;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-          &:focus {
-            outline: none;
-            border-color: #3b6ec8;
-            box-shadow: 0 0 0 2px rgba(59, 110, 200, 0.12);
-          }
-
-          &:disabled {
-            background: #f1f3f7;
-            color: #98a2b3;
-          }
-        }
-
-        .structured-field-preview {
-          padding: 12px 14px;
-          border: 1px dashed #c3cde6;
-          border-radius: 8px;
-          background: rgba(216, 223, 239, 0.25);
-          color: #3b4a6b;
-          font-size: 13px;
-          font-style: italic;
-          font-family: inherit;
-        }
-      }
-
-      .sub-field-buttons {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        .geo-button {
-          width: 28px;
-          height: 28px;
-          border-radius: 6px;
-          background: rgba(76, 175, 80, 0.08);
-          border: 1px solid rgba(76, 175, 80, 0.16);
-          transition: background 0.2s ease, transform 0.2s ease;
-
-          &:hover {
-            background: rgba(76, 175, 80, 0.18);
-            transform: translateY(-1px);
-          }
-        }
-
-        .info-button {
-          width: 32px;
-          height: 32px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 18px;
-          padding: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          color: #98a2b3;
-
-          &:hover {
-            background: #ecf2ff;
-            color: #335fae;
-            transform: scale(1.1);
-          }
-
-          &:active {
-            transform: scale(0.95);
-          }
-        }
-      }
-    }
   }
 }
