@@ -11,6 +11,7 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 ### 🆕 **NEU in v2.1.0 (November 2025)**
 - 🔄 **Perfekter Import/Export Round-Trip**: Array-Felder und verschachtelte Sub-Fields werden korrekt importiert
 - 🏷️ **Vollständige Schema-Labels**: Alle 11 Schemas mit deutschen + englischen Labels
+- 👁️ **Viewer-Modus**: JSON-Dateien als Read-Only anzeigen mit Auto-Load, URL-Parametern und Floating Controls
 - 🐳 **Production-Ready Docker**: Multi-Stage Build mit Security Best Practices
 - 🛡️ **Enhanced Security**: Port-Binding Optionen, Nginx Reverse Proxy, Firewall-Guides
 - 📚 **Erweiterte Dokumentation**: Detaillierte technische Docs für Sub-Fields & Docker
@@ -24,6 +25,7 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 - 🗺️ **Geocoding-Integration**: Automatische Anreicherung mit Geo-Koordinaten beim Export (Photon API)
 - 🎓 **Content-Type-Erkennung**: Automatische Schema-Auswahl (Event, Kurs, etc.)
 - ✅ **Validierung**: Pflichtfelder, Vokabulare, Datentypen
+- 👁️ **Viewer-Modus**: JSON-Dateien als Read-Only anzeigen mit Auto-Load und URL-Parametern
 - 🔒 **Sicher**: API-Key wird nie im Code gespeichert (Production)
 - 🔌 **Multi-Provider Support**: OpenAI, B-API OpenAI, B-API AcademicCloud (DeepSeek-R1)
 - 🌐 **Vollständig i18n**: Deutsch/Englisch für UI, Schemas, Vokabulare und KI-Prompts
@@ -1226,6 +1228,159 @@ Chips zeigen automatisch das korrekte Label der aktiven Sprache! ✅
 **Services:**
 - `I18nService` - UI-Übersetzungen & Sprachwechsel
 - `SchemaLocalizerService` - Schema-Daten-Lokalisierung
+
+---
+
+## 👁️ Viewer-Modus
+
+Die Canvas-App kann auch als **reiner Viewer** für gespeicherte Metadaten-JSON-Dateien verwendet werden.
+
+### Features
+
+**✅ Viewer-Funktionen:**
+- **Reduzierte UI**: Nur Canvas ohne Input-Section, Content-Type-Auswahl und Footer
+- **Read-Only Modus**: Felder optional gegen Bearbeitung gesperrt
+- **Auto-Load**: JSON-Dateien automatisch beim Start laden
+- **Floating Controls**: Buttons schweben elegant oben zentriert
+- **Flexible Steuerung**: Alle Funktionen über URL-Parameter
+
+### URL-Parameter
+
+**Grundlegende Parameter:**
+
+```bash
+# Viewer-Modus aktivieren
+?mode=viewer
+
+# Read-Only (Felder nicht editierbar)
+?mode=viewer&readonly=true
+
+# JSON-Datei automatisch laden
+?mode=viewer&readonly=true&autoload=filename.json
+
+# Controls (Buttons) steuern
+?mode=viewer&controls=true   # Explizit anzeigen
+?mode=viewer&controls=false  # Explizit verstecken
+```
+
+**Kombinierte Beispiele:**
+
+```bash
+# Vollständiger Read-Only Viewer mit Auto-Load (keine Controls)
+http://localhost:4200/?mode=viewer&readonly=true&autoload=metadata_1763413461093.json
+
+# Read-Only Viewer mit Buttons (für manuelles JSON-Laden)
+http://localhost:4200/?mode=viewer&readonly=true&controls=true
+
+# Editierbarer Viewer ohne Buttons
+http://localhost:4200/?mode=viewer&readonly=false&controls=false
+```
+
+### Verhalten
+
+**Viewer-Modus (`?mode=viewer`):**
+- ❌ Versteckt: Input-Section (Texteingabe, Extract-Button)
+- ❌ Versteckt: Content Type Auswahl + Progress Bar
+- ❌ Versteckt: Footer (Submit/Download Buttons)
+- ✅ Zeigt: Nur Canvas mit Metadaten-Feldern
+- ✅ Felder editierbar (außer mit `readonly=true`)
+
+**Read-Only Modus (`readonly=true`):**
+- ✅ Alle Input-Felder disabled (aber lesbar)
+- ❌ Chips nicht entfernbar
+- ❌ Dropdown-Buttons versteckt
+- ✅ Geo-Button (Map) bleibt verfügbar
+- ✅ Normale Schriftfarbe (nicht grau)
+
+**Controls-Sichtbarkeit:**
+- **Automatisch**: Versteckt bei `readonly=true` + `autoload`
+- **`controls=true`**: Floating Header mit JSON-Loader, Save, Upload, Language Switcher
+- **`controls=false`**: Keine Controls, maximale Canvas-Fläche
+- **Floating Header**: Zentriert oben, halbtransparent mit Backdrop-Blur
+
+### JSON-Dateien laden
+
+**1. Manuell (mit Controls):**
+```
+/?mode=viewer&readonly=true
+```
+- JSON-Loader Button klicken
+- Datei auswählen
+- Metadaten werden angezeigt
+
+**2. Automatisch (via URL-Parameter):**
+```
+/?mode=viewer&readonly=true&autoload=metadata_1763413461093.json
+```
+- JSON wird aus `/assets/examples/` geladen
+- Kein User-Eingriff nötig
+- Ideal für Demos und Dokumentation
+
+**3. Eigene JSON-Dateien vorbereiten:**
+```bash
+# Datei kopieren
+cp meine-daten.json src/assets/examples/
+
+# URL verwenden
+http://localhost:4200/?mode=viewer&readonly=true&autoload=meine-daten.json
+```
+
+### Beispiel-Index-Seite
+
+Die App enthält eine Übersichtsseite mit verschiedenen Viewer-Beispielen:
+
+```
+http://localhost:4200/viewer-examples.html
+```
+
+**Zeigt:**
+- Standard Event (Read-Only mit Auto-Load)
+- Standard Event (Editierbar mit Auto-Load)
+- Eigene JSON-Datei laden (Read-Only)
+- Eigene JSON-Datei laden (Editierbar)
+
+### Use Cases
+
+**1. Metadaten-Prüfung**
+- Gespeicherte Metadaten ansehen ohne Bearbeitung
+- Qualitätskontrolle vor finaler Freigabe
+
+**2. Dokumentation**
+- Beispiel-Metadaten in Docs einbetten
+- Screenshots für Anleitungen
+
+**3. Archiv**
+- Historische Metadaten-Versionen anzeigen
+- Audit-Trail
+
+**4. API-Debugging**
+- LLM-Extraktionsergebnisse visualisieren
+- Debugging ohne Upload
+
+**5. iframe-Integration**
+```html
+<iframe
+  src="https://your-domain.com/?mode=viewer&readonly=true&autoload=event.json"
+  width="100%"
+  height="800"
+  frameborder="0"
+></iframe>
+```
+
+### Technische Details
+
+**Services & Komponenten:**
+- `canvas-view.component.ts` - Query-Parameter Parsing, Auto-Load Listener
+- `canvas-field.component.ts` - `@Input() readonly` Property
+- `integration-mode.service.ts` - Mode-Detection
+
+**Styling:**
+- Floating Controls: Fixed, zentriert, halbtransparent
+- Backdrop Blur: Moderner Frosted-Glass Effekt
+- Responsive: Max-width 90vw
+
+**Weitere Dokumentation:**
+- **[VIEWER_MODE.md](./VIEWER_MODE.md)** - Vollständige Dokumentation mit allen Details
 
 ---
 

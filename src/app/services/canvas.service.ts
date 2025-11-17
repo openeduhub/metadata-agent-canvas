@@ -629,32 +629,46 @@ export class CanvasService {
   ): void {
     const state = this.getCurrentState();
     
+    // Helper to update a field (including subFields)
+    const updateField = (f: CanvasFieldState): CanvasFieldState => {
+      // Check if this is the target field
+      if (f.fieldId === fieldId) {
+        const updated = { ...f };  // Clone field
+        updated.status = status;
+        if (value !== undefined) updated.value = value;
+        if (confidence !== undefined) updated.confidence = confidence;
+        if (error) updated.extractionError = error;
+        console.log(`🔄 Updated field ${fieldId}:`, { status, value, confidence });
+        return updated;
+      }
+      
+      // Check subFields if this is a parent field
+      if (f.isParent && f.subFields && f.subFields.length > 0) {
+        const updatedSubFields = f.subFields.map(sf => {
+          if (sf.fieldId === fieldId) {
+            const updated = { ...sf };
+            updated.status = status;
+            if (value !== undefined) updated.value = value;
+            if (confidence !== undefined) updated.confidence = confidence;
+            if (error) updated.extractionError = error;
+            console.log(`🔄 Updated subField ${fieldId}:`, { status, value, confidence });
+            return updated;
+          }
+          return sf;
+        });
+        
+        // Only return a new parent if subfields were updated
+        if (updatedSubFields !== f.subFields) {
+          return { ...f, subFields: updatedSubFields };
+        }
+      }
+      
+      return f;
+    };
+    
     // Create NEW arrays with updated field (wichtig für Change Detection!)
-    const updatedCoreFields = state.coreFields.map(f => {
-      if (f.fieldId === fieldId) {
-        const updated = { ...f };  // Clone field
-        updated.status = status;
-        if (value !== undefined) updated.value = value;
-        if (confidence !== undefined) updated.confidence = confidence;
-        if (error) updated.extractionError = error;
-        console.log(`🔄 Updated field ${fieldId}:`, { status, value, confidence });
-        return updated;
-      }
-      return f;
-    });
-
-    const updatedSpecialFields = state.specialFields.map(f => {
-      if (f.fieldId === fieldId) {
-        const updated = { ...f };  // Clone field
-        updated.status = status;
-        if (value !== undefined) updated.value = value;
-        if (confidence !== undefined) updated.confidence = confidence;
-        if (error) updated.extractionError = error;
-        console.log(`🔄 Updated field ${fieldId}:`, { status, value, confidence });
-        return updated;
-      }
-      return f;
-    });
+    const updatedCoreFields = state.coreFields.map(updateField);
+    const updatedSpecialFields = state.specialFields.map(updateField);
 
     // Collect all fields including subfields
     const allSubFields: CanvasFieldState[] = [];
@@ -1473,28 +1487,32 @@ export class CanvasService {
       const geoResult = await this.geocodingService.geocodeAddress(address);
       
       if (geoResult) {
-        // Update latitude/longitude
-        latField.value = geoResult.latitude;
-        latField.status = FieldStatus.FILLED;
-        lonField.value = geoResult.longitude;
-        lonField.status = FieldStatus.FILLED;
+        console.log(`   🎯 Re-geocoding result:`, {
+          latFieldId: latField.fieldId,
+          lonFieldId: lonField.fieldId,
+          latValue: geoResult.latitude,
+          lonValue: geoResult.longitude
+        });
+        
+        // Update latitude field using proper method (ensures Change Detection)
+        this.updateFieldStatus(latField.fieldId, FieldStatus.FILLED, geoResult.latitude, 1.0);
+        this.updateMetadata(latField.fieldId, geoResult.latitude);
+        
+        // Update longitude field using proper method (ensures Change Detection)
+        this.updateFieldStatus(lonField.fieldId, FieldStatus.FILLED, geoResult.longitude, 1.0);
+        this.updateMetadata(lonField.fieldId, geoResult.longitude);
         
         // Update region and country if returned
         if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
-          regionField.value = geoResult.enrichedAddress.addressRegion;
-          regionField.status = FieldStatus.FILLED;
+          this.updateFieldStatus(regionField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressRegion, 1.0);
+          this.updateMetadata(regionField.fieldId, geoResult.enrichedAddress.addressRegion);
+          console.log(`   📍 Added region: ${geoResult.enrichedAddress.addressRegion}`);
         }
         if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
-          countryField.value = geoResult.enrichedAddress.addressCountry;
-          countryField.status = FieldStatus.FILLED;
+          this.updateFieldStatus(countryField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressCountry, 1.0);
+          this.updateMetadata(countryField.fieldId, geoResult.enrichedAddress.addressCountry);
+          console.log(`   📍 Added country: ${geoResult.enrichedAddress.addressCountry}`);
         }
-        
-        // Trigger UI update
-        const currentState = this.getCurrentState();
-        this.updateState({ 
-          coreFields: [...currentState.coreFields],
-          specialFields: [...currentState.specialFields]
-        });
         
         console.log(`✅ Re-geocoded: ${address.addressLocality} → ${geoResult.latitude}, ${geoResult.longitude}`);
       }
@@ -1600,30 +1618,32 @@ export class CanvasService {
             lonValue: geoResult.longitude
           });
           
-          // Update latitude/longitude directly in field's value property
-          latField.value = geoResult.latitude;
-          latField.status = FieldStatus.FILLED;
-          lonField.value = geoResult.longitude;
-          lonField.status = FieldStatus.FILLED;
+          // Update latitude field using proper method (ensures Change Detection)
+          this.updateFieldStatus(latField.fieldId, FieldStatus.FILLED, geoResult.latitude, 1.0);
+          this.updateMetadata(latField.fieldId, geoResult.latitude);
+          
+          // Update longitude field using proper method (ensures Change Detection)
+          this.updateFieldStatus(lonField.fieldId, FieldStatus.FILLED, geoResult.longitude, 1.0);
+          this.updateMetadata(lonField.fieldId, geoResult.longitude);
+          
+          console.log(`   📍 Updated geo fields:`, {
+            latField: latField.fieldId,
+            latValue: geoResult.latitude,
+            lonField: lonField.fieldId,
+            lonValue: geoResult.longitude
+          });
           
           // Also update region and country if returned by geocoding API
           if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
-            regionField.value = geoResult.enrichedAddress.addressRegion;
-            regionField.status = FieldStatus.FILLED;
+            this.updateFieldStatus(regionField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressRegion, 1.0);
+            this.updateMetadata(regionField.fieldId, geoResult.enrichedAddress.addressRegion);
             console.log(`   📍 Added region: ${geoResult.enrichedAddress.addressRegion}`);
           }
           if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
-            countryField.value = geoResult.enrichedAddress.addressCountry;
-            countryField.status = FieldStatus.FILLED;
+            this.updateFieldStatus(countryField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressCountry, 1.0);
+            this.updateMetadata(countryField.fieldId, geoResult.enrichedAddress.addressCountry);
             console.log(`   📍 Added country: ${geoResult.enrichedAddress.addressCountry}`);
           }
-          
-          // Trigger state update to refresh UI
-          const currentState = this.getCurrentState();
-          this.updateState({ 
-            coreFields: [...currentState.coreFields],
-            specialFields: [...currentState.specialFields]
-          });
           
           geocodedCount++;
           console.log(`   ✅ Geocoded: ${address.addressLocality} → ${geoResult.latitude}, ${geoResult.longitude}`);

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,6 +25,7 @@ import { I18nService } from '../../services/i18n.service';
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
@@ -38,6 +40,7 @@ import { I18nService } from '../../services/i18n.service';
 })
 export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() field!: CanvasFieldState;
+  @Input() readonly = false;  // Viewer mode: disable editing
   @Output() fieldChange = new EventEmitter<{ fieldId: string; value: any }>();
   @ViewChild('textareaRef') textareaRef?: ElementRef<HTMLTextAreaElement>;
   @ViewChild('mainAutocomplete') autocompleteTrigger?: MatAutocompleteTrigger;
@@ -188,6 +191,22 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
       this.openAutocomplete(trigger);
     }
   }
+  
+  /**
+   * Toggle autocomplete from button (uses ViewChild)
+   */
+  toggleAutocompleteFromButton(): void {
+    if (!this.field.vocabulary || !this.autocompleteTrigger) {
+      return;
+    }
+
+    if (this.autocompleteTrigger.panelOpen) {
+      this.autocompleteTrigger.closePanel();
+      this.showAutocomplete = false;
+    } else {
+      this.openAutocomplete(this.autocompleteTrigger);
+    }
+  }
 
   onDropdownMouseDown(event: MouseEvent): void {
     // Prevent textarea blur when pressing the suffix button
@@ -278,11 +297,13 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    * Get vocabulary label for a value (for i18n)
    */
   getVocabularyLabel(value: any): string {
-    // If value is already a string, it might be the label or a primitive value
-    if (typeof value === 'string') {
-      // Try to find in vocabulary by label (current language), label_en, label_de, or uri
+    // If value is a primitive (string, number), try to find in vocabulary
+    if (typeof value === 'string' || typeof value === 'number') {
+      // Try to find in vocabulary by value, label, uri, or id
       if (this.field.vocabulary) {
         const concept = this.field.vocabulary.concepts.find(c => {
+          // Match by value field (MOST IMPORTANT for new schema structure)
+          if ((c as any).value === value) return true;
           // Match by current label
           if (c.label === value) return true;
           // Match by English label (in case value stores English label)
@@ -300,7 +321,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
         }
       }
       // Return value as-is if no vocabulary match
-      return value;
+      return String(value);
     }
     
     // If value is an object, try to extract label or name
@@ -322,9 +343,15 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
       this.inputValue = '';
       console.log(`📋 ${this.field.fieldId}: Array field, chips will show values:`, this.field.value);
     } else if (this.field.value !== null && this.field.value !== undefined && this.field.value !== '') {
-      // For single-value fields, show the value
-      this.inputValue = String(this.field.value);
-      console.log(`✏️ ${this.field.fieldId}: Set inputValue to "${this.inputValue}"`);
+      // For boolean fields, convert to string for mat-select binding
+      if (this.field.datatype === 'boolean') {
+        this.inputValue = String(this.field.value);
+        console.log(`✏️ ${this.field.fieldId}: Set boolean inputValue to "${this.inputValue}"`);
+      } else {
+        // For single-value fields, show the value
+        this.inputValue = String(this.field.value);
+        console.log(`✏️ ${this.field.fieldId}: Set inputValue to "${this.inputValue}"`);
+      }
     } else {
       this.inputValue = '';
       console.log(`⚪ ${this.field.fieldId}: No value, clearing input`);
@@ -335,6 +362,22 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
       console.log(`🔄 ${this.field.fieldId}: Input value changed from "${oldValue}" to "${this.inputValue}"`);
     }
   }
+  
+  /**
+   * Handle boolean dropdown change
+   */
+  onBooleanChange(value: string | null): void {
+    console.log(`🔘 Boolean change for ${this.field.fieldId}:`, value);
+    
+    if (value === null) {
+      this.emitChange(null);
+    } else {
+      // Convert string to actual boolean
+      const boolValue = value === 'true';
+      this.emitChange(boolValue);
+    }
+  }
+  
 
   /**
    * Get status icon (legacy - kept for compatibility)
@@ -588,7 +631,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
   /**
    * Emit field change event
    */
-  private emitChange(value: any): void {
+  emitChange(value: any): void {
     this.fieldChange.emit({
       fieldId: this.field.fieldId,
       value: value

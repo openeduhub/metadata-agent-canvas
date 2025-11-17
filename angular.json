@@ -30,6 +30,16 @@
                 "glob": "bookmarklet-simple.html",
                 "input": "src",
                 "output": "."
+              },
+              {
+                "glob": "canvas-viewer-readonly.html",
+                "input": "src",
+                "output": "."
+              },
+              {
+                "glob": "viewer-examples.html",
+                "input": "src",
+                "output": "."
               }
             ],
             "styles": ["src/styles.scss"],

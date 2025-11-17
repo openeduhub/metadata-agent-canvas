@@ -1,5 +1,5 @@
 <div class="canvas-container">
-  <div class="canvas-controls">
+  <div class="canvas-controls" [class.viewer-floating]="isViewerMode && showControls" *ngIf="showControls">
     <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
     
     <button 
@@ -35,7 +35,7 @@
   </div>
 
   <!-- Input Section -->
-  <div class="input-section">
+  <div class="input-section" *ngIf="!isViewerMode">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'INPUT.PLACEHOLDER' | translate }}</mat-label>
       <textarea
@@ -73,7 +73,7 @@
   </div>
 
   <!-- Compact Status Bar: Content Type + Progress -->
-  <div *ngIf="state.totalFields > 0" class="compact-status-bar">
+  <div *ngIf="state.totalFields > 0 && !isViewerMode" class="compact-status-bar">
     <!-- Left: Content Type -->
     <div class="content-type-section">
       <span class="content-type-label">
@@ -106,7 +106,7 @@
     <div class="progress-section-compact">
       <div class="field-stats">
         <span class="stat-item total">
-          {{ 'PROGRESS.FIELDS' | translate }}: {{ state.filledFields }}/{{ state.totalFields }} ({{ getProgressPercentage() }}%)
+          {{ 'PROGRESS.FIELDS' | translate }}: {{ state.filledFields }}/{{ state.totalFields }}
         </span>
         <span 
           class="stat-item required-badge"
@@ -128,7 +128,7 @@
   </div>
 
   <!-- Canvas Content Area -->
-  <div class="canvas-content" *ngIf="state.fieldGroups.length > 0">
+  <div class="canvas-content" [class.has-floating-controls]="isViewerMode && showControls" *ngIf="state.fieldGroups.length > 0">
     
     <!-- All Field Groups (in schema order) -->
     <div *ngFor="let group of state.fieldGroups; trackBy: trackByGroupId" class="field-group">
@@ -144,6 +144,7 @@
         <app-canvas-field
           *ngFor="let field of getFlattenedFields(group.fields); trackBy: trackByFieldId"
           [field]="field"
+          [readonly]="isReadonly"
           (fieldChange)="onFieldChange($event)"
         ></app-canvas-field>
       </div>
@@ -151,7 +152,7 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="state.fieldGroups.length === 0" class="empty-state">
+  <div *ngIf="state.fieldGroups.length === 0" class="empty-state" [class.has-floating-controls]="isViewerMode && showControls">
     <div class="empty-state-content">
       <div class="empty-icon">📝</div>
       <h3>{{ 'EMPTY_STATE.TITLE' | translate }}</h3>
@@ -160,7 +161,7 @@
   </div>
 
   <!-- Footer Section -->
-  <div class="canvas-footer" *ngIf="state.totalFields > 0">
+  <div class="canvas-footer" *ngIf="state.totalFields > 0 && !isViewerMode">
     <div class="footer-info">
       <span>
         <strong>{{ state.filledFields }}</strong> {{ 'FOOTER.FIELDS_INFO' | translate:{ total: state.totalFields } }}

@@ -177,8 +177,17 @@ export class FieldNormalizerService {
         return false; // Already in ISO format (date or datetime)
       }
     }
-    if (field.datatype === 'datetime' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(userInput)) {
-      return false; // Already in ISO 8601 datetime format
+    if (field.datatype === 'datetime' && typeof userInput === 'string') {
+      // Accept both with and without seconds (HTML5 datetime-local gives no seconds)
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?/.test(userInput)) {
+        return false; // Already in ISO 8601 datetime format
+      }
+    }
+    // Time fields: Accept HH:MM or HH:MM:SS format
+    if (field.datatype === 'time' && typeof userInput === 'string') {
+      if (/^\d{2}:\d{2}(:\d{2})?$/.test(userInput)) {
+        return false; // Already in HH:MM or HH:MM:SS format
+      }
     }
     
     // For everything else: Try LLM (complex cases)
@@ -681,6 +690,10 @@ export class FieldNormalizerService {
         normalized = this.validateNumber(normalized);
       } else if (field.datatype === 'date') {
         normalized = this.validateDate(normalized);
+      } else if (field.datatype === 'datetime') {
+        normalized = this.validateDateTime(normalized);
+      } else if (field.datatype === 'time') {
+        normalized = this.validateTime(normalized);
       } else if (field.datatype === 'uri' || field.datatype === 'url') {
         normalized = this.validateUrl(normalized);
       }
@@ -780,6 +793,80 @@ export class FieldNormalizerService {
     }
     
     console.warn(`⚠️ Could not validate date: "${str}"`);
+    return null;
+  }
+
+  /**
+   * Validate datetime value and ensure ISO 8601 format
+   * Accepts: YYYY-MM-DDTHH:MM or YYYY-MM-DDTHH:MM:SS
+   * HTML5 datetime-local returns YYYY-MM-DDTHH:MM (no seconds)
+   */
+  private validateDateTime(value: any): string | null {
+    if (!value || typeof value !== 'string') return null;
+    
+    const str = value.trim();
+    
+    // Check if in ISO 8601 datetime format (with or without seconds)
+    const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
+    if (isoRegex.test(str)) {
+      // Additional validation: Check if it's a valid date/time
+      const datePart = str.split('T')[0];
+      const parts = datePart.split('-');
+      const year = parseInt(parts[0]);
+      const month = parseInt(parts[1]);
+      const day = parseInt(parts[2]);
+      
+      const testDate = new Date(year, month - 1, day);
+      if (testDate.getFullYear() === year && 
+          testDate.getMonth() === month - 1 && 
+          testDate.getDate() === day) {
+        // Add seconds if missing (for consistency with Schema.org)
+        if (!str.match(/:\d{2}:\d{2}$/)) {
+          return str + ':00';
+        }
+        return str;
+      } else {
+        console.warn(`⚠️ Invalid ISO datetime: ${str}`);
+        return null;
+      }
+    }
+    
+    console.warn(`⚠️ Could not validate datetime: "${str}"`);
+    return null;
+  }
+
+  /**
+   * Validate time value and ensure HH:MM format
+   * HTML5 time input returns HH:MM (no seconds)
+   * We add :00 for seconds for consistency
+   */
+  private validateTime(value: any): string | null {
+    if (!value || typeof value !== 'string') return null;
+    
+    const str = value.trim();
+    
+    // Check if in HH:MM or HH:MM:SS format
+    const timeRegex = /^(\d{2}):(\d{2})(:\d{2})?$/;
+    const match = str.match(timeRegex);
+    
+    if (match) {
+      const hours = parseInt(match[1]);
+      const minutes = parseInt(match[2]);
+      
+      // Validate time ranges
+      if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+        // Add seconds if missing (for consistency)
+        if (!match[3]) {
+          return str + ':00';
+        }
+        return str;
+      } else {
+        console.warn(`⚠️ Invalid time: ${str} (hours: 0-23, minutes: 0-59)`);
+        return null;
+      }
+    }
+    
+    console.warn(`⚠️ Could not validate time: "${str}"`);
     return null;
   }
 

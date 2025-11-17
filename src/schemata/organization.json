@@ -1,6 +1,6 @@
 {
   "profileId": "oeh:organizationLocation",
-  "version": "1.2.0",
+  "version": "1.8.0",
   "@context": {
     "schema": "https://schema.org/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
@@ -2480,6 +2480,18 @@
                     "ai_fillable": true,
                     "items": {
                       "datatype": "string"
+                    },
+                    "vocabulary": {
+                      "type": "closed",
+                      "concepts": [
+                        { "label": { "de": "Montag", "en": "Monday" }, "value": "MO" },
+                        { "label": { "de": "Dienstag", "en": "Tuesday" }, "value": "TU" },
+                        { "label": { "de": "Mittwoch", "en": "Wednesday" }, "value": "WE" },
+                        { "label": { "de": "Donnerstag", "en": "Thursday" }, "value": "TH" },
+                        { "label": { "de": "Freitag", "en": "Friday" }, "value": "FR" },
+                        { "label": { "de": "Samstag", "en": "Saturday" }, "value": "SA" },
+                        { "label": { "de": "Sonntag", "en": "Sunday" }, "value": "SU" }
+                      ]
                     }
                   }
                 },
@@ -2490,8 +2502,8 @@
                     "en": "Opens"
                   },
                   "description": {
-                    "de": "Öffnungszeit (Uhrzeit)",
-                    "en": "Opening time"
+                    "de": "Öffnungszeit im Format HH:MM, z.B. 09:00",
+                    "en": "Opening time in HH:MM format, e.g. 09:00"
                   },
                   "prompt": {
                     "de": "",
@@ -2500,7 +2512,7 @@
                   "system": {
                     "path": "opens",
                     "uri": "https://schema.org/opens",
-                    "datatype": "string",
+                    "datatype": "time",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -2514,8 +2526,8 @@
                     "en": "Closes"
                   },
                   "description": {
-                    "de": "Schließzeit (Uhrzeit)",
-                    "en": "Closing time"
+                    "de": "Schließzeit im Format HH:MM, z.B. 17:00",
+                    "en": "Closing time in HH:MM format, e.g. 17:00"
                   },
                   "prompt": {
                     "de": "",
@@ -2524,7 +2536,7 @@
                   "system": {
                     "path": "closes",
                     "uri": "https://schema.org/closes",
-                    "datatype": "string",
+                    "datatype": "time",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -2538,8 +2550,8 @@
                     "en": "Valid From"
                   },
                   "description": {
-                    "de": "Gültig ab (Datum)",
-                    "en": "Valid from (date)"
+                    "de": "Gültig ab (Datum im Format YYYY-MM-DD, z.B. 2026-09-15)",
+                    "en": "Valid from (date in YYYY-MM-DD format, e.g. 2026-09-15)"
                   },
                   "prompt": {
                     "de": "",
@@ -2548,7 +2560,7 @@
                   "system": {
                     "path": "validFrom",
                     "uri": "https://schema.org/validFrom",
-                    "datatype": "string",
+                    "datatype": "date",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -2562,8 +2574,8 @@
                     "en": "Valid Through"
                   },
                   "description": {
-                    "de": "Gültig bis (Datum)",
-                    "en": "Valid through (date)"
+                    "de": "Gültig bis (Datum im Format YYYY-MM-DD, z.B. 2026-09-30)",
+                    "en": "Valid through (date in YYYY-MM-DD format, e.g. 2026-09-30)"
                   },
                   "prompt": {
                     "de": "",
@@ -2572,7 +2584,7 @@
                   "system": {
                     "path": "validThrough",
                     "uri": "https://schema.org/validThrough",
-                    "datatype": "string",
+                    "datatype": "date",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -3144,8 +3156,8 @@
         "en": "Founding Date"
       },
       "description": {
-        "de": "Datum der Gründung (ISO 8601, z. B. 1998-05-20).",
-        "en": "Date of establishment (ISO 8601, e.g., 1998-05-20)."
+        "de": "Datum der Gründung im Format YYYY-MM-DD, z.B. 1998-05-20.",
+        "en": "Date of establishment in YYYY-MM-DD format, e.g. 1998-05-20."
       },
       "prompt": {
         "de": "",

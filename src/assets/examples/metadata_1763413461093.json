@@ -1,0 +1,869 @@
+{
+  "metadataset": "event.json",
+  "exportedAt": "2025-11-17T21:04:21.091Z",
+  "language": "de",
+  "ccm:oeh_flex_lrt": {
+    "value": {
+      "schema_file": "event.json",
+      "uri": null,
+      "label": {
+        "de": "Veranstaltung",
+        "en": "Event"
+      },
+      "language": "de",
+      "displayLabel": "Veranstaltung"
+    },
+    "repoField": false,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "Core",
+    "uri": "ccm:oeh_flex_lrt",
+    "label": "Inhaltsart(en)",
+    "status": "filled",
+    "description": "Erkannte Ressourcentypen (Mehrfachauswahl).",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.98
+  },
+  "cclom:title": {
+    "value": "Rufus D live am 17.11.2025 in Weimar – Experimental Jazz, Dub & Post-Rock",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": true,
+    "schema": "Core",
+    "uri": "cclom:title",
+    "label": "Titel",
+    "status": "filled",
+    "description": "Aussagekräftiger, eigenständiger Titel der Ressource.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "cclom:general_description": {
+    "value": "Rufus D aus Luzern/CH präsentieren am 17.11.2025 um 21:00 Uhr im C. Keller Weimar ein Live-Konzert mit Experimental Jazz, Dub und Post-Rock. Die Band verbindet Komposition und Improvisation mit einem Mix aus Jazz, Post-Rock und Dub/Electronica. Der Eintritt ist frei, Spenden sind erbeten.",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": true,
+    "schema": "Core",
+    "uri": "cclom:general_description",
+    "label": "Beschreibungstext",
+    "status": "filled",
+    "description": "Kurzbeschreibung oder Abstract der Ressource.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "cclom:general_keyword": {
+    "value": [
+      "Experimental Jazz",
+      "Dub",
+      "Post-Rock",
+      "Jazz",
+      "Electronica",
+      "Live Konzert",
+      "Weimar",
+      "Rufus D"
+    ],
+    "repoField": true,
+    "datatype": "array",
+    "multiple": true,
+    "required": true,
+    "schema": "Core",
+    "uri": "cclom:general_keyword",
+    "label": "Schlagwörter",
+    "status": "filled",
+    "description": "Schlagwörter oder Themen (kommagetrennt oder als Liste).",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "ccm:wwwurl": {
+    "value": "https://www.weimar.de/kultur/veranstaltungen/veranstaltungskalender/veranstaltung/rufus-d-2025-11-17t21-00-00/",
+    "repoField": true,
+    "datatype": "uri",
+    "multiple": false,
+    "required": true,
+    "schema": "Core",
+    "uri": "ccm:wwwurl",
+    "label": "Web-URL",
+    "status": "filled",
+    "description": "Öffentliche URL, unter der die Ressource erreichbar ist.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "cm:author": {
+    "value": [
+      "C. Keller Weimar"
+    ],
+    "repoField": true,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Core",
+    "uri": "cm:author",
+    "label": "Autor:in / Urheber:in",
+    "status": "filled",
+    "description": "Person(en) oder Organisation(en), die den Inhalt erstellt haben.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "ccm:oeh_publisher_combined": {
+    "value": "C. Keller Weimar",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "Core",
+    "uri": "ccm:oeh_publisher_combined",
+    "label": "Publisher / Herausgeber",
+    "status": "filled",
+    "description": "Organisation oder Person, die den Inhalt veröffentlicht hat.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "ccm:custom_license": {
+    "value": "CC BY-NC",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "Core",
+    "uri": "ccm:custom_license",
+    "label": "Benutzerdefinierte Lizenz",
+    "status": "filled",
+    "description": "Freitext oder Link zu einer individuellen Lizenzbeschreibung.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "ccm:commonlicense_key": {
+    "value": "CC BY-NC",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "Core",
+    "uri": "ccm:commonlicense_key",
+    "label": "Lizenztyp (CC)",
+    "status": "filled",
+    "description": "Creative-Commons-Lizenztyp (ohne Versionsnummer). Verwende ausschließlich die aufgeführten Lizenzkürzel in exakt gleicher Schreibweise (z. B. \"CC BY-SA\").",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.85
+  },
+  "cclom:general_language": {
+    "value": "Deutsch",
+    "repoField": true,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "Core",
+    "uri": "cclom:general_language",
+    "label": "Sprache",
+    "status": "filled",
+    "description": "Sprachcode nach BCP-47 (z. B. de, en, de-DE).",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "confidence": 0.85
+  },
+  "ccm:educationalintendedenduserrole": {
+    "value": null,
+    "repoField": true,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Core",
+    "uri": "ccm:educationalintendedenduserrole",
+    "label": "Zielgruppe",
+    "status": "empty",
+    "description": "Personengruppen, für die die Ressource konzipiert wurde. Nutze ausschließlich die Vokabular-Labels in exakt gleicher Schreibweise, einschließlich Mehrwort-Bezeichnungen oder Klammern.",
+    "hasVocabulary": true,
+    "vocabularyType": "skos"
+  },
+  "ccm:educationalcontext": {
+    "value": [
+      "http://w3id.org/openeduhub/vocabs/educationalContext/hochschule"
+    ],
+    "repoField": true,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Core",
+    "uri": "ccm:educationalcontext",
+    "label": "Bildungsstufe",
+    "status": "filled",
+    "description": "Bildungsstufe, in der die Ressource genutzt werden kann. Nutze ausschließlich die Vokabular-Labels in exakt gleicher Schreibweise, einschließlich Mehrwort-Bezeichnungen oder Klammern.",
+    "hasVocabulary": true,
+    "vocabularyType": "skos",
+    "displayValue": [
+      "Hochschule"
+    ],
+    "confidence": 0.85
+  },
+  "ccm:taxonid": {
+    "value": [
+      "http://w3id.org/openeduhub/vocabs/discipline/420"
+    ],
+    "repoField": true,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Core",
+    "uri": "ccm:taxonid",
+    "label": "Fach",
+    "status": "filled",
+    "description": "Schulfach/Disziplin (SKOS). Mehrfachauswahl möglich. Nutze ausschließlich die Vokabular-Labels in exakt gleicher Schreibweise, einschließlich Mehrwort-Bezeichnungen oder Klammern.",
+    "hasVocabulary": true,
+    "vocabularyType": "skos",
+    "displayValue": [
+      "Musik"
+    ],
+    "confidence": 0.85
+  },
+  "oeh:eventType": {
+    "value": null,
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "oeh:eventType",
+    "label": "Veranstaltungstyp",
+    "status": "empty",
+    "description": "Wähle/n oder erkenne die passenden Veranstaltungstypen (SKOS, hierarchisch).",
+    "hasVocabulary": true,
+    "vocabularyType": "skos"
+  },
+  "schema:maximumAttendeeCapacity": {
+    "value": null,
+    "repoField": false,
+    "datatype": "number",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/maximumAttendeeCapacity",
+    "label": "Max. Teilnehmendenzahl",
+    "status": "empty",
+    "description": "Gesamtkapazität (Integer).",
+    "hasVocabulary": false
+  },
+  "schema:maximumPhysicalAttendeeCapacity": {
+    "value": null,
+    "repoField": false,
+    "datatype": "number",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/maximumPhysicalAttendeeCapacity",
+    "label": "Maximale Präsenz-Teilnehmerzahl",
+    "status": "empty",
+    "description": "Maximale Anzahl der Personen, die physisch vor Ort teilnehmen können",
+    "hasVocabulary": false
+  },
+  "schema:maximumVirtualAttendeeCapacity": {
+    "value": null,
+    "repoField": false,
+    "datatype": "number",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/maximumVirtualAttendeeCapacity",
+    "label": "Maximale virtuelle Teilnehmerzahl",
+    "status": "empty",
+    "description": "Maximale Anzahl der Personen, die virtuell/online teilnehmen können",
+    "hasVocabulary": false
+  },
+  "schema:eventSchedule": {
+    "value": [
+      {
+        "startDate": "2025-11-17",
+        "endDate": "2025-11-17",
+        "byDay": [
+          "Montag"
+        ],
+        "byMonth": [
+          11
+        ],
+        "byMonthDay": [
+          17
+        ],
+        "byHour": [
+          21
+        ],
+        "scheduleTimezone": "Europe/Berlin",
+        "duration": "PT1H"
+      }
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/eventSchedule",
+    "label": "Veranstaltungsplan",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "repeatFrequency",
+        "repeatCount",
+        "startDate",
+        "endDate",
+        "byDay",
+        "byMonth",
+        "byMonthDay",
+        "byHour",
+        "scheduleTimezone",
+        "duration"
+      ]
+    },
+    "description": "Detaillierter Zeitplan oder Ablaufplan der Veranstaltung mit Wiederholungen",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:openingHoursSpecification": {
+    "value": [
+      {
+        "dayOfWeek": [
+          "MO"
+        ],
+        "opens": "21:00",
+        "validFrom": "2025-11-17",
+        "validThrough": "2025-11-17"
+      }
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/openingHoursSpecification",
+    "label": "Öffnungszeiten-Spezifikation",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "dayOfWeek",
+        "opens",
+        "closes",
+        "validFrom",
+        "validThrough"
+      ]
+    },
+    "description": "Spezifikation der Öffnungszeiten für wiederkehrende Veranstaltungen",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:startDate": {
+    "value": "2025-11-17T21:00",
+    "repoField": false,
+    "datatype": "datetime",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/startDate",
+    "label": "Start (Datum/Zeit)",
+    "status": "filled",
+    "description": "Startdatum/-zeit im ISO 8601-Format, z.B. 2026-09-15T20:00 oder 2026-09-15.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:endDate": {
+    "value": "2025-11-17T21:00",
+    "repoField": false,
+    "datatype": "datetime",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/endDate",
+    "label": "Ende (Datum/Zeit)",
+    "status": "filled",
+    "description": "Enddatum/-zeit im ISO 8601-Format, z.B. 2026-09-30T23:00 oder 2026-09-30.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:doorTime": {
+    "value": "2025-11-17T21:00",
+    "repoField": false,
+    "datatype": "datetime",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/doorTime",
+    "label": "Einlass (Zeit)",
+    "status": "filled",
+    "description": "Einlass-Zeit im ISO 8601-Format, z.B. 2026-09-15T19:00.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:eventStatus": {
+    "value": "https://schema.org/EventScheduled",
+    "repoField": false,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/eventStatus",
+    "label": "Status",
+    "status": "filled",
+    "description": "Geplanter/abgesagter/verschobener Status.",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "displayValue": "Geplant",
+    "confidence": 0.85
+  },
+  "schema:previousStartDate": {
+    "value": null,
+    "repoField": false,
+    "datatype": "datetime",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/previousStartDate",
+    "label": "Vorheriger Start",
+    "status": "empty",
+    "description": "Vorherige Starts im ISO 8601-Format, z.B. 2026-08-15T20:00 (mehrere möglich).",
+    "hasVocabulary": false
+  },
+  "schema:duration": {
+    "value": null,
+    "repoField": false,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/duration",
+    "label": "Dauer",
+    "status": "empty",
+    "description": "ISO 8601 Dauer, z. B. P1D, PT90M.",
+    "hasVocabulary": false
+  },
+  "schema:eventAttendanceMode": {
+    "value": "https://schema.org/OfflineEventAttendanceMode",
+    "repoField": false,
+    "datatype": "string",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/eventAttendanceMode",
+    "label": "Teilnahmemodus",
+    "status": "filled",
+    "description": "Online, vor Ort oder gemischt.",
+    "hasVocabulary": true,
+    "vocabularyType": "closed",
+    "displayValue": "OfflineEventAttendanceMode",
+    "confidence": 0.85
+  },
+  "schema:location": {
+    "value": [
+      {
+        "name": "C. Keller Weimar",
+        "address": {
+          "streetAddress": "Markt 21",
+          "postalCode": "99423",
+          "addressLocality": "Weimar",
+          "addressRegion": "Thüringen",
+          "addressCountry": "DE"
+        },
+        "geo": {
+          "latitude": 50.978919250000004,
+          "longitude": 11.329790515900743
+        }
+      }
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/location",
+    "label": "Ort",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "name",
+        "address",
+        "address.streetAddress",
+        "address.postalCode",
+        "address.addressLocality",
+        "address.addressRegion",
+        "address.addressCountry",
+        "geo",
+        "geo.latitude",
+        "geo.longitude",
+        "sameAs"
+      ]
+    },
+    "description": "Ort als Place/Address oder virtuelle URL.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:isAccessibleForFree": {
+    "value": true,
+    "repoField": false,
+    "datatype": "boolean",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/isAccessibleForFree",
+    "label": "Kostenfrei?",
+    "status": "filled",
+    "description": "Gibt an, ob die Teilnahme kostenlos ist.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:actor": {
+    "value": [
+      {
+        "name": "Dominik Zäch"
+      },
+      {
+        "name": "Balz Muheim"
+      },
+      {
+        "name": "Linus Meier"
+      }
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/actor",
+    "label": "Akteur:innen",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "name",
+        "url",
+        "sameAs",
+        "name",
+        "url",
+        "sameAs",
+        "name",
+        "url",
+        "sameAs"
+      ]
+    },
+    "description": "Personen oder Organisationen, die bei der Veranstaltung auftreten oder mitwirken",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:organizer": {
+    "value": [
+      {
+        "name": "C. Keller Weimar",
+        "url": "https://www.weimar.de/kultur/veranstaltungen/veranstaltungskalender/veranstaltung/rufus-d-2025-11-17t21-00-00/"
+      }
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/organizer",
+    "label": "Organisator:in(en)",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "name",
+        "url",
+        "sameAs"
+      ]
+    },
+    "description": "Organisation(en) oder Person(en), die das Event organisieren.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:performer": {
+    "value": [
+      {
+        "name": "Dominik Zäch"
+      },
+      {
+        "name": "Balz Muheim"
+      },
+      {
+        "name": "Linus Meier"
+      }
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/performer",
+    "label": "Mitwirkende/Performer",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "name",
+        "url",
+        "name",
+        "url",
+        "name",
+        "url"
+      ]
+    },
+    "description": "Performer:innen (z. B. Vortragende, Bands).",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:attendee": {
+    "value": [
+      {
+        "name": "Dominik Zäch"
+      },
+      {
+        "name": "Balz Muheim"
+      },
+      {
+        "name": "Linus Meier"
+      }
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/attendee",
+    "label": "Teilnehmende (bekannt)",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "name",
+        "url",
+        "name",
+        "url",
+        "name",
+        "url"
+      ]
+    },
+    "description": "Optionale Nennung bekannter Teilnehmender (Org/Person).",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:offers": {
+    "value": [
+      {}
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/offers",
+    "label": "Tickets/Preise",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "price",
+        "priceCurrency",
+        "url",
+        "availability",
+        "validFrom",
+        "validThrough",
+        "acceptedPaymentMethod",
+        "paymentMethod"
+      ]
+    },
+    "description": "Ticket-/Angebotsinfos, z. B. Preis, Währung, URL.",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:accessService": {
+    "value": null,
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/accessService",
+    "label": "Zugangsdienste",
+    "status": "empty",
+    "_schema_info": {
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "url",
+        "serviceUrl",
+        "serviceType",
+        "description"
+      ]
+    },
+    "description": "Services oder Hilfen für barrierefreien Zugang zur Veranstaltung",
+    "hasVocabulary": false
+  },
+  "schema:remainingAttendeeCapacity": {
+    "value": null,
+    "repoField": false,
+    "datatype": "number",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/remainingAttendeeCapacity",
+    "label": "Restplätze",
+    "status": "empty",
+    "description": "Noch verfügbare Plätze (Integer).",
+    "hasVocabulary": false
+  },
+  "schema:assesses": {
+    "value": null,
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/assesses",
+    "label": "Assessments/Kompetenzen",
+    "status": "empty",
+    "description": "Welche Kompetenz/Outcome wird geprüft?",
+    "hasVocabulary": false
+  },
+  "schema:teaches": {
+    "value": [
+      "Komposition und Improvisation in der Musik",
+      "Verständnis und Anwendung von Experimental Jazz, Dub und Post-Rock",
+      "Instrumentaler Groove und musikalische Stimmungsentwicklung",
+      "Zusammenführung verschiedener Musikstile (Jazz, Post-Rock, Dub/Electronica)",
+      "Live-Performance und musikalische Interaktion"
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/teaches",
+    "label": "Lernziele/Inhalte",
+    "status": "filled",
+    "description": "Welche Kompetenz/Outcome wird vermittelt?",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:about": {
+    "value": [
+      "Experimental Jazz",
+      "Dub",
+      "Post-Rock",
+      "Jazz",
+      "Dub/Electronica",
+      "Live-Konzert",
+      "Musik aus Luzern/CH",
+      "Improvisation",
+      "Instrumentaler Groove",
+      "Album Leichtes Fieber",
+      "Band Rufus D"
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/about",
+    "label": "Themen/Bezug",
+    "status": "filled",
+    "description": "Worauf bezieht sich das Event? (URIs oder Freitext)",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:superEvent": {
+    "value": null,
+    "repoField": false,
+    "datatype": "uri",
+    "multiple": false,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/superEvent",
+    "label": "Übergeordnetes Event",
+    "status": "empty",
+    "description": "URI/ID des übergeordneten Events.",
+    "hasVocabulary": false
+  },
+  "schema:subEvent": {
+    "value": null,
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/subEvent",
+    "label": "Unter-Events",
+    "status": "empty",
+    "description": "Liste von URIs/IDs untergeordneter Events.",
+    "hasVocabulary": false
+  },
+  "schema:recordedIn": {
+    "value": [
+      {
+        "name": "Leichtes Fieber"
+      }
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/recordedIn",
+    "label": "Aufgezeichnet in",
+    "status": "filled",
+    "_schema_info": {
+      "hasSubFields": true,
+      "variantType": null,
+      "hasVariants": true,
+      "hasShape": true,
+      "subFieldPaths": [
+        "name",
+        "url"
+      ]
+    },
+    "description": "Verknüpfung zu CreativeWork-Objekten, in denen diese Veranstaltung aufgezeichnet wurde",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  },
+  "schema:workFeatured": {
+    "value": [
+      "Leichtes Fieber"
+    ],
+    "repoField": false,
+    "datatype": "array",
+    "multiple": true,
+    "required": false,
+    "schema": "Event",
+    "uri": "https://schema.org/workFeatured",
+    "label": "Präsentierte Werke",
+    "status": "filled",
+    "description": "Gezeigte/ausgestellte Werke (URI/Name).",
+    "hasVocabulary": false,
+    "confidence": 0.85
+  }
+}

@@ -1,6 +1,6 @@
 {
   "profileId": "core:tool_service",
-  "version": "1.0.0",
+  "version": "1.8.0",
   "@context": {
     "schema": "https://schema.org/",
     "sdo": "https://schema.org/",
@@ -464,8 +464,8 @@
         "en": "Release date"
       },
       "description": {
-        "de": "Datum der aktuellen Version oder Erstveröffentlichung.",
-        "en": "Date of the current version or initial release."
+        "de": "Datum der aktuellen Version oder Erstveröffentlichung im Format YYYY-MM-DD, z.B. 2024-03-15.",
+        "en": "Date of the current version or initial release in YYYY-MM-DD format, e.g. 2024-03-15."
       },
       "prompt": {
         "de": "",

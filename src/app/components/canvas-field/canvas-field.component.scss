@@ -57,6 +57,14 @@
       background: #f4f6fb;
     }
 
+    // Keep disabled fields readable in viewer mode
+    ::ng-deep .mat-mdc-input-element:disabled,
+    ::ng-deep .mat-mdc-select-disabled {
+      color: #1f2a3d !important; // Normal text color instead of gray
+      -webkit-text-fill-color: #1f2a3d !important; // Safari fix
+      opacity: 1 !important; // Override Material's opacity reduction
+    }
+
     ::ng-deep textarea.mat-mdc-input-element {
       resize: vertical;
       min-height: 32px;
@@ -143,6 +151,12 @@
       &:hover {
         --mdc-chip-elevated-container-color: #d4def4;
       }
+
+      // Keep chips readable in readonly mode (no remove button)
+      ::ng-deep .mdc-evolution-chip__action--primary {
+        color: #1f2a3d !important;
+        opacity: 1 !important;
+      }
     }
 
     &.inline {
@@ -180,6 +194,7 @@
       color: #ba1a1a;
     }
   }
+  
 }
 
 @keyframes pulse {

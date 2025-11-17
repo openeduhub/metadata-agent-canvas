@@ -18,16 +18,67 @@
         *ngIf="field.multiple && field.value && field.value.length > 0"
       >
         <mat-chip-set class="chip-container inline" aria-label="Selected values">
-          <mat-chip *ngFor="let item of field.value" highlighted (removed)="removeChip(item)">
+          <mat-chip *ngFor="let item of field.value" highlighted (removed)="!readonly && removeChip(item)">
             {{ getVocabularyLabel(item) }}
-            <button matChipRemove type="button">
+            <button *ngIf="!readonly" matChipRemove type="button">
               <mat-icon>cancel</mat-icon>
             </button>
           </mat-chip>
         </mat-chip-set>
       </div>
 
+      <!-- Boolean field: mat-select -->
+      <mat-select
+        *ngIf="field.datatype === 'boolean'"
+        [(ngModel)]="inputValue"
+        (selectionChange)="onBooleanChange($event.value)"
+        [disabled]="field.status === FieldStatus.EXTRACTING || readonly"
+        [attr.aria-describedby]="getSupportId(field.fieldId)"
+      >
+        <mat-option [value]="null">{{ 'FIELD.BOOLEAN.EMPTY' | translate }}</mat-option>
+        <mat-option [value]="'true'">{{ 'FIELD.BOOLEAN.TRUE' | translate }}</mat-option>
+        <mat-option [value]="'false'">{{ 'FIELD.BOOLEAN.FALSE' | translate }}</mat-option>
+      </mat-select>
+
+      <!-- Date field: date input -->
+      <input
+        *ngIf="field.datatype === 'date'"
+        matInput
+        type="date"
+        [(ngModel)]="inputValue"
+        (input)="onInput($event)"
+        (blur)="onBlur()"
+        [disabled]="field.status === FieldStatus.EXTRACTING || readonly"
+        [attr.aria-describedby]="getSupportId(field.fieldId)"
+      />
+
+      <!-- DateTime field: datetime-local input -->
+      <input
+        *ngIf="field.datatype === 'datetime'"
+        matInput
+        type="datetime-local"
+        [(ngModel)]="inputValue"
+        (input)="onInput($event)"
+        (blur)="onBlur()"
+        [disabled]="field.status === FieldStatus.EXTRACTING || readonly"
+        [attr.aria-describedby]="getSupportId(field.fieldId)"
+      />
+
+      <!-- Time field: time input -->
+      <input
+        *ngIf="field.datatype === 'time'"
+        matInput
+        type="time"
+        [(ngModel)]="inputValue"
+        (input)="onInput($event)"
+        (blur)="onBlur()"
+        [disabled]="field.status === FieldStatus.EXTRACTING || readonly"
+        [attr.aria-describedby]="getSupportId(field.fieldId)"
+      />
+
+      <!-- Regular text/number fields: textarea -->
       <textarea
+        *ngIf="field.datatype !== 'boolean' && field.datatype !== 'date' && field.datatype !== 'datetime' && field.datatype !== 'time'"
         #textareaRef
         matInput
         rows="1"
@@ -39,20 +90,20 @@
         (blur)="onBlur()"
         (focus)="onFocus(mainAutocomplete)"
         (keypress)="onKeyPress($event)"
-        [disabled]="field.status === FieldStatus.EXTRACTING"
+        [disabled]="field.status === FieldStatus.EXTRACTING || readonly"
         [matAutocomplete]="auto"
         [attr.aria-describedby]="getSupportId(field.fieldId)"
         #mainAutocomplete="matAutocompleteTrigger"
       ></textarea>
 
       <button
-        *ngIf="field.vocabulary"
+        *ngIf="!readonly && field.vocabulary && field.datatype !== 'boolean' && field.datatype !== 'date' && field.datatype !== 'datetime' && field.datatype !== 'time'"
         mat-icon-button
         matSuffix
         type="button"
         class="dropdown-trigger"
         (mousedown)="onDropdownMouseDown($event)"
-        (click)="toggleAutocomplete(mainAutocomplete)"
+        (click)="toggleAutocompleteFromButton()"
         aria-label="Open options"
       >
         <mat-icon>arrow_drop_down</mat-icon>

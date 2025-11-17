@@ -59,7 +59,7 @@
     "FIELDS_RECOGNIZED": "fields recognized"
   },
   "FIELD": {
-    "REQUIRED": "Required Field",
+    "REQUIRED": "Required",
     "OPTIONAL": "Optional",
     "FILLED": "Filled",
     "EMPTY": "Empty",
@@ -68,11 +68,40 @@
     "ADD_CHIP": "Add",
     "REMOVE_CHIP": "Remove",
     "SHOW_ON_MAP": "Show on OpenStreetMap",
-    "FIELD_INFO": "Field Info",
-    "MULTIPLE_HINT": "Multiple values allowed. Select from dropdown or enter values.",
+    "FIELD_INFO": "Field info",
+    "MULTIPLE_HINT": "Multiple values allowed. Choose from dropdown or enter values.",
     "REQUIRED_HINT": "⚠️ Required field",
     "VOCABULARY_CONTROLLED": "Use only terms from the controlled vocabulary.",
-    "VOCABULARY_OPEN": "Prefer terms from the vocabulary."
+    "VOCABULARY_OPEN": "Preferably use terms from the vocabulary.",
+    "BOOLEAN": {
+      "EMPTY": "Please select",
+      "TRUE": "Yes",
+      "FALSE": "No"
+    },
+    "MONTHDAY_PLACEHOLDER": "Add day (1-31)"
+  },
+  "WEEKDAYS": {
+    "MONDAY": "Monday",
+    "TUESDAY": "Tuesday",
+    "WEDNESDAY": "Wednesday",
+    "THURSDAY": "Thursday",
+    "FRIDAY": "Friday",
+    "SATURDAY": "Saturday",
+    "SUNDAY": "Sunday"
+  },
+  "MONTHS": {
+    "JANUARY": "January",
+    "FEBRUARY": "February",
+    "MARCH": "March",
+    "APRIL": "April",
+    "MAY": "May",
+    "JUNE": "June",
+    "JULY": "July",
+    "AUGUST": "August",
+    "SEPTEMBER": "September",
+    "OCTOBER": "October",
+    "NOVEMBER": "November",
+    "DECEMBER": "December"
   },
   "EMPTY_STATE": {
     "TITLE": "Ready for Extraction",

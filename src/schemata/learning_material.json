@@ -1,6 +1,6 @@
 {
   "profileId": "type:learning_material",
-  "version": "1.0.0",
+  "version": "1.8.0",
   "@context": {
     "schema": "https://schema.org/",
     "oeh": "http://w3id.org/openeduhub/vocabs/",

@@ -72,7 +72,36 @@
     "MULTIPLE_HINT": "Mehrere Werte möglich. Wähle aus dem Dropdown oder gib Werte ein.",
     "REQUIRED_HINT": "⚠️ Pflichtfeld",
     "VOCABULARY_CONTROLLED": "Nutze ausschließlich Begriffe aus dem geschlossenen Vokabular.",
-    "VOCABULARY_OPEN": "Nutze bevorzugt Begriffe aus dem Vokabular."
+    "VOCABULARY_OPEN": "Nutze bevorzugt Begriffe aus dem Vokabular.",
+    "BOOLEAN": {
+      "EMPTY": "Bitte auswählen",
+      "TRUE": "Ja",
+      "FALSE": "Nein"
+    },
+    "MONTHDAY_PLACEHOLDER": "Tag (1-31) hinzufügen"
+  },
+  "WEEKDAYS": {
+    "MONDAY": "Montag",
+    "TUESDAY": "Dienstag",
+    "WEDNESDAY": "Mittwoch",
+    "THURSDAY": "Donnerstag",
+    "FRIDAY": "Freitag",
+    "SATURDAY": "Samstag",
+    "SUNDAY": "Sonntag"
+  },
+  "MONTHS": {
+    "JANUARY": "Januar",
+    "FEBRUARY": "Februar",
+    "MARCH": "März",
+    "APRIL": "April",
+    "MAY": "Mai",
+    "JUNE": "Juni",
+    "JULY": "Juli",
+    "AUGUST": "August",
+    "SEPTEMBER": "September",
+    "OCTOBER": "Oktober",
+    "NOVEMBER": "November",
+    "DECEMBER": "Dezember"
   },
   "EMPTY_STATE": {
     "TITLE": "Bereit für die Extraktion",
