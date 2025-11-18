@@ -1,41 +1,80 @@
 <div class="canvas-container">
-  <div class="canvas-controls" [class.viewer-floating]="isViewerMode && showControls" *ngIf="showControls">
-    <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
+  <!-- Floating Controls Container -->
+  <div class="floating-controls-wrapper" 
+       [class.active]="isViewerMode || isCompactUI" 
+       [class.floating-normal]="!isViewerMode && !isCompactUI"
+       *ngIf="showControls">
+    <!-- Left: Content Type Split Button (Compact UI or Viewer with controls) -->
+    <div class="floating-content-type-split" *ngIf="isCompactUI || isViewerMode">
+      <div class="split-button-container">
+        <!-- Left side: Content Type Display -->
+        <div class="split-button-main">
+          <mat-icon>category</mat-icon>
+          <span>{{ getContentTypeLabel() }}</span>
+        </div>
+        
+        <!-- Right side: Dropdown Button -->
+        <button 
+          mat-button
+          [matMenuTriggerFor]="contentTypeMenuFloating"
+          [disabled]="state.isExtracting"
+          class="split-button-dropdown">
+          <mat-icon>expand_more</mat-icon>
+        </button>
+      </div>
+      
+      <!-- Material Menu -->
+      <mat-menu #contentTypeMenuFloating="matMenu" class="content-type-menu">
+        <button 
+          mat-menu-item 
+          *ngFor="let option of contentTypeOptions"
+          (click)="selectContentType(option)"
+          [class.active]="getContentTypeLabel() === option.label">
+          <span>{{ option.label }}</span>
+          <mat-icon *ngIf="getContentTypeLabel() === option.label" class="checkmark">check</mat-icon>
+        </button>
+      </mat-menu>
+    </div>
     
-    <button 
-      mat-icon-button
-      class="control-button save-button"
-      [class.active]="canSubmit()"
-      [disabled]="!canSubmit()"
-      (click)="downloadJson()"
-      [matTooltip]="'TOOLTIPS.DOWNLOAD_JSON' | translate">
-      <mat-icon>save</mat-icon>
-    </button>
-    
-    <button 
-      mat-icon-button
-      class="control-button upload-button"
-      [class.active]="canSubmit()"
-      [disabled]="!canSubmit()"
-      (click)="submitMetadata()"
-      [matTooltip]="'TOOLTIPS.SUBMIT_SUGGESTION' | translate">
-      <mat-icon>cloud_upload</mat-icon>
-    </button>
-    
-    <app-language-switcher></app-language-switcher>
+    <!-- Right: Action Buttons -->
+    <div class="floating-action-buttons">
+      <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
+      
+      <button 
+        mat-icon-button
+        class="control-button save-button"
+        [class.active]="canSubmit()"
+        [disabled]="!canSubmit()"
+        (click)="downloadJson()"
+        [matTooltip]="'TOOLTIPS.DOWNLOAD_JSON' | translate">
+        <mat-icon>save</mat-icon>
+      </button>
+      
+      <button 
+        mat-icon-button
+        class="control-button upload-button"
+        [class.active]="canSubmit()"
+        [disabled]="!canSubmit()"
+        (click)="submitMetadata()"
+        [matTooltip]="'TOOLTIPS.SUBMIT_SUGGESTION' | translate">
+        <mat-icon>cloud_upload</mat-icon>
+      </button>
+      
+      <app-language-switcher></app-language-switcher>
 
-    <button 
-      *ngIf="integrationMode.isBrowserExtension() || integrationMode.isBookmarklet()"
-      mat-icon-button
-      class="control-button btn-close"
-      (click)="closeCanvas()"
-      [matTooltip]="'HEADER.CLOSE' | translate">
-      <mat-icon>close</mat-icon>
-    </button>
+      <button 
+        *ngIf="integrationMode.isBrowserExtension() || integrationMode.isBookmarklet()"
+        mat-icon-button
+        class="control-button btn-close"
+        (click)="closeCanvas()"
+        [matTooltip]="'HEADER.CLOSE' | translate">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   </div>
 
   <!-- Input Section -->
-  <div class="input-section" *ngIf="!isViewerMode">
+  <div class="input-section" *ngIf="!isViewerMode && !isCompactUI">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'INPUT.PLACEHOLDER' | translate }}</mat-label>
       <textarea
@@ -48,9 +87,8 @@
       
     <div class="header-actions">
       <button 
-        mat-raised-button
-        color="primary"
-        class="btn-primary"
+        mat-flat-button
+        class="btn-extract-filled"
         (click)="startExtraction()"
         [disabled]="state.isExtracting || !userText.trim()"
       >
@@ -61,8 +99,8 @@
       </button>
       
       <button 
-        mat-stroked-button
-        class="btn-secondary"
+        mat-flat-button
+        class="btn-reset-tonal"
         (click)="reset()"
         [disabled]="state.isExtracting"
       >
@@ -72,22 +110,26 @@
     </div>
   </div>
 
-  <!-- Compact Status Bar: Content Type + Progress -->
-  <div *ngIf="state.totalFields > 0 && !isViewerMode" class="compact-status-bar">
-    <!-- Left: Content Type -->
-    <div class="content-type-section">
-      <span class="content-type-label">
-        <mat-icon>category</mat-icon>
-        {{ getContentTypeLabel() }}
-      </span>
-      <button 
-        mat-stroked-button
-        [matMenuTriggerFor]="contentTypeMenu"
-        [disabled]="state.isExtracting"
-        class="btn-change-content-type">
-        {{ 'CONTENT_TYPE.CHANGE' | translate }}
-        <mat-icon>expand_more</mat-icon>
-      </button>
+  <!-- Compact Status Bar: Content Type + Progress (only in normal mode, not in Compact UI) -->
+  <div *ngIf="state.totalFields > 0 && !isViewerMode && !isCompactUI" class="compact-status-bar">
+    <!-- Left: Content Type Split Button -->
+    <div class="content-type-section-split">
+      <div class="split-button-container">
+        <!-- Left side: Content Type Display -->
+        <div class="split-button-main">
+          <mat-icon>category</mat-icon>
+          <span>{{ getContentTypeLabel() }}</span>
+        </div>
+        
+        <!-- Right side: Dropdown Button -->
+        <button 
+          mat-button
+          [matMenuTriggerFor]="contentTypeMenu"
+          [disabled]="state.isExtracting"
+          class="split-button-dropdown">
+          <mat-icon>expand_more</mat-icon>
+        </button>
+      </div>
       
       <!-- Material Menu -->
       <mat-menu #contentTypeMenu="matMenu" class="content-type-menu">
@@ -128,7 +170,7 @@
   </div>
 
   <!-- Canvas Content Area -->
-  <div class="canvas-content" [class.has-floating-controls]="isViewerMode && showControls" *ngIf="state.fieldGroups.length > 0">
+  <div class="canvas-content" *ngIf="state.fieldGroups.length > 0">
     
     <!-- All Field Groups (in schema order) -->
     <div *ngFor="let group of state.fieldGroups; trackBy: trackByGroupId" class="field-group">
@@ -152,7 +194,7 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="state.fieldGroups.length === 0" class="empty-state" [class.has-floating-controls]="isViewerMode && showControls">
+  <div *ngIf="state.fieldGroups.length === 0" class="empty-state">
     <div class="empty-state-content">
       <div class="empty-icon">📝</div>
       <h3>{{ 'EMPTY_STATE.TITLE' | translate }}</h3>

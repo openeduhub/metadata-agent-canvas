@@ -41,6 +41,21 @@ app-canvas-view {
   display: none;
 }
 
+/* Global Form Field Focus Color - Corporate Blue */
+.mat-mdc-form-field.mat-focused {
+  .mat-mdc-notched-outline .mat-mdc-notched-outline-trailing,
+  .mat-mdc-notched-outline .mat-mdc-notched-outline-leading,
+  .mat-mdc-notched-outline .mat-mdc-notched-outline-notch {
+    border-color: #003B7C !important;
+    border-width: 2px !important;
+  }
+  
+  // Label color when focused
+  .mat-mdc-floating-label {
+    color: #003B7C !important;
+  }
+}
+
 /* Progress Bar - Corporate Blue */
 .mat-mdc-progress-bar {
   --mdc-linear-progress-active-indicator-color: #003B7C;

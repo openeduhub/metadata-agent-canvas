@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metadata Canvas - Production Test & Bookmarklet Setup</title>
+  
+  <!-- Test Meta Tags -->
+  <meta name="description" content="Test-Seite für Metadata Canvas Production Deployment mit verschiedenen Modi und Bookmarklet-Installation">
+  <meta name="keywords" content="OER, Open Educational Resources, Metadata, Extraktion">
+  <meta name="author" content="OpenEduHub">
+  <meta property="og:title" content="Metadata Canvas Production Test">
+  <meta property="og:description" content="Test verschiedene Modi und installiere Bookmarklets">
+  <meta property="og:type" content="website">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 20px;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    h1 {
+      color: #003B7C;
+      margin-bottom: 10px;
+      font-size: 2.2em;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+    
+    h2 {
+      color: #003B7C;
+      margin: 30px 0 15px 0;
+      font-size: 1.5em;
+      border-bottom: 2px solid #ecf2ff;
+      padding-bottom: 8px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    thead {
+      background: linear-gradient(135deg, #003B7C, #0052a3);
+      color: white;
+    }
+    
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+    
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ecf2ff;
+    }
+    
+    tbody tr:hover {
+      background: #f8faff;
+    }
+    
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .test-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .test-button {
+      display: inline-block;
+      padding: 15px 24px;
+      background: linear-gradient(135deg, #003B7C, #0052a3);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 500;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 59, 124, 0.3);
+    }
+    
+    .test-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 59, 124, 0.4);
+    }
+    
+    .test-button.btn-compact {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+    
+    .test-button.btn-viewer {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+    
+    .bookmarklet-box {
+      background: #f8faff;
+      border: 2px dashed #003B7C;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .bookmarklet-box h3 {
+      color: #003B7C;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+    
+    .bookmarklet-link {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #003B7C;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px 10px 10px 0;
+      transition: all 0.2s ease;
+      cursor: move;
+    }
+    
+    .bookmarklet-link:hover {
+      background: #0052a3;
+      transform: scale(1.05);
+    }
+    
+    .info-text {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-right: 5px;
+    }
+    
+    .badge.yes {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .badge.no {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .badge.auto {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .url-box {
+      background: #f1f3f5;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      margin: 10px 0;
+      word-break: break-all;
+    }
+    
+    .highlight {
+      background: #fff3cd;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    code {
+      background: #f1f3f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #003B7C;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Metadata Canvas - Production</h1>
+    <p class="subtitle">Test verschiedene Modi und installiere Bookmarklets für OpenEduHub</p>
+    
+    <h2>📊 Modi-Vergleich</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Normal Mode</th>
+          <th>Compact UI Mode</th>
+          <th>Viewer Mode</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Input-Feld</strong></td>
+          <td><span class="badge yes">✓</span> Sichtbar</td>
+          <td><span class="badge no">✗</span> Versteckt</td>
+          <td><span class="badge no">✗</span> Versteckt</td>
+        </tr>
+        <tr>
+          <td><strong>Content-Type</strong></td>
+          <td><span class="badge yes">✓</span> Unter Input (Hellblau)</td>
+          <td><span class="badge yes">✓</span> Split Button (Weiß)</td>
+          <td><span class="badge no">✗</span> Versteckt</td>
+        </tr>
+        <tr>
+          <td><strong>Extraktion</strong></td>
+          <td>Manuell</td>
+          <td><span class="badge auto">⚡</span> Automatisch</td>
+          <td><span class="badge no">✗</span> N/A</td>
+        </tr>
+        <tr>
+          <td><strong>Editierbar</strong></td>
+          <td><span class="badge yes">✓</span> Ja</td>
+          <td><span class="badge yes">✓</span> Ja</td>
+          <td><span class="badge no">✗</span> Read-Only</td>
+        </tr>
+        <tr>
+          <td><strong>Use Case</strong></td>
+          <td>Standalone-App</td>
+          <td>Bookmarklet/Plugin</td>
+          <td>JSON ansehen</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <h2>🧪 Test-Links</h2>
+    <div class="test-buttons">
+      <a href="https://metadata-agent-canvas.staging.openeduhub.net/" 
+         target="_blank"
+         class="test-button">
+        📝 Normal Mode
+      </a>
+      
+      <a href="https://metadata-agent-canvas.staging.openeduhub.net/?ui=compact" 
+         target="_blank"
+         class="test-button btn-compact">
+        🎨 Compact UI Mode
+      </a>
+      
+      <a href="https://metadata-agent-canvas.staging.openeduhub.net/?mode=viewer&readonly=true&controls=true" 
+         target="_blank"
+         class="test-button btn-viewer">
+        👁️ Viewer Mode (Read-Only)
+      </a>
+    </div>
+    
+    <h2>👁️ Viewer Mode Varianten</h2>
+    <p class="info-text" style="margin-bottom: 20px;">
+      Der Viewer Mode hat verschiedene Konfigurationen für unterschiedliche Anwendungsfälle:
+    </p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Variante</th>
+          <th>URL Parameter</th>
+          <th>Beschreibung</th>
+          <th>Test</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Editierbar mit Controls</strong></td>
+          <td><code>?mode=viewer&controls=true</code></td>
+          <td>Felder bearbeitbar, alle Buttons verfügbar</td>
+          <td>
+            <a href="https://metadata-agent-canvas.staging.openeduhub.net/?mode=viewer&controls=true" 
+               target="_blank" 
+               style="color: #003B7C; font-weight: 600; text-decoration: none;">
+              🔗 Öffnen
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Read-Only mit Controls</strong></td>
+          <td><code>?mode=viewer&readonly=true&controls=true</code></td>
+          <td>Nur Ansicht, Buttons zum Laden/Speichern</td>
+          <td>
+            <a href="https://metadata-agent-canvas.staging.openeduhub.net/?mode=viewer&readonly=true&controls=true" 
+               target="_blank" 
+               style="color: #003B7C; font-weight: 600; text-decoration: none;">
+              🔗 Öffnen
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Read-Only ohne Controls</strong></td>
+          <td><code>?mode=viewer&readonly=true&controls=false</code></td>
+          <td>Nur Ansicht, keine Buttons, maximale Canvas-Fläche</td>
+          <td>
+            <a href="https://metadata-agent-canvas.staging.openeduhub.net/?mode=viewer&readonly=true&controls=false" 
+               target="_blank" 
+               style="color: #003B7C; font-weight: 600; text-decoration: none;">
+              🔗 Öffnen
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Auto-Load JSON</strong></td>
+          <td><code>?mode=viewer&readonly=true&autoload=datei.json</code></td>
+          <td>Lädt automatisch eine JSON-Datei aus <code>assets/examples/</code></td>
+          <td>
+            <a href="https://metadata-agent-canvas.staging.openeduhub.net/?mode=viewer&readonly=true&autoload=metadata_example.json" 
+               target="_blank" 
+               style="color: #003B7C; font-weight: 600; text-decoration: none;">
+              🔗 Öffnen
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Auto-Load mit Controls</strong></td>
+          <td><code>?mode=viewer&readonly=true&autoload=datei.json&controls=true</code></td>
+          <td>Lädt JSON automatisch und zeigt Buttons</td>
+          <td>
+            <a href="https://metadata-agent-canvas.staging.openeduhub.net/?mode=viewer&readonly=true&autoload=metadata_example.json&controls=true" 
+               target="_blank" 
+               style="color: #003B7C; font-weight: 600; text-decoration: none;">
+              🔗 Öffnen
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="bookmarklet-box" style="border-color: #f5576c; background: #fff5f7;">
+      <h3>💡 Controls-Verhalten</h3>
+      <ul style="line-height: 1.8; padding-left: 20px; margin: 10px 0;">
+        <li><strong>Ohne Parameter:</strong> Automatisch (versteckt bei <code>readonly=true</code> + <code>autoload</code>)</li>
+        <li><strong>controls=true:</strong> Floating Controls unten zentriert mit JSON-Loader, Save, Upload, Language Switcher</li>
+        <li><strong>controls=false:</strong> Keine Controls, maximale Canvas-Fläche</li>
+      </ul>
+    </div>
+    
+    <h2>🔖 Bookmarklets installieren</h2>
+    
+    <div class="bookmarklet-box">
+      <h3>📝 Normal Mode Bookmarklet (Sidebar)</h3>
+      <a href="javascript:(function()%7Bif(window.MCanvas)%7BMCanvas.open()%3Breturn%7Dconst%20d%3Ddocument%3Bconst%20c%3Dd.createElement('div')%3Bc.id%3D'mc-c'%3Bc.style.cssText%3D'position%3Afixed%3Btop%3A0%3Bright%3A-900px%3Bwidth%3A900px%3Bheight%3A100vh%3Bbackground%3Awhite%3Bbox-shadow%3A-4px%200%2016px%20rgba(0%2C0%2C0%2C.2)%3Bz-index%3A999999%3Btransition%3Aright%20.3s'%3Bconst%20i%3Dd.createElement('iframe')%3Bi.src%3D'https%3A%2F%2Fmetadata-agent-canvas.staging.openeduhub.net%2F'%3Bi.style.cssText%3D'width%3A100%25%3Bheight%3A100%25%3Bborder%3Anone'%3Bc.appendChild(i)%3Bd.body.appendChild(c)%3Bconst%20b%3Dd.createElement('button')%3Bb.innerHTML%3D'%F0%9F%93%9D'%3Bb.style.cssText%3D'position%3Afixed%3Bbottom%3A24px%3Bright%3A24px%3Bwidth%3A56px%3Bheight%3A56px%3Bborder-radius%3A50%25%3Bbackground%3A%230062ac%3Bcolor%3Awhite%3Bborder%3Anone%3Bfont-size%3A24px%3Bcursor%3Apointer%3Bbox-shadow%3A0%204px%2012px%20rgba(0%2C0%2C0%2C.3)%3Bz-index%3A999998%3Btransition%3Atransform%200.2s'%3Bb.onmouseover%3D()%3D%3Eb.style.transform%3D'scale(1.1)'%3Bb.onmouseout%3D()%3D%3Eb.style.transform%3D'scale(1)'%3Bb.onclick%3D()%3D%3Ec.style.right%3Dc.style.right%3D%3D%3D'0px'%3F'-900px'%3A'0'%3Bd.body.appendChild(b)%3BsetTimeout(()%3D%3Ec.style.right%3D'0'%2C100)%3Bwindow.MCanvas%3D%7Bopen%3A()%3D%3Ec.style.right%3D'0'%2Cclose%3A()%3D%3Ec.style.right%3D'-900px'%7D%7D)()" 
+         class="bookmarklet-link"
+         onclick="alert('📌 Ziehe diesen Link in deine Lesezeichen-Leiste!\n\nOder: Rechtsklick → Lesezeichen hinzufügen'); return false;">
+        🔖 Normal Mode
+      </a>
+      <p class="info-text">
+        <strong>Verwendung:</strong> Öffnet Canvas als <strong>Sidebar rechts</strong>. 
+        Zeigt Input-Feld und manuelle Extract-Buttons. 
+        Toggle-Button (📝) rechts unten zum Öffnen/Schließen.
+      </p>
+      <div class="url-box">https://metadata-agent-canvas.staging.openeduhub.net/</div>
+    </div>
+    
+    <div class="bookmarklet-box">
+      <h3>🎨 Compact UI Mode Bookmarklet (Sidebar)</h3>
+      <a href="javascript:(function()%7Bif(window.MCanvas)%7BMCanvas.open()%3Breturn%7Dconst%20d%3Ddocument%3Bconst%20c%3Dd.createElement('div')%3Bc.id%3D'mc-c'%3Bc.style.cssText%3D'position%3Afixed%3Btop%3A0%3Bright%3A-900px%3Bwidth%3A900px%3Bheight%3A100vh%3Bbackground%3Awhite%3Bbox-shadow%3A-4px%200%2016px%20rgba(0%2C0%2C0%2C.2)%3Bz-index%3A999999%3Btransition%3Aright%20.3s'%3Bconst%20i%3Dd.createElement('iframe')%3Bi.src%3D'https%3A%2F%2Fmetadata-agent-canvas.staging.openeduhub.net%2F%3Fui%3Dcompact'%3Bi.style.cssText%3D'width%3A100%25%3Bheight%3A100%25%3Bborder%3Anone'%3Bc.appendChild(i)%3Bd.body.appendChild(c)%3Bconst%20b%3Dd.createElement('button')%3Bb.innerHTML%3D'%F0%9F%93%9D'%3Bb.style.cssText%3D'position%3Afixed%3Bbottom%3A24px%3Bright%3A24px%3Bwidth%3A56px%3Bheight%3A56px%3Bborder-radius%3A50%25%3Bbackground%3A%230062ac%3Bcolor%3Awhite%3Bborder%3Anone%3Bfont-size%3A24px%3Bcursor%3Apointer%3Bbox-shadow%3A0%204px%2012px%20rgba(0%2C0%2C0%2C.3)%3Bz-index%3A999998%3Btransition%3Atransform%200.2s'%3Bb.onmouseover%3D()%3D%3Eb.style.transform%3D'scale(1.1)'%3Bb.onmouseout%3D()%3D%3Eb.style.transform%3D'scale(1)'%3Bb.onclick%3D()%3D%3Ec.style.right%3Dc.style.right%3D%3D%3D'0px'%3F'-900px'%3A'0'%3Bd.body.appendChild(b)%3BsetTimeout(()%3D%3Ec.style.right%3D'0'%2C100)%3Bwindow.MCanvas%3D%7Bopen%3A()%3D%3Ec.style.right%3D'0'%2Cclose%3A()%3D%3Ec.style.right%3D'-900px'%7D%7D)()" 
+         class="bookmarklet-link"
+         onclick="alert('📌 Ziehe diesen Link in deine Lesezeichen-Leiste!\n\nOder: Rechtsklick → Lesezeichen hinzufügen'); return false;">
+        🔖 Compact UI
+      </a>
+      <p class="info-text">
+        <strong>Verwendung:</strong> Öffnet Canvas als <strong>Sidebar rechts</strong>. 
+        Minimale UI ohne Input-Feld. Split Button für Content-Type. 
+        <span class="highlight">Auto-Start</span> der Extraktion. 
+        Toggle-Button (📝) rechts unten zum Öffnen/Schließen.
+      </p>
+      <div class="url-box">https://metadata-agent-canvas.staging.openeduhub.net/?ui=compact</div>
+    </div>
+    
+    <div class="bookmarklet-box">
+      <h3>👁️ Viewer Mode Test</h3>
+      <a href="https://metadata-agent-canvas.staging.openeduhub.net/?mode=viewer&readonly=true&controls=true" 
+         target="_blank"
+         class="bookmarklet-link">
+        🔗 Viewer Mode öffnen
+      </a>
+      <p class="info-text">
+        <strong>Verwendung:</strong> JSON-Dateien anzeigen (Read-Only). 
+        Keine Extraktion, nur Ansicht. Mit JSON-Loader Button zum Laden von gespeicherten Metadaten.
+      </p>
+      <div class="url-box">https://metadata-agent-canvas.staging.openeduhub.net/?mode=viewer&readonly=true&controls=true</div>
+    </div>
+    
+    <h2>💡 Installations-Anleitung</h2>
+    <div class="bookmarklet-box" style="border-color: #667eea; background: #f5f7ff;">
+      <h3 style="color: #667eea; margin-bottom: 12px; font-size: 1.1em;">📥 Installation:</h3>
+      <ol style="line-height: 1.8; padding-left: 20px;">
+        <li><strong>Desktop Browser:</strong> Ziehe den Bookmarklet-Link per Drag & Drop in deine Lesezeichen-Leiste</li>
+        <li><strong>Alternative:</strong> Rechtsklick auf den Link → "Lesezeichen hinzufügen" oder "Als Lesezeichen speichern"</li>
+      </ol>
+      
+      <h3 style="color: #667eea; margin: 20px 0 12px 0; font-size: 1.1em;">🚀 Verwendung:</h3>
+      <ol style="line-height: 1.8; padding-left: 20px;">
+        <li>Gehe zu einer beliebigen Webseite (z.B. Wikipedia, YouTube, Bildungsplattform)</li>
+        <li>Klicke auf das Bookmarklet in deiner Lesezeichen-Leiste</li>
+        <li><strong>Canvas öffnet sich als Sidebar rechts</strong> (900px breit, slideIn-Animation)</li>
+        <li>Ein <strong>📝 Toggle-Button</strong> erscheint rechts unten</li>
+        <li>Klicke den Button zum Öffnen/Schließen der Sidebar</li>
+      </ol>
+      
+      <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 16px; margin-top: 16px;">
+        <strong>⚡ Sidebar Features:</strong>
+        <ul style="line-height: 1.8; padding-left: 20px; margin-top: 8px;">
+          <li><strong>Kein neues Fenster</strong> - bleibt auf der aktuellen Seite</li>
+          <li><strong>Smooth Animation</strong> - slideIn von rechts</li>
+          <li><strong>Toggle-Button (📝)</strong> - rechts unten, immer sichtbar</li>
+          <li><strong>900px breit</strong> - volle Höhe, responsive Design</li>
+          <li><strong>Mehrfach-Klicks sicher</strong> - öffnet nicht mehrere Instanzen</li>
+        </ul>
+      </div>
+    </div>
+    
+    <h2>🎯 Unterschiede auf einen Blick</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Modus</th>
+          <th>Floating Controls Position</th>
+          <th>Content-Type Selector</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Normal</strong></td>
+          <td>Unten Mitte (weiße Pill)</td>
+          <td>Hellblauer Split Button unter Input (40px)</td>
+        </tr>
+        <tr>
+          <td><strong>Compact UI</strong></td>
+          <td>Unten Mitte (2 weiße Pills)</td>
+          <td>Weißer Split Button links (56px, Display | Dropdown)</td>
+        </tr>
+        <tr>
+          <td><strong>Viewer</strong></td>
+          <td>Unten Mitte (weiße Pill)</td>
+          <td>Nicht verfügbar</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div style="margin-top: 40px; padding: 20px; background: #ecf2ff; border-radius: 8px; text-align: center;">
+      <p style="color: #003B7C; font-size: 0.95em;">
+        <strong>🌐 Production URL:</strong><br>
+        <code style="background: white; padding: 8px 16px; border-radius: 6px; display: inline-block; margin-top: 10px;">
+          https://metadata-agent-canvas.staging.openeduhub.net/
+        </code>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

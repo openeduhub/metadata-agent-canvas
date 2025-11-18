@@ -67,15 +67,15 @@ http://localhost:4200/?mode=viewer&readonly=true&autoload=metadata_1763413461093
 
 **Controls-Sichtbarkeit (`?controls=true/false`):**
 - **Ohne Parameter:** Automatisch (versteckt bei `readonly=true` + `autoload`)
-- **`controls=true`:** Floating Header mit JSON-Loader, Save, Upload, Language Switcher
+- **`controls=true`:** Floating Controls mit JSON-Loader, Save, Upload, Language Switcher
 - **`controls=false`:** Keine Controls, maximale Canvas-Fläche
-- **Floating Header:** Zentriert oben, halbtransparent mit Blur-Effekt
+- **Floating Controls:** Zentriert **unten**, weiße M3 Pill-Form mit Elevation
 
 ### JSON-Datei laden
 
 **Manuell:**
 1. App mit Viewer-Modus öffnen
-2. JSON-Loader Button (oben links) klicken
+2. JSON-Loader Button (in Floating Controls unten) klicken
 3. JSON-Datei auswählen
 
 **Automatisch (Query-Parameter `autoload`):**

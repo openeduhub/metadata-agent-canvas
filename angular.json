@@ -40,6 +40,21 @@
                 "glob": "viewer-examples.html",
                 "input": "src",
                 "output": "."
+              },
+              {
+                "glob": "test-bookmarklet.html",
+                "input": "src",
+                "output": "."
+              },
+              {
+                "glob": "test-bookmarklet-compact.html",
+                "input": "src",
+                "output": "."
+              },
+              {
+                "glob": "test-production.html",
+                "input": "src",
+                "output": "."
               }
             ],
             "styles": ["src/styles.scss"],

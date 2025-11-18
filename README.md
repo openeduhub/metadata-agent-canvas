@@ -12,6 +12,7 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 - 🔄 **Perfekter Import/Export Round-Trip**: Array-Felder und verschachtelte Sub-Fields werden korrekt importiert
 - 🏷️ **Vollständige Schema-Labels**: Alle 11 Schemas mit deutschen + englischen Labels
 - 👁️ **Viewer-Modus**: JSON-Dateien als Read-Only anzeigen mit Auto-Load, URL-Parametern und Floating Controls
+- 🎨 **Compact UI Mode**: Minimale Oberfläche für Bookmarklet/Plugin ohne Texteingabefeld
 - 🐳 **Production-Ready Docker**: Multi-Stage Build mit Security Best Practices
 - 🛡️ **Enhanced Security**: Port-Binding Optionen, Nginx Reverse Proxy, Firewall-Guides
 - 📚 **Erweiterte Dokumentation**: Detaillierte technische Docs für Sub-Fields & Docker
@@ -26,6 +27,7 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 - 🎓 **Content-Type-Erkennung**: Automatische Schema-Auswahl (Event, Kurs, etc.)
 - ✅ **Validierung**: Pflichtfelder, Vokabulare, Datentypen
 - 👁️ **Viewer-Modus**: JSON-Dateien als Read-Only anzeigen mit Auto-Load und URL-Parametern
+- 🎨 **Compact UI**: Minimale Oberfläche für Bookmarklet/Plugin-Integrationen
 - 🔒 **Sicher**: API-Key wird nie im Code gespeichert (Production)
 - 🔌 **Multi-Provider Support**: OpenAI, B-API OpenAI, B-API AcademicCloud (DeepSeek-R1)
 - 🌐 **Vollständig i18n**: Deutsch/Englisch für UI, Schemas, Vokabulare und KI-Prompts
@@ -34,6 +36,7 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 - 🌐 **Standalone**: Direkter Zugriff auf deployed URL
 - 🔖 **Bookmarklet**: Als Overlay auf beliebigen Webseiten
 - 🧩 **Browser-Plugin**: Integriert in WLO Browser Extension
+- 🎨 **Compact UI**: Minimale Oberfläche für Bookmarklet/Plugin (`?ui=compact`)
 - 🔄 **Auto-Detection**: Erkennt automatisch den Betriebsmodus
 - 📤 **Smart Submit**: Mode-abhängige Daten-Submission (Server API oder postMessage)
 
@@ -1381,6 +1384,97 @@ http://localhost:4200/viewer-examples.html
 
 **Weitere Dokumentation:**
 - **[VIEWER_MODE.md](./VIEWER_MODE.md)** - Vollständige Dokumentation mit allen Details
+
+---
+
+## 🎨 Compact UI Mode
+
+Eine **minimale Oberfläche** speziell für Bookmarklet- und Browser-Plugin-Integrationen.
+
+### Features
+
+**✅ Was wird gezeigt:**
+- **Floating Controls**: Buttons schweben elegant oben
+- **Content-Type Anzeige**: Aktueller Inhaltstyp + Ändern-Button
+- **Canvas**: Alle Metadatenfelder mit Inline-Editing
+- **Progress Bar**: Fortschrittsanzeige
+
+**❌ Was wird versteckt:**
+- **Texteingabefeld**: Nicht sichtbar (Extraktion läuft automatisch)
+- **Extract-Button**: Automatischer Start bei Datenempfang
+
+### URL-Parameter
+
+**Grundformat:**
+```
+?ui=compact
+```
+
+**Kombinationen:**
+```bash
+# Bookmarklet mit Compact UI
+?ui=compact
+
+# Browser-Plugin mit Compact UI  
+?ui=compact
+
+# Mit Sprache
+?ui=compact&lang=en
+
+# Mit Schema
+?ui=compact&schema=event.json
+```
+
+### Verwendung
+
+**Bookmarklet-Beispiel:**
+```javascript
+// Neuer Compact UI Mode
+window.open('https://your-domain.com/?ui=compact');
+```
+
+**Browser-Plugin-Beispiel:**
+```javascript
+// Neuer Compact UI Mode
+iframe.src = 'https://your-domain.com/?ui=compact';
+// Plugin sendet Daten via postMessage wie gewohnt
+```
+
+### Workflow
+
+**Bookmarklet:**
+1. User klickt Bookmarklet auf einer Webseite
+2. Canvas öffnet sich mit Compact UI
+3. Daten werden automatisch von der Seite extrahiert
+4. Extraktion startet automatisch
+5. User bearbeitet Felder und speichert
+
+**Browser-Plugin:**
+1. Plugin öffnet Canvas in iframe/popup
+2. Plugin sendet Metadaten via `postMessage`
+3. Canvas startet Extraktion automatisch
+4. User bearbeitet Felder
+5. Plugin empfängt fertige Metadaten
+
+### Unterschiede zu Viewer Mode
+
+| Feature | Viewer Mode | Compact UI Mode |
+|---------|-------------|-----------------|
+| **Zweck** | JSON-Dateien anzeigen | Extraktion mit minimaler UI |
+| **Input-Feld** | ❌ Versteckt | ❌ Versteckt |
+| **Content-Type** | ❌ Versteckt | ✅ Anzeige + Ändern |
+| **Extraktion** | ❌ Nicht verfügbar | ✅ Automatisch |
+| **Edit-Modus** | Optional (readonly) | ✅ Immer editierbar |
+
+### Technische Details
+
+**Services & Komponenten:**
+- `canvas-view.component.ts` - URL-Parameter `ui=compact` Parsing
+- `canvas-view.component.html` - Conditional Input Section Hiding
+- Bestehende `postMessage`-API bleibt unverändert
+
+**Weitere Dokumentation:**
+- **[COMPACT_UI_MODE.md](./COMPACT_UI_MODE.md)** - Vollständige Dokumentation mit Migration Guide
 
 ---
 

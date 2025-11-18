@@ -74,6 +74,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   isReadonly = false;
   showControls = true;  // Show controls (JSON-Loader, Language Switcher) by default
   
+  // Compact UI mode (clean interface for bookmarklet/plugin)
+  isCompactUI = false;  // Hides input section, shows floating controls + content type
+  
   private destroy$ = new Subject<void>();
   private savedScrollPosition = 0;
 
@@ -93,10 +96,11 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log('🚀 CanvasView ngOnInit started');
     
-    // Check for viewer mode query parameters
+    // Check for viewer mode and compact UI query parameters
     const urlParams = new URLSearchParams(window.location.search);
     this.isViewerMode = urlParams.get('mode') === 'viewer';
     this.isReadonly = urlParams.get('readonly') === 'true';
+    this.isCompactUI = urlParams.get('ui') === 'compact';
     const autoloadFile = urlParams.get('autoload');
     const controlsParam = urlParams.get('controls');
     
@@ -110,6 +114,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     } else {
       // Automatic: hide if readonly + autoload
       this.showControls = !(this.isReadonly && autoloadFile);
+    }
+    
+    if (this.isCompactUI) {
+      console.log(`🎨 Compact UI mode activated - minimal interface with floating controls`);
     }
     
     if (this.isViewerMode) {
@@ -290,6 +298,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         }
         
         console.log('✅ Text successfully set in canvas textarea');
+        
+        // Auto-start extraction in Compact UI mode
+        this.autoStartExtractionIfCompact();
       }
       
       // Handle structured SET_PAGE_DATA (bookmarklet/plugin with URL and structured data)
@@ -350,6 +361,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         }
         
         console.log('✅ Page data successfully set in canvas');
+        
+        // Auto-start extraction in Compact UI mode
+        this.autoStartExtractionIfCompact();
       }
       
       // Handle PLUGIN_PAGE_DATA (Browser-Plugin with page extraction)
@@ -405,8 +419,25 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         }
         
         console.log('✅ Plugin page data successfully set in canvas, userText length:', this.userText.length);
+        
+        // Auto-start extraction in Compact UI mode
+        this.autoStartExtractionIfCompact();
       }
     });
+  }
+  
+  /**
+   * Auto-start extraction in Compact UI mode
+   */
+  private autoStartExtractionIfCompact(): void {
+    if (this.isCompactUI && this.userText.trim()) {
+      console.log('🎨 Compact UI mode: Auto-starting extraction...');
+      
+      // Use setTimeout to ensure UI is updated first
+      setTimeout(() => {
+        this.startExtraction();
+      }, 500);
+    }
   }
 
   ngOnDestroy(): void {
