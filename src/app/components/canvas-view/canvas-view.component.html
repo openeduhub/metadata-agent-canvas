@@ -196,9 +196,11 @@
   <!-- Empty State -->
   <div *ngIf="state.fieldGroups.length === 0" class="empty-state">
     <div class="empty-state-content">
-      <div class="empty-icon">📝</div>
-      <h3>{{ 'EMPTY_STATE.TITLE' | translate }}</h3>
-      <p>{{ 'EMPTY_STATE.MESSAGE' | translate }}</p>
+      <div class="empty-icon-container">
+        <mat-icon class="empty-icon">edit_note</mat-icon>
+      </div>
+      <h3 class="empty-title">{{ 'EMPTY_STATE.TITLE' | translate }}</h3>
+      <p class="empty-message">{{ 'EMPTY_STATE.MESSAGE' | translate }}</p>
     </div>
   </div>
 
