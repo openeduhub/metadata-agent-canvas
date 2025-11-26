@@ -368,11 +368,32 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   }
   
   /**
+   * Ermittelt die Base-URL der Web Component Scripts für Cross-Origin Einbindung
+   */
+  private getComponentBaseUrl(): string {
+    const scripts = document.querySelectorAll('script[src*="main"]');
+    for (const script of Array.from(scripts)) {
+      const src = script.getAttribute('src');
+      if (src && (src.includes('main.js') || src.includes('main.') && src.endsWith('.js'))) {
+        const lastSlash = src.lastIndexOf('/');
+        if (lastSlash > 0) {
+          return src.substring(0, lastSlash + 1);
+        }
+      }
+    }
+    return '/'; // Fallback für Same-Origin
+  }
+  
+  /**
    * Auto-load JSON file from assets/examples
    */
   private async autoLoadJsonFile(filename: string): Promise<void> {
     try {
-      const response = await fetch(`/assets/examples/${filename}`);
+      const baseUrl = this.getComponentBaseUrl();
+      const url = `${baseUrl}assets/examples/${filename}`;
+      console.log(`📂 Loading example JSON: ${url}`);
+      
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to load ${filename}: ${response.status}`);
       }

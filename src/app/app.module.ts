@@ -9,12 +9,33 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 
-// Simple asset-based translate loader (avoids DI token requirements)
+// Ermittelt die Base-URL der Web Component Scripts für Cross-Origin Einbindung
+function getComponentBaseUrl(): string {
+  const scripts = document.querySelectorAll('script[src*="main"]');
+  for (const script of Array.from(scripts)) {
+    const src = script.getAttribute('src');
+    if (src && (src.includes('main.js') || src.includes('main.') && src.endsWith('.js'))) {
+      const lastSlash = src.lastIndexOf('/');
+      if (lastSlash > 0) {
+        return src.substring(0, lastSlash + 1);
+      }
+    }
+  }
+  return './'; // Fallback für Same-Origin
+}
+
+// Translate loader mit dynamischer Base-URL für Cross-Origin Web Component
 class AssetTranslateLoader implements TranslateLoader {
-  constructor(private http: HttpClient) {}
+  private baseUrl: string;
+  
+  constructor(private http: HttpClient) {
+    this.baseUrl = getComponentBaseUrl();
+  }
 
   getTranslation(lang: string): Observable<any> {
-    return this.http.get(`./assets/i18n/${lang}.json`);
+    const url = `${this.baseUrl}assets/i18n/${lang}.json`;
+    console.log(`🌐 Loading i18n: ${url}`);
+    return this.http.get(url);
   }
 }
 

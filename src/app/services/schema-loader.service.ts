@@ -29,13 +29,38 @@ interface SchemaDefinition {
   providedIn: 'root'
 })
 export class SchemaLoaderService {
-  private schemaBasePath = '/schemata/';
+  private schemaBasePath: string;
   private schemaCache: Map<string, any> = new Map();
 
   constructor(
     private http: HttpClient,
     private localizer: SchemaLocalizerService
-  ) {}
+  ) {
+    // Dynamisch Base-URL ermitteln für Cross-Origin Web Component Einbindung
+    this.schemaBasePath = this.getComponentBaseUrl() + 'schemata/';
+    console.log('📂 Schema base path:', this.schemaBasePath);
+  }
+
+  /**
+   * Ermittelt die Base-URL der Web Component Scripts
+   * Wichtig für Cross-Origin Einbindung auf anderen Websites
+   */
+  private getComponentBaseUrl(): string {
+    // Versuche die URL des main.js Scripts zu finden
+    const scripts = document.querySelectorAll('script[src*="main"]');
+    for (const script of Array.from(scripts)) {
+      const src = script.getAttribute('src');
+      if (src && (src.includes('main.js') || src.includes('main.') && src.endsWith('.js'))) {
+        // Extrahiere Base-URL (alles vor dem Dateinamen)
+        const lastSlash = src.lastIndexOf('/');
+        if (lastSlash > 0) {
+          return src.substring(0, lastSlash + 1);
+        }
+      }
+    }
+    // Fallback: relativer Pfad (funktioniert wenn Same-Origin)
+    return '/';
+  }
 
   /**
    * Load a schema file
