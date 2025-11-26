@@ -69,11 +69,15 @@ app.use(compression());
 // Serve static Angular app FIRST (before CORS for static files)
 app.use(express.static(path.join(__dirname, '../dist'), {
   setHeaders: (res, filepath) => {
-    // Set proper CORS headers for static files
+    // CORS headers for cross-origin embedding of web component
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    
     // Set proper content types
     if (filepath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
+    } else if (filepath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
     }
   }
 }));
