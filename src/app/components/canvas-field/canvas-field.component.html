@@ -97,7 +97,7 @@
       ></textarea>
 
       <button
-        *ngIf="!readonly && field.vocabulary && field.datatype !== 'boolean' && field.datatype !== 'date' && field.datatype !== 'datetime' && field.datatype !== 'time'"
+        *ngIf="showActions && !readonly && field.vocabulary && field.datatype !== 'boolean' && field.datatype !== 'date' && field.datatype !== 'datetime' && field.datatype !== 'time'"
         mat-icon-button
         matSuffix
         type="button"
@@ -110,6 +110,7 @@
       </button>
 
       <mat-icon
+        *ngIf="showActions"
         matSuffix
         class="status-icon"
         [matTooltip]="getStatusTooltip(field.status)"
@@ -135,7 +136,7 @@
       {{ errorText }}
     </div>
 
-    <div class="field-actions" *ngIf="hasGeoCoordinates()">
+    <div class="field-actions" *ngIf="showActions && hasGeoCoordinates()">
       <button
         mat-icon-button
         class="geo-button"

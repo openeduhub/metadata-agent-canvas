@@ -41,6 +41,7 @@ import { I18nService } from '../../services/i18n.service';
 export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() field!: CanvasFieldState;
   @Input() readonly = false;  // Viewer mode: disable editing
+  @Input() showActions = true;  // Show action icons (dropdown, status, geo button)
   @Output() fieldChange = new EventEmitter<{ fieldId: string; value: any }>();
   @ViewChild('textareaRef') textareaRef?: ElementRef<HTMLTextAreaElement>;
   @ViewChild('mainAutocomplete') autocompleteTrigger?: MatAutocompleteTrigger;

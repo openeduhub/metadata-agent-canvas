@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -60,25 +60,104 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./canvas-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CanvasViewComponent implements OnInit, OnDestroy {
+export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
+  // ===== INPUT PROPERTIES =====
+  
+  /**
+   * Input: JSON metadata to display/edit
+   */
+  @Input() metadataInput: any = null;
+  
+  /**
+   * Input: Viewer mode - hides input section and footer
+   */
+  @Input() set viewerMode(value: boolean | string) {
+    this.isViewerMode = value === true || value === 'true';
+  }
+  
+  /**
+   * Input: Read-only mode - disables all field editing
+   */
+  @Input() set readonly(value: boolean | string) {
+    this.isReadonly = value === true || value === 'true';
+  }
+  
+  /**
+   * Input: Compact UI mode - minimal interface with floating controls
+   */
+  @Input() set compactMode(value: boolean | string) {
+    this.isCompactUI = value === true || value === 'true';
+  }
+  
+  /**
+   * Input: Show/hide control buttons (JSON-Loader, Language Switcher, etc.)
+   */
+  @Input() set controls(value: boolean | string) {
+    this._controlsExplicit = true;
+    this.showControls = value === true || value === 'true';
+  }
+  
+  /**
+   * Input: Show/hide core fields (title, description, keywords, etc.)
+   * Set to false to only show special/additional fields
+   */
+  @Input() set showCoreFields(value: boolean | string) {
+    this._showCoreFields = value !== false && value !== 'false';
+  }
+  
+  /**
+   * Input: Show/hide special fields (event-specific, etc.)
+   * Set to false to only show core fields
+   */
+  @Input() set showSpecialFields(value: boolean | string) {
+    this._showSpecialFields = value !== false && value !== 'false';
+  }
+  
+  /**
+   * Input: Show/hide field action icons (dropdown, status, geo button)
+   * Set to false for cleaner read-only display
+   */
+  @Input() set showFieldActions(value: boolean | string) {
+    this._showFieldActions = value !== false && value !== 'false';
+  }
+  
+  // ===== OUTPUT EVENTS =====
+  
+  /**
+   * Output: Emits current metadata whenever fields change
+   */
+  @Output() metadataChange = new EventEmitter<any>();
+  
+  /**
+   * Output: Emits when user clicks submit/save
+   */
+  @Output() metadataSubmit = new EventEmitter<any>();
+  
+  // ===== INTERNAL STATE =====
+  
   state: CanvasState;
   userText = '';
   FieldStatus = FieldStatus;
   isSubmitting = false;
   contentTypeOptions: Array<{ label: string; schemaFile: string }> = [];
-  llmProvider = environment.llmProvider; // Active LLM provider
-  llmModel = this.getActiveLlmModel(); // Active LLM model
+  llmProvider = environment.llmProvider;
+  llmModel = this.getActiveLlmModel();
   
-  // Viewer mode properties
+  // Mode flags (can be set via @Input or URL params)
   isViewerMode = false;
   isReadonly = false;
-  showControls = true;  // Show controls (JSON-Loader, Language Switcher) by default
+  isCompactUI = false;
+  showControls = true;
   
-  // Compact UI mode (clean interface for bookmarklet/plugin)
-  isCompactUI = false;  // Hides input section, shows floating controls + content type
+  // Field visibility
+  _showCoreFields = true;
+  _showSpecialFields = true;
+  _showFieldActions = true;  // Show action icons in fields
+  _controlsExplicit = false; // Track if controls was set explicitly
   
   private destroy$ = new Subject<void>();
   private savedScrollPosition = 0;
+  private isLoadingInput = false;
 
   constructor(
     private canvasService: CanvasService,
@@ -93,41 +172,112 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     this.state = this.canvasService.getCurrentState();
   }
 
+  /**
+   * Handle Input changes - load metadata when metadataInput changes
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['metadataInput'] && changes['metadataInput'].currentValue) {
+      const metadata = changes['metadataInput'].currentValue;
+      console.log('📥 metadataInput changed, loading metadata:', metadata);
+      this.loadMetadataFromInput(metadata);
+    }
+  }
+  
+  /**
+   * Load metadata from @Input() property
+   */
+  private async loadMetadataFromInput(metadata: any): Promise<void> {
+    if (this.isLoadingInput) return;
+    
+    this.isLoadingInput = true;
+    try {
+      await this.onJsonLoaded({ metadata, fileName: 'Input Data' });
+      console.log('✅ Metadata loaded from @Input()');
+    } catch (error) {
+      console.error('❌ Error loading metadata from input:', error);
+    } finally {
+      this.isLoadingInput = false;
+    }
+  }
+  
+  /**
+   * Apply URL parameters as fallback for @Input() properties
+   * URL parameters are only used if corresponding @Input was not set
+   */
+  private applyUrlParameters(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Mode parameters (only if not set via @Input)
+    if (urlParams.get('mode') === 'viewer' && !this.isViewerMode) {
+      this.isViewerMode = true;
+    }
+    if (urlParams.get('readonly') === 'true' && !this.isReadonly) {
+      this.isReadonly = true;
+    }
+    if (urlParams.get('ui') === 'compact' && !this.isCompactUI) {
+      this.isCompactUI = true;
+    }
+    
+    // Field visibility
+    const coreFieldsParam = urlParams.get('coreFields');
+    const specialFieldsParam = urlParams.get('specialFields');
+    
+    console.log(`🔧 URL params: coreFields=${coreFieldsParam}, specialFields=${specialFieldsParam}`);
+    
+    if (coreFieldsParam === 'false') {
+      this._showCoreFields = false;
+      console.log('📋 Core fields HIDDEN via URL parameter');
+    }
+    if (specialFieldsParam === 'false') {
+      this._showSpecialFields = false;
+      console.log('📋 Special fields HIDDEN via URL parameter');
+    }
+    
+    // Field actions visibility
+    const fieldActionsParam = urlParams.get('fieldActions');
+    if (fieldActionsParam === 'false') {
+      this._showFieldActions = false;
+      console.log('🎛️ Field actions HIDDEN via URL parameter');
+    }
+    
+    // Controls visibility
+    const controlsParam = urlParams.get('controls');
+    const autoloadFile = urlParams.get('autoload');
+    
+    if (!this._controlsExplicit) {
+      if (controlsParam !== null) {
+        this.showControls = controlsParam === 'true' || controlsParam === '1';
+      } else {
+        // Auto-hide if readonly + autoload
+        this.showControls = !(this.isReadonly && autoloadFile);
+      }
+    }
+    
+    // Auto-load JSON file if specified
+    if (autoloadFile && this.isViewerMode) {
+      console.log(`📂 Auto-loading JSON file: ${autoloadFile}`);
+      this.autoLoadJsonFile(autoloadFile);
+    }
+  }
+
   ngOnInit(): void {
     console.log('🚀 CanvasView ngOnInit started');
     
-    // Check for viewer mode and compact UI query parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    this.isViewerMode = urlParams.get('mode') === 'viewer';
-    this.isReadonly = urlParams.get('readonly') === 'true';
-    this.isCompactUI = urlParams.get('ui') === 'compact';
-    const autoloadFile = urlParams.get('autoload');
-    const controlsParam = urlParams.get('controls');
+    // Apply URL parameters as fallback (if @Input not set)
+    this.applyUrlParameters();
     
-    // Controls visibility logic:
-    // 1. If 'controls' parameter is explicitly set, use that value
-    // 2. Otherwise: Hide controls if readonly with autoload
-    // 3. Show them when user needs to manually load JSON
-    if (controlsParam !== null) {
-      // Explicit control via URL parameter
-      this.showControls = controlsParam === 'true' || controlsParam === '1';
-    } else {
-      // Automatic: hide if readonly + autoload
-      this.showControls = !(this.isReadonly && autoloadFile);
-    }
-    
+    // Log active modes
     if (this.isCompactUI) {
-      console.log(`🎨 Compact UI mode activated - minimal interface with floating controls`);
+      console.log(`🎨 Compact UI mode activated`);
     }
-    
     if (this.isViewerMode) {
-      console.log(`👁️ Viewer mode activated (readonly: ${this.isReadonly}, showControls: ${this.showControls})`);
-      
-      // Auto-load JSON file if specified
-      if (autoloadFile) {
-        console.log(`📂 Auto-loading JSON file: ${autoloadFile}`);
-        this.autoLoadJsonFile(autoloadFile);
-      }
+      console.log(`👁️ Viewer mode (readonly: ${this.isReadonly}, controls: ${this.showControls})`);
+    }
+    if (!this._showCoreFields) {
+      console.log(`📋 Core fields hidden - showing only special fields`);
+    }
+    if (!this._showSpecialFields) {
+      console.log(`📋 Special fields hidden - showing only core fields`);
     }
     
     // Pre-load core schema (non-blocking - runs in background)
@@ -467,8 +617,23 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     // Update field value
     this.canvasService.updateFieldValue(event.fieldId, event.value);
     
+    // Emit metadata change event (for Web Component integration)
+    if (!this.isLoadingInput) {
+      this.emitMetadataChange();
+    }
+    
     // Restore scroll position after change detection
     setTimeout(() => this.restoreScrollPosition(), 0);
+  }
+  
+  /**
+   * Emit current metadata via @Output()
+   * Called after any field change
+   */
+  private emitMetadataChange(): void {
+    const metadata = this.canvasService.exportAsJson();
+    this.metadataChange.emit(metadata);
+    console.log('📤 metadataChange emitted');
   }
   
   /**
@@ -1086,6 +1251,34 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   }
   
   /**
+   * Get visible field groups based on showCoreFields and showSpecialFields settings
+   * Core fields = from 'Core' schema (case-insensitive check)
+   * Special fields = from other schemas (event, organization, etc.)
+   */
+  getVisibleFieldGroups(): FieldGroup[] {
+    const visible = this.state.fieldGroups.filter(group => {
+      const schemaLower = (group.schemaName || '').toLowerCase();
+      const isCoreGroup = schemaLower === 'core';
+      
+      if (isCoreGroup) {
+        return this._showCoreFields;
+      } else {
+        return this._showSpecialFields;
+      }
+    });
+    
+    // Debug logging
+    console.log(`📋 getVisibleFieldGroups: showCore=${this._showCoreFields}, showSpecial=${this._showSpecialFields}`);
+    console.log(`   Total groups: ${this.state.fieldGroups.length}, Visible: ${visible.length}`);
+    this.state.fieldGroups.forEach(g => {
+      const schemaLower = (g.schemaName || '').toLowerCase();
+      console.log(`   - ${g.label} (${g.schemaName}) -> isCore=${schemaLower === 'core'}, visible=${visible.includes(g)}`);
+    });
+    
+    return visible;
+  }
+  
+  /**
    * TrackBy function for fields (performance optimization)
    * Use only fieldId to keep component instance, let ngOnChanges handle updates
    */
@@ -1183,8 +1376,22 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
 
   /**
    * Submit metadata (wrapper for submitAsGuest)
+   * Also emits metadataSubmit event for Web Component integration
    */
   async submitMetadata(): Promise<void> {
+    // Emit submit event with current metadata
+    const metadata = this.canvasService.exportAsJson();
+    this.metadataSubmit.emit(metadata);
+    console.log('📤 metadataSubmit emitted');
+    
+    // Continue with regular submit flow
     await this.submitAsGuest();
+  }
+  
+  /**
+   * Get current metadata as JSON (public method for external access)
+   */
+  getMetadata(): any {
+    return this.canvasService.exportAsJson();
   }
 }

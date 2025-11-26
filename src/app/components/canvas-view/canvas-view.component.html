@@ -170,10 +170,10 @@
   </div>
 
   <!-- Canvas Content Area -->
-  <div class="canvas-content" *ngIf="state.fieldGroups.length > 0">
+  <div class="canvas-content" *ngIf="getVisibleFieldGroups().length > 0">
     
-    <!-- All Field Groups (in schema order) -->
-    <div *ngFor="let group of state.fieldGroups; trackBy: trackByGroupId" class="field-group">
+    <!-- All Field Groups (filtered by showCoreFields/showSpecialFields) -->
+    <div *ngFor="let group of getVisibleFieldGroups(); trackBy: trackByGroupId" class="field-group">
       <div class="group-header">
         <h3>📋 {{ group.label }}</h3>
         <div class="group-badges">
@@ -187,6 +187,7 @@
           *ngFor="let field of getFlattenedFields(group.fields); trackBy: trackByFieldId"
           [field]="field"
           [readonly]="isReadonly"
+          [showActions]="_showFieldActions"
           (fieldChange)="onFieldChange($event)"
         ></app-canvas-field>
       </div>
@@ -194,7 +195,7 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="state.fieldGroups.length === 0" class="empty-state">
+  <div *ngIf="getVisibleFieldGroups().length === 0" class="empty-state">
     <div class="empty-state-content">
       <div class="empty-icon-container">
         <mat-icon class="empty-icon">edit_note</mat-icon>
