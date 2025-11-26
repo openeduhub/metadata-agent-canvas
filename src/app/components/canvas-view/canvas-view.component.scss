@@ -11,6 +11,40 @@
   color: #1f2a3d;
   font-family: 'Inter', 'Roboto', sans-serif;
   position: relative;
+  
+  /* Borderless mode for seamless embedding as web component */
+  &.borderless {
+    height: 100%;
+    padding: 0;
+    
+    /* Remove padding from canvas area */
+    .canvas-area {
+      padding: 0;
+      margin: 0;
+    }
+    
+    /* Field groups go edge-to-edge */
+    .field-group {
+      border-radius: 0;
+      margin: 0;
+      box-shadow: none;
+      border: none;
+      
+      &:first-child {
+        border-radius: 0;
+      }
+      
+      &:last-child {
+        border-radius: 0;
+      }
+    }
+    
+    /* Remove outer margins from groups */
+    .groups-container {
+      padding: 0;
+      gap: 1px; /* Minimal separator between groups */
+    }
+  }
 }
 
 // Floating Controls Wrapper - Bottom Center for ALL modes

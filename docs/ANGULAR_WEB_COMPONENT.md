@@ -136,6 +136,8 @@ Alle Properties können via JavaScript gesetzt werden:
 | `showCoreFields` | `boolean` | `true` | Zeigt Core-Felder (Titel, Beschreibung, etc.) |
 | `showSpecialFields` | `boolean` | `true` | Zeigt Zusatzfelder (Event, Organisation, etc.) |
 | `showFieldActions` | `boolean` | `true` | Zeigt Aktions-Icons (Status, Dropdown, Geo) |
+| `borderless` | `boolean` | `false` | Randlose Darstellung für nahtlose Einbettung |
+| `backgroundColor` | `string` | `''` | Hintergrundfarbe (z.B. '#FFFFFF', 'white') |
 
 ### Beispiel: Properties setzen
 
@@ -155,6 +157,10 @@ canvas.showSpecialFields = true;
 
 // Aktions-Icons ausblenden (für saubere Anzeige)
 canvas.showFieldActions = false;
+
+// Nahtlose Einbettung (randlos mit weißem Hintergrund)
+canvas.borderless = true;
+canvas.backgroundColor = '#FFFFFF';
 ```
 
 ---
@@ -475,6 +481,34 @@ if (draft) {
   }
 </style>
 ```
+
+### Beispiel 6: Nahtlose Einbettung (borderless)
+
+Randlose Einbettung mit weissem Hintergrund - ideal fuer eigene Anwendungen:
+
+```javascript
+const canvas = document.querySelector('metadata-agent-canvas');
+
+// Nahtlose Darstellung
+canvas.borderless = true;
+canvas.backgroundColor = '#FFFFFF';
+
+// Typische Kombination fuer Viewer
+canvas.viewerMode = true;
+canvas.readonly = true;
+canvas.controls = false;
+canvas.showFieldActions = false;
+```
+
+**Effekt von `borderless=true`:**
+- Entfernt Padding und Margins
+- Feldgruppen gehen bis zum Rand
+- Keine abgerundeten Ecken an den Raendern
+- Kein Box-Shadow
+
+**Effekt von `backgroundColor`:**
+- Ueberschreibt Standard-Hintergrund (#f5f7fb)
+- Akzeptiert alle CSS-Farbwerte
 
 ---
 

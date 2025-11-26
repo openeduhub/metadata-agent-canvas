@@ -1,4 +1,6 @@
-<div class="canvas-container">
+<div class="canvas-container" 
+     [class.borderless]="_borderless"
+     [style.background]="backgroundColor || null">
   <!-- Floating Controls Container -->
   <div class="floating-controls-wrapper" 
        [class.active]="isViewerMode || isCompactUI" 

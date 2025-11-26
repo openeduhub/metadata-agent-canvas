@@ -121,6 +121,20 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     this._showFieldActions = value !== false && value !== 'false';
   }
   
+  /**
+   * Input: Borderless mode - removes padding and margins for seamless embedding
+   * Useful when embedding the web component in external applications
+   */
+  @Input() set borderless(value: boolean | string) {
+    this._borderless = value === true || value === 'true';
+  }
+  
+  /**
+   * Input: Custom background color for the canvas container
+   * Accepts any valid CSS color (e.g., '#FFFFFF', 'white', 'rgb(255,255,255)')
+   */
+  @Input() backgroundColor: string = '';
+  
   // ===== OUTPUT EVENTS =====
   
   /**
@@ -154,6 +168,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   _showSpecialFields = true;
   _showFieldActions = true;  // Show action icons in fields
   _controlsExplicit = false; // Track if controls was set explicitly
+  _borderless = false;       // Borderless mode for seamless embedding
   
   private destroy$ = new Subject<void>();
   private savedScrollPosition = 0;
