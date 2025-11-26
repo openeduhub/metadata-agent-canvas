@@ -10,25 +10,165 @@
   margin: 0;
   color: #1f2a3d;
   font-family: 'Inter', 'Roboto', sans-serif;
+  position: relative;
 }
 
-/* Header for integration modes - Corporate Design */
-.canvas-header {
+// Floating Controls Wrapper - Bottom Center for ALL modes
+.floating-controls-wrapper {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, #002D5E 0%, #003B7C 100%); /* Dunkelblau wie Button-Hover */
-  border-bottom: 2px solid #001D3F;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  min-height: 60px;
+  gap: 8px;
 
-  .header-left {
+  /* Normal Mode: floating at bottom center */
+  &.floating-normal {
+    gap: 8px;
+    
+    .floating-action-buttons {
+      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  /* When active (Compact UI or Viewer): floating centered layout */
+  &.active {
+    gap: 24px; // Spacing between left and right containers
+    max-width: 95vw;
+    
+    // Smooth appearance animation
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  /* Left Container: Content Type Split Button - Floating Mode (Hellblau wie andere Buttons) */
+  .floating-content-type-split {
+    .split-button-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: #e2e8f6; /* Exakt gleiche Farbe wie Schlagwörter-Chips */
+      border-radius: 28px; // M3 pill shape like floating-action-buttons
+      height: 56px; // Same height as floating-action-buttons
+      overflow: hidden;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3),
+                  0 1px 3px 1px rgba(0, 0, 0, 0.15); // M3 elevation level 1
+
+      /* Left side: Content Type Display (non-interactive) */
+      .split-button-main {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 16px;
+        height: 100%;
+        background: transparent;
+        color: #1f2a3d; /* Exakt wie Chip-Text */
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.1px;
+        flex: 1;
+        min-width: 0; // Allow text truncation
+        
+        mat-icon {
+          font-size: 22px;
+          width: 22px;
+          height: 22px;
+          color: #1f2a3d; /* Exakt wie Chip-Text */
+          flex-shrink: 0;
+        }
+        
+        span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      /* Vertical divider between main and dropdown */
+      .split-button-main::after {
+        content: '';
+        position: absolute;
+        right: 48px; // Width of dropdown button
+        top: 16px;
+        bottom: 16px;
+        width: 1px;
+        background: rgba(0, 0, 0, 0.12); // Subtle gray divider
+      }
+
+      /* Right side: Dropdown Button */
+      .split-button-dropdown {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 48px !important;
+        height: 100% !important;
+        min-width: 48px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 28px 28px 0 !important; // Rounded only on right, match container radius
+        color: #1f2a3d !important; /* Exakt wie Chip-Text */
+        transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: none !important;
+        
+        // Override Material button defaults
+        ::ng-deep .mat-mdc-button-persistent-ripple {
+          border-radius: 0 28px 28px 0 !important;
+        }
+        
+        mat-icon {
+          color: #1f2a3d !important; /* Exakt wie Chip-Text */
+          font-size: 22px;
+          width: 22px;
+          height: 22px;
+          margin: 0 !important;
+        }
+
+        &:hover:not(:disabled) {
+          background: #d4def4 !important; /* Exakt wie Chip-Hover */
+        }
+
+        &:disabled {
+          background: transparent !important;
+          color: rgba(0, 0, 0, 0.38) !important;
+          
+          mat-icon {
+            color: rgba(0, 0, 0, 0.38) !important;
+          }
+        }
+      }
+    }
+  }
+
+  /* Right Container: Action Buttons Toolbar (M3 Style) */
+  .floating-action-buttons {
     display: flex;
     align-items: center;
-    gap: 16px;
-    
-    // Mode Badge als Material Chip
+    gap: 4px;
+    background: #e2e8f6; /* Exakt gleiche Farbe wie Schlagwörter-Chips */
+    padding: 4px 8px;
+    border-radius: 28px; // M3 pill shape
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3),
+                0 1px 3px 1px rgba(0, 0, 0, 0.15); // M3 elevation level 1
+    min-height: 56px;
+  }
+
+  .mode-chip {
+    margin-right: 4px;
+
     mat-chip-set {
       mat-chip.mode-badge {
         --mdc-chip-elevated-container-color: #ffffff;
@@ -36,270 +176,174 @@
         font-weight: 600;
         font-size: 13px;
         letter-spacing: 0.5px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      }
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .guest-badge {
-        display: none;  /* Gast-Modus wird nicht korrekt erkannt, daher ausblenden */
-      }
-
-      .user-badge {
-        background: var(--md-sys-color-tertiary);
-        color: var(--md-sys-color-on-tertiary);
-        padding: 6px 12px;
-        border-radius: var(--md-sys-shape-corner-small);
-        font-size: 13px;
-        font-weight: 500;
-      }
-
-      .edu-badge-secondary {
-        background: rgba(255, 255, 255, 0.12);
-        color: var(--md-sys-color-inverse-on-surface);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 6px 12px;
-        border-radius: var(--md-sys-shape-corner-small);
-        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
       }
     }
   }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    button.control-button.mat-mdc-icon-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: #ffffff !important;  /* Weiß wie im lokalen Modus */
-      border: 1px solid #d4d9e3 !important;  /* Helle Border */
-      border-radius: 10px !important;  /* Konsistent mit lokalem Modus */
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 0 !important;
-      color: rgba(0, 0, 0, 0.87) !important;  /* Dunkle Icons */
-      position: relative;
-      
-      mat-icon {
-        color: rgba(0, 0, 0, 0.87) !important;
-        font-size: 20px;
-      }
-      
-      // Override Material ripple für rechteckige Form
-      ::ng-deep .mat-mdc-button-persistent-ripple,
-      ::ng-deep .mat-ripple-element {
-        border-radius: 10px !important;
-      }
-      
-      // Hover-Effekt für alle Buttons
-      &:hover:not(:disabled) {
-        background: #f5f7fb !important;
-        border-color: #003B7C !important; /* Corporate Blue */
-      }
-
-      &:disabled {
-        cursor: not-allowed;
-        background: #ffffff !important;
-        border-color: #d4d9e3 !important;
-        opacity: 0.6;
-        
-        mat-icon {
-          color: rgba(0, 0, 0, 0.26) !important;
-        }
-      }
-
-      &.active:not(:disabled) {
-        mat-icon {
-          color: #003B7C !important; // Corporate Blue for active
-        }
-      }
-
-      &:active:not(:disabled) {
-        transform: scale(0.98);
-      }
-    }
-
-    /* Override Material Icon Buttons für JSON-Loader und Language-Switcher */
-    ::ng-deep app-json-loader button.mat-mdc-icon-button,
-    ::ng-deep app-language-switcher button.mat-mdc-icon-button {
-      background: #ffffff !important;
-      border: 1px solid #d4d9e3 !important;
-      border-radius: 10px !important;
-      width: 40px;
-      height: 40px;
-      color: rgba(0, 0, 0, 0.87) !important;
-      
-      mat-icon {
-        color: rgba(0, 0, 0, 0.87) !important;
-      }
-      
-      mat-spinner {
-        svg circle {
-          stroke: #003B7C !important; // Corporate Blue spinner
-        }
-      }
-      
-      .mat-mdc-button-persistent-ripple,
-      .mat-ripple-element {
-        border-radius: 10px !important;
-      }
-      
-      &:hover:not(:disabled) {
-        background: #f5f7fb !important;
-        border-color: #003B7C !important;
-      }
-      
-      &:disabled {
-        background: #ffffff !important;
-        border-color: #d4d9e3 !important;
-        opacity: 0.6;
-      }
-    }
-    
-    /* Override Language Switcher Menu */
-    ::ng-deep app-language-switcher .mat-mdc-menu-panel {
-      border: 1px solid #d4d9e3 !important;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.12) !important;
-    }
-  }
-
-  button.btn-close.mat-mdc-icon-button {
-    background: #ffffff !important;
-    border: 1px solid #d4d9e3 !important;
-    border-radius: 10px !important;
-    width: 40px;
-    height: 40px;
-    padding: 0 !important;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    mat-icon {
-      color: rgba(0, 0, 0, 0.87) !important;
-      font-size: 24px;
-    }
-    
-    // Override Material ripple für rechteckige Form
-    ::ng-deep .mat-mdc-button-persistent-ripple,
-    ::ng-deep .mat-ripple-element {
-      border-radius: 10px !important;
-    }
-
-    &:hover {
-      background: #f5f7fb !important;
-      border-color: #003B7C !important; /* Corporate Blue */
-    }
-  }
-}
-
-/* Standalone Controls (positioned at top-right) */
-.standalone-controls {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 
   .control-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: #ffffff;  /* Immer weißer Hintergrund im lokalen Modus */
-    border: 1px solid #d4d9e3;  /* Border wie andere UI-Rahmen */
-    border-radius: 10px;  /* Wie andere Rahmen im UX */
+    width: 48px;
+    height: 48px;
+    background: transparent;
+    border: none;
+    border-radius: 50%; // M3 circular icon buttons
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
-    font-size: 20px;
+    font-size: 24px;
     line-height: 1;
-    color: var(--md-sys-color-on-surface-variant);
+    color: #1f2a3d; /* Exakt wie Chip-Text */
     position: relative;
-    
-    // Override Material ripple für rechteckige Form
+
     ::ng-deep .mat-mdc-button-persistent-ripple,
     ::ng-deep .mat-ripple-element {
-      border-radius: 10px !important;
+      border-radius: 50% !important;
     }
-    
-    // Hover-Effekt für alle Buttons
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    // Only show circular background on hover
     &:hover:not(:disabled) {
-      background: #f5f7fb;
-      border-color: #003B7C; /* Corporate Blue */
+      background: #d4def4; /* Exakt wie Chip-Hover */
     }
 
     &:disabled {
       cursor: not-allowed;
-      color: rgba(0, 0, 0, 0.26);
-      
-      /* Halbtransparente Schicht über dem weißen Hintergrund */
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 10px;
-        pointer-events: none;
-      }
+      opacity: 0.38;
+      color: #1f2a3d;
     }
 
+    // Active state without background unless hover
     &.active:not(:disabled) {
-      color: var(--md-sys-color-on-surface);
+      color: #003B7C; // Primary blue
     }
 
     &:active:not(:disabled) {
-      transform: scale(0.98);
+      background: rgba(0, 0, 0, 0.12);
     }
   }
 
-  /* Override child component styles for standalone mode */
-  ::ng-deep {
-    app-json-loader .json-loader .load-button {
-      background: #ffffff !important;
-      border: 1px solid #d4d9e3 !important;
-      border-radius: 10px !important;
-      box-shadow: none !important;
-      color: var(--md-sys-color-on-surface) !important;
+  // Upload button - Blue glow when ready
+  .upload-button.active:not(:disabled) {
+    color: #003B7C !important; // Primary blue
+    background: rgba(0, 59, 124, 0.08) !important; // Light blue tint
+    animation: pulse-ring 2s ease-in-out infinite;
 
-      &:hover:not(:disabled) {
-        background: #f5f7fb !important;
-        border-color: #3b6ec8 !important;
-        box-shadow: none !important;
+    mat-icon {
+      color: #003B7C !important;
+    }
+
+    &:hover {
+      background: rgba(0, 59, 124, 0.12) !important;
+      animation: none;
+      box-shadow: 0 0 0 8px rgba(0, 59, 124, 0.1);
+    }
+  }
+
+  // Save button - Green highlight when active  
+  .save-button.active:not(:disabled) {
+    color: #00874d; // Green
+    background: rgba(0, 135, 77, 0.08);
+    
+    &:hover {
+      background: rgba(0, 135, 77, 0.12);
+    }
+  }
+
+  // Pulsing ring animation for upload
+  @keyframes pulse-ring {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(0, 59, 124, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(0, 59, 124, 0);
+    }
+  }
+
+  button.btn-close {
+    mat-icon {
+      font-size: 24px;
+    }
+  }
+
+  ::ng-deep app-json-loader button.mat-mdc-icon-button,
+  ::ng-deep app-language-switcher button.mat-mdc-icon-button {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 50% !important; // M3 circular
+    width: 48px;
+    height: 48px;
+    color: #1f2a3d !important; /* Exakt wie Chip-Text */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+    mat-icon {
+      color: #1f2a3d !important; /* Exakt wie Chip-Text */
+      font-size: 24px !important;
+      width: 24px !important;
+      height: 24px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+    }
+
+    &:hover {
+      background: #d4def4 !important; /* Exakt wie Chip-Hover */
+    }
+
+    mat-spinner {
+      svg circle {
+        stroke: var(--md-sys-color-primary) !important;
       }
     }
 
-    app-language-switcher .language-switcher .language-button {
-      background: #ffffff !important;
-      border: 1px solid #d4d9e3 !important;
-      border-radius: 10px !important;
-      box-shadow: none !important;
-      color: var(--md-sys-color-on-surface) !important;
-
-      &:hover {
-        background: #f5f7fb !important;
-        border-color: #3b6ec8 !important;
-        box-shadow: none !important;
-      }
+    .mat-mdc-button-persistent-ripple,
+    .mat-ripple-element {
+      border-radius: 50% !important;
     }
 
-    app-language-switcher .language-dropdown .dropdown-menu {
-      box-shadow: none !important;
-      border: 1px solid #d4d9e3 !important;
+    &:disabled {
+      opacity: 0.38;
+      background: transparent !important;
     }
+  }
+
+  ::ng-deep app-language-switcher .mat-mdc-menu-panel {
+    border: 1px solid #d4d9e3 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  ::ng-deep app-json-loader .json-loader .load-button,
+  ::ng-deep app-language-switcher .language-switcher .language-button {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 50% !important; // Circular M3 style
+    box-shadow: none !important;
+    color: #1c1b1f !important;
+    width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+
+    &:hover:not(:disabled) {
+      background: rgba(0, 0, 0, 0.08) !important; // Subtle circular hover
+      box-shadow: none !important;
+    }
+  }
+
+  ::ng-deep app-language-switcher .language-dropdown .dropdown-menu {
+    box-shadow: none !important;
+    border: 1px solid #d4d9e3 !important;
   }
 }
 
@@ -309,7 +353,7 @@
   padding: 24px;
   border: 1px solid #d4d9e3;
   border-radius: 10px;
-  margin: 24px 24px 16px;
+  margin: 21px 21px 16px;
   box-shadow: none;
   
   // Material Form Field Styles
@@ -370,45 +414,78 @@
     gap: 12px;
     margin-top: 16px;
 
-    .btn-primary {
-      background: #003B7C; // Corporate Design Blau
-      color: #ffffff;
+    // M3 Filled Button - Extract (Dark Blue)
+    .btn-extract-filled {
+      background: #003B7C !important; // Primary Dark Blue
+      color: #ffffff !important;
       border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-weight: 600;
+      border-radius: 20px; // M3 rounded
+      padding: 10px 24px !important;
+      font-weight: 500 !important;
+      font-size: 14px !important;
+      letter-spacing: 0.1px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3),
+                  0 1px 3px 1px rgba(0, 0, 0, 0.15);
+
+      mat-icon {
+        color: #ffffff !important;
+        margin-right: 8px;
+      }
 
       &:hover:not(:disabled) {
-        background: #002D5E; // Dunkler bei Hover
+        background: #002D5E !important; // Darker on hover
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3),
+                    0 4px 8px 3px rgba(0, 0, 0, 0.15);
       }
 
       &:disabled {
-        background: #9fb5e0;
+        background: #ecf2ff !important; // Light blue like content-type pill
+        color: rgba(0, 59, 124, 0.5) !important;
+        box-shadow: none;
         cursor: not-allowed;
+        
+        mat-icon {
+          color: rgba(0, 59, 124, 0.5) !important;
+        }
       }
     }
 
-    .btn-secondary {
-      border: 1px solid #b7bfd3;
-      background: #ffffff;
-      color: #335fae;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-weight: 500;
+    // M3 Filled Tonal Button - Reset (Light Blue)
+    .btn-reset-tonal {
+      background: #ecf2ff !important; // Same light blue as content-type pill
+      color: #003B7C !important; // Dark blue text
+      border: none;
+      border-radius: 20px; // M3 rounded
+      padding: 10px 24px !important;
+      font-weight: 500 !important;
+      font-size: 14px !important;
+      letter-spacing: 0.1px;
       cursor: pointer;
-      transition: background 0.2s ease, border-color 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: none;
+
+      mat-icon {
+        color: #003B7C !important; // Dark blue to match text
+        margin-right: 8px;
+      }
 
       &:hover:not(:disabled) {
-        background: #f0f4fb;
-        border-color: #335fae;
+        background: #d4e3ff !important; // Slightly darker light blue on hover
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3),
+                    0 1px 3px 1px rgba(0, 0, 0, 0.15);
       }
 
       &:disabled {
-        color: #98a2b3;
-        border-color: #d4d9e3;
+        background: #ecf2ff !important; // Light blue like content-type pill
+        color: rgba(0, 59, 124, 0.5) !important;
+        box-shadow: none;
         cursor: not-allowed;
+        
+        mat-icon {
+          color: rgba(0, 59, 124, 0.5) !important;
+        }
       }
     }
   }
@@ -420,7 +497,7 @@
   padding: 20px 24px;
   border: 1px solid #d4d9e3;
   border-radius: 10px;
-  margin: 0 24px 16px;
+  margin: 0 21px 16px;
   box-shadow: none;
 
   .progress-info {
@@ -466,61 +543,103 @@
   display: flex;
   gap: 24px;
   align-items: center;
-  margin: 0 24px 16px;
+  margin: 0 21px 6px;
 
-  /* Left: Content Type Section */
-  .content-type-section {
-    display: flex;
-    gap: 12px;
-    align-items: center;
+  /* Left: Content Type Split Button */
+  .content-type-section-split {
     flex-shrink: 0;
 
-    .content-type-label {
-      padding: 8px 16px;
-      background: #ecf2ff;
-      color: #003B7C; // Corporate Blue
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      white-space: nowrap;
+    .split-button-container {
       display: flex;
       align-items: center;
-      gap: 8px;
-      letter-spacing: 0.15px;
+      background: #ecf2ff; // Light blue background
+      border-radius: 20px; // M3 pill shape
+      height: 40px;
+      overflow: hidden;
+      position: relative;
 
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
-    }
-
-    .btn-change-content-type {
-      border-color: #003B7C;
-      color: #003B7C;
-      font-weight: 600;
-      font-size: 13px;
-      letter-spacing: 0.4px;
-      
-      mat-icon {
-        margin-left: 4px;
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
-
-      &:hover:not(:disabled) {
-        background: #003B7C;
-        color: #ffffff;
+      /* Left side: Content Type Display (non-interactive) */
+      .split-button-main {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 16px;
+        height: 100%;
+        background: #ecf2ff;
+        color: #003B7C; // Dark blue text
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.1px;
+        min-width: 120px;
         
         mat-icon {
-          color: #ffffff;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          color: #003B7C;
+          flex-shrink: 0;
+        }
+        
+        span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
 
-      &:disabled {
-        color: #98a2b3;
-        border-color: #d4d9e3;
+      /* Vertical divider between main and dropdown */
+      .split-button-main::after {
+        content: '';
+        position: absolute;
+        right: 40px; // Width of dropdown button
+        top: 8px;
+        bottom: 8px;
+        width: 1px;
+        background: rgba(0, 59, 124, 0.2); // Semi-transparent divider
+      }
+
+      /* Right side: Dropdown Button */
+      .split-button-dropdown {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 40px !important;
+        height: 100% !important;
+        min-width: 40px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ecf2ff !important;
+        border: none !important;
+        border-radius: 0 20px 20px 0 !important; // Rounded only on right
+        color: #003B7C !important;
+        transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: none !important;
+        
+        // Override Material button defaults
+        ::ng-deep .mat-mdc-button-persistent-ripple {
+          border-radius: 0 20px 20px 0 !important;
+        }
+        
+        mat-icon {
+          color: #003B7C !important;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          margin: 0 !important;
+        }
+
+        &:hover:not(:disabled) {
+          background: #d4e3ff !important; // Slightly darker on hover
+        }
+
+        &:disabled {
+          background: #ecf2ff !important;
+          color: rgba(0, 59, 124, 0.5) !important;
+          
+          mat-icon {
+            color: rgba(0, 59, 124, 0.5) !important;
+          }
+        }
       }
     }
   }
@@ -662,10 +781,13 @@
 .canvas-content {
   background: transparent;
   padding: 0;
-  margin: 16px 24px 24px;
+  margin: 13px 21px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  // No padding needed - floating controls hover over content
+  // User can scroll if controls overlap first field
 
   .field-group {
     margin: 0;
@@ -734,7 +856,7 @@
   }
 }
 
-// Empty State
+// Empty State - Material Design v3
 .empty-state {
   flex: 1;
   display: flex;
@@ -744,24 +866,43 @@
 
   .empty-state-content {
     text-align: center;
-    color: var(--md-sys-color-on-surface-variant);
-
-    .empty-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
+    max-width: 400px;
+    
+    // Icon Container - Ohne Kreis
+    .empty-icon-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      
+      .empty-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: #5f6368; /* Neutrales Grau */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
-    h3 {
-      margin: 0 0 8px 0;
-      font-size: 24px;
+    // Title
+    .empty-title {
+      margin: 0 0 12px 0;
+      font-size: 22px;
       font-weight: 500;
-      color: var(--md-sys-color-on-surface);
+      color: #1f2a3d; /* Dunkle Farbe */
       letter-spacing: 0.15px;
+      line-height: 1.3;
     }
 
-    p {
+    // Message
+    .empty-message {
       margin: 0;
       font-size: 14px;
+      color: #5f6368; /* Etwas heller für Sekundärtext */
+      line-height: 1.5;
+      letter-spacing: 0.25px;
     }
   }
 }
@@ -776,7 +917,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 24px 24px;
+  margin: 0 21px 24px;
 
   .footer-info {
     font-size: 14px;
@@ -798,14 +939,61 @@
 
   .footer-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
+    align-items: center;
     
-    &.multi-button {
-      flex-direction: row;
+    // Ensure footer buttons inherit all control-button styles including animations
+    .control-button {
+      background: #e2e8f6 !important;  /* Exakt gleiche Farbe wie Schlagwörter-Chips */
+      border: 1px solid #c5d3e8 !important;  /* Passender Border */
+      border-radius: 10px !important;
+      color: #1f2a3d !important;  /* Exakt wie Chip-Text */
       
-      button {
-        flex: 1;
-        min-width: 180px;
+      mat-icon {
+        color: #1f2a3d !important; /* Exakt wie Chip-Text */
+      }
+      
+      // Spinner styling
+      mat-spinner {
+        ::ng-deep circle {
+          stroke: #1f2a3d !important;  /* Exakt wie Chip-Text */
+        }
+      }
+      
+      // Hover-State
+      &:hover:not(:disabled):not(.active) {
+        background: #d4def4 !important;  /* Exakt wie Chip-Hover */
+        border-color: #c5d3e8 !important;
+      }
+    }
+    
+    // Ensure upload button glow animation works in footer too
+    .upload-button.active:not(:disabled) {
+      background: var(--md-sys-color-primary) !important;
+      color: #ffffff !important;
+      border-color: var(--md-sys-color-primary) !important;
+      animation: pulse-glow 2s ease-in-out infinite !important;
+      box-shadow: 0 0 0 0 rgba(0, 59, 124, 0.4);
+
+      mat-icon {
+        color: #ffffff !important;
+      }
+
+      &:hover {
+        background: #002d5e !important;
+        animation: none !important;
+        box-shadow: 0 4px 12px rgba(0, 59, 124, 0.3);
+      }
+    }
+    
+    // Save button styling
+    .save-button {
+      &:not(:disabled) {
+        color: #1f2a3d !important; /* Exakt wie Chip-Text */
+      }
+      
+      &.active:not(:disabled) {
+        color: #1f2a3d !important; /* Exakt wie Chip-Text */
       }
     }
     

@@ -24,6 +24,14 @@ html {
   @include mat.all-component-themes($theme);
 }
 
+// Override primary color with corporate blue #003B7C
+html {
+  --mat-app-primary: #003B7C;
+  --mat-app-on-primary: #ffffff;
+  --mat-app-primary-container: #d0e8ff;
+  --mat-app-on-primary-container: #001d36;
+}
+
 // Custom Material Design v3 Variables
 :root {
   // Primary Colors (Corporate Design Blue)

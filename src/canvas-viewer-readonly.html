@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Metadata Canvas Viewer (Read-Only)</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: Roboto, "Helvetica Neue", sans-serif;
+    }
+    .viewer-header {
+      background: var(--md-sys-color-surface-container);
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .viewer-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .viewer-badge {
+      background: var(--md-sys-color-tertiary-container);
+      color: var(--md-sys-color-on-tertiary-container);
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  </style>
+  <script>
+    // Auto-load example JSON on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Get JSON file from query parameter, default to example file
+        const urlParams = new URLSearchParams(window.location.search);
+        const jsonFile = urlParams.get('jsonFile') || 'metadata_1763413461093.json';
+        
+        // Fetch the JSON file
+        const response = await fetch(`/assets/examples/${jsonFile}`);
+        if (!response.ok) {
+          throw new Error(`Failed to load ${jsonFile}: ${response.status}`);
+        }
+        const jsonData = await response.json();
+        
+        // Wait for Angular app to be ready
+        setTimeout(() => {
+          // Trigger JSON load event
+          const event = new CustomEvent('loadExampleJson', { detail: jsonData });
+          window.dispatchEvent(event);
+        }, 1000);
+      } catch (error) {
+        console.error('Failed to load example JSON:', error);
+        alert('Fehler beim Laden der JSON-Datei. Bitte manuell laden.');
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="viewer-header">
+    <div class="viewer-title">📋 Metadata Viewer</div>
+    <div class="viewer-badge">🔒 Read-Only Mode</div>
+  </div>
+  <app-root></app-root>
+</body>
+</html>

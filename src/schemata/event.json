@@ -1,6 +1,6 @@
 {
   "profileId": "type:event",
-  "version": "1.2.0",
+  "version": "1.8.0",
   "@context": {
     "schema": "https://schema.org/",
     "oeh": "http://w3id.org/openeduhub/vocabs/",
@@ -1114,8 +1114,8 @@
                     "en": "Start Date"
                   },
                   "description": {
-                    "de": "Startdatum des Zeitplans",
-                    "en": "Start date of the schedule"
+                    "de": "Startdatum des Zeitplans im Format YYYY-MM-DD, z.B. 2026-09-15",
+                    "en": "Start date of the schedule in YYYY-MM-DD format, e.g. 2026-09-15"
                   },
                   "prompt": {
                     "de": "",
@@ -1138,8 +1138,8 @@
                     "en": "End Date"
                   },
                   "description": {
-                    "de": "Enddatum des Zeitplans",
-                    "en": "End date of the schedule"
+                    "de": "Enddatum des Zeitplans im Format YYYY-MM-DD, z.B. 2026-09-30",
+                    "en": "End date of the schedule in YYYY-MM-DD format, e.g. 2026-09-30"
                   },
                   "prompt": {
                     "de": "",
@@ -1162,8 +1162,8 @@
                     "en": "By Day"
                   },
                   "description": {
-                    "de": "Wochentag(e) der Wiederholung (z.B. MO, TU, WE, TH, FR, SA, SU)",
-                    "en": "Day(s) of the week for repetition (e.g. MO, TU, WE, TH, FR, SA, SU)"
+                    "de": "Wochentag(e) der Wiederholung",
+                    "en": "Day(s) of the week for repetition"
                   },
                   "prompt": {
                     "de": "",
@@ -1179,6 +1179,18 @@
                     "ai_fillable": true,
                     "items": {
                       "datatype": "string"
+                    },
+                    "vocabulary": {
+                      "type": "closed",
+                      "concepts": [
+                        { "label": { "de": "Montag", "en": "Monday" }, "value": "MO" },
+                        { "label": { "de": "Dienstag", "en": "Tuesday" }, "value": "TU" },
+                        { "label": { "de": "Mittwoch", "en": "Wednesday" }, "value": "WE" },
+                        { "label": { "de": "Donnerstag", "en": "Thursday" }, "value": "TH" },
+                        { "label": { "de": "Freitag", "en": "Friday" }, "value": "FR" },
+                        { "label": { "de": "Samstag", "en": "Saturday" }, "value": "SA" },
+                        { "label": { "de": "Sonntag", "en": "Sunday" }, "value": "SU" }
+                      ]
                     }
                   }
                 },
@@ -1189,8 +1201,8 @@
                     "en": "By Month"
                   },
                   "description": {
-                    "de": "Monat(e) der Wiederholung (1-12)",
-                    "en": "Month(s) of repetition (1-12)"
+                    "de": "Monat(e) der Wiederholung",
+                    "en": "Month(s) of repetition"
                   },
                   "prompt": {
                     "de": "",
@@ -1206,6 +1218,23 @@
                     "ai_fillable": true,
                     "items": {
                       "datatype": "number"
+                    },
+                    "vocabulary": {
+                      "type": "closed",
+                      "concepts": [
+                        { "label": { "de": "Januar", "en": "January" }, "value": 1 },
+                        { "label": { "de": "Februar", "en": "February" }, "value": 2 },
+                        { "label": { "de": "März", "en": "March" }, "value": 3 },
+                        { "label": { "de": "April", "en": "April" }, "value": 4 },
+                        { "label": { "de": "Mai", "en": "May" }, "value": 5 },
+                        { "label": { "de": "Juni", "en": "June" }, "value": 6 },
+                        { "label": { "de": "Juli", "en": "July" }, "value": 7 },
+                        { "label": { "de": "August", "en": "August" }, "value": 8 },
+                        { "label": { "de": "September", "en": "September" }, "value": 9 },
+                        { "label": { "de": "Oktober", "en": "October" }, "value": 10 },
+                        { "label": { "de": "November", "en": "November" }, "value": 11 },
+                        { "label": { "de": "Dezember", "en": "December" }, "value": 12 }
+                      ]
                     }
                   }
                 },
@@ -1216,8 +1245,8 @@
                     "en": "By Month Day"
                   },
                   "description": {
-                    "de": "Tag(e) im Monat für Wiederholung (1-31)",
-                    "en": "Day(s) of the month for repetition (1-31)"
+                    "de": "Tag(e) im Monat für Wiederholung",
+                    "en": "Day(s) of the month for repetition"
                   },
                   "prompt": {
                     "de": "",
@@ -1233,6 +1262,42 @@
                     "ai_fillable": true,
                     "items": {
                       "datatype": "number"
+                    },
+                    "vocabulary": {
+                      "type": "closed",
+                      "concepts": [
+                        { "label": { "de": "1", "en": "1" }, "value": 1 },
+                        { "label": { "de": "2", "en": "2" }, "value": 2 },
+                        { "label": { "de": "3", "en": "3" }, "value": 3 },
+                        { "label": { "de": "4", "en": "4" }, "value": 4 },
+                        { "label": { "de": "5", "en": "5" }, "value": 5 },
+                        { "label": { "de": "6", "en": "6" }, "value": 6 },
+                        { "label": { "de": "7", "en": "7" }, "value": 7 },
+                        { "label": { "de": "8", "en": "8" }, "value": 8 },
+                        { "label": { "de": "9", "en": "9" }, "value": 9 },
+                        { "label": { "de": "10", "en": "10" }, "value": 10 },
+                        { "label": { "de": "11", "en": "11" }, "value": 11 },
+                        { "label": { "de": "12", "en": "12" }, "value": 12 },
+                        { "label": { "de": "13", "en": "13" }, "value": 13 },
+                        { "label": { "de": "14", "en": "14" }, "value": 14 },
+                        { "label": { "de": "15", "en": "15" }, "value": 15 },
+                        { "label": { "de": "16", "en": "16" }, "value": 16 },
+                        { "label": { "de": "17", "en": "17" }, "value": 17 },
+                        { "label": { "de": "18", "en": "18" }, "value": 18 },
+                        { "label": { "de": "19", "en": "19" }, "value": 19 },
+                        { "label": { "de": "20", "en": "20" }, "value": 20 },
+                        { "label": { "de": "21", "en": "21" }, "value": 21 },
+                        { "label": { "de": "22", "en": "22" }, "value": 22 },
+                        { "label": { "de": "23", "en": "23" }, "value": 23 },
+                        { "label": { "de": "24", "en": "24" }, "value": 24 },
+                        { "label": { "de": "25", "en": "25" }, "value": 25 },
+                        { "label": { "de": "26", "en": "26" }, "value": 26 },
+                        { "label": { "de": "27", "en": "27" }, "value": 27 },
+                        { "label": { "de": "28", "en": "28" }, "value": 28 },
+                        { "label": { "de": "29", "en": "29" }, "value": 29 },
+                        { "label": { "de": "30", "en": "30" }, "value": 30 },
+                        { "label": { "de": "31", "en": "31" }, "value": 31 }
+                      ]
                     }
                   }
                 },
@@ -1367,8 +1432,8 @@
                     "en": "Day(s) of the week"
                   },
                   "prompt": {
-                    "de": "",
-                    "en": ""
+                    "de": "Wochentage im Rahmen der Öffnungszeiten von wiederkehrenden Veranstaltungen.",
+                    "en": "Day(s) of the week Opening Hours Specification for recurring events."
                   },
                   "system": {
                     "path": "dayOfWeek",
@@ -1380,6 +1445,18 @@
                     "ai_fillable": true,
                     "items": {
                       "datatype": "string"
+                    },
+                    "vocabulary": {
+                      "type": "closed",
+                      "concepts": [
+                        { "label": { "de": "Montag", "en": "Monday" }, "value": "MO" },
+                        { "label": { "de": "Dienstag", "en": "Tuesday" }, "value": "TU" },
+                        { "label": { "de": "Mittwoch", "en": "Wednesday" }, "value": "WE" },
+                        { "label": { "de": "Donnerstag", "en": "Thursday" }, "value": "TH" },
+                        { "label": { "de": "Freitag", "en": "Friday" }, "value": "FR" },
+                        { "label": { "de": "Samstag", "en": "Saturday" }, "value": "SA" },
+                        { "label": { "de": "Sonntag", "en": "Sunday" }, "value": "SU" }
+                      ]
                     }
                   }
                 },
@@ -1390,8 +1467,8 @@
                     "en": "Opens"
                   },
                   "description": {
-                    "de": "Öffnungszeit (Uhrzeit)",
-                    "en": "Opening time"
+                    "de": "Öffnungszeit im Format HH:MM, z.B. 09:00",
+                    "en": "Opening time in HH:MM format, e.g. 09:00"
                   },
                   "prompt": {
                     "de": "",
@@ -1400,7 +1477,7 @@
                   "system": {
                     "path": "opens",
                     "uri": "https://schema.org/opens",
-                    "datatype": "string",
+                    "datatype": "time",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -1414,8 +1491,8 @@
                     "en": "Closes"
                   },
                   "description": {
-                    "de": "Schließzeit (Uhrzeit)",
-                    "en": "Closing time"
+                    "de": "Schließzeit im Format HH:MM, z.B. 17:00",
+                    "en": "Closing time in HH:MM format, e.g. 17:00"
                   },
                   "prompt": {
                     "de": "",
@@ -1424,7 +1501,7 @@
                   "system": {
                     "path": "closes",
                     "uri": "https://schema.org/closes",
-                    "datatype": "string",
+                    "datatype": "time",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -1438,8 +1515,8 @@
                     "en": "Valid From"
                   },
                   "description": {
-                    "de": "Gültig ab (Datum)",
-                    "en": "Valid from (date)"
+                    "de": "Gültig ab (Datum im Format YYYY-MM-DD, z.B. 2026-09-15)",
+                    "en": "Valid from (date in YYYY-MM-DD format, e.g. 2026-09-15)"
                   },
                   "prompt": {
                     "de": "",
@@ -1448,7 +1525,7 @@
                   "system": {
                     "path": "validFrom",
                     "uri": "https://schema.org/validFrom",
-                    "datatype": "string",
+                    "datatype": "date",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -1462,8 +1539,8 @@
                     "en": "Valid Through"
                   },
                   "description": {
-                    "de": "Gültig bis (Datum)",
-                    "en": "Valid through (date)"
+                    "de": "Gültig bis (Datum im Format YYYY-MM-DD, z.B. 2026-09-30)",
+                    "en": "Valid through (date in YYYY-MM-DD format, e.g. 2026-09-30)"
                   },
                   "prompt": {
                     "de": "",
@@ -1472,7 +1549,7 @@
                   "system": {
                     "path": "validThrough",
                     "uri": "https://schema.org/validThrough",
-                    "datatype": "string",
+                    "datatype": "date",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -1494,8 +1571,8 @@
         "en": "Start (Date/Time)"
       },
       "description": {
-        "de": "Start im ISO 8601-Format, z. B. 2026-09-15 oder 2026-09-15T09:00:00+02:00.",
-        "en": "Start in ISO 8601 format, e.g. 2026-09-15 or 2026-09-15T09:00:00+02:00."
+        "de": "Startdatum/-zeit im ISO 8601-Format, z.B. 2026-09-15T20:00 oder 2026-09-15.",
+        "en": "Start date/time in ISO 8601 format, e.g. 2026-09-15T20:00 or 2026-09-15."
       },
       "prompt": {
         "de": "",
@@ -1504,7 +1581,7 @@
       "system": {
         "path": "schema:startDate",
         "uri": "https://schema.org/startDate",
-        "datatype": "date",
+        "datatype": "datetime",
         "multiple": false,
         "required": false,
         "ask_user": true,
@@ -1529,8 +1606,8 @@
         "en": "End (Date/Time)"
       },
       "description": {
-        "de": "Optionales Ende im ISO 8601-Format.",
-        "en": "Optional end in ISO 8601 format."
+        "de": "Enddatum/-zeit im ISO 8601-Format, z.B. 2026-09-30T23:00 oder 2026-09-30.",
+        "en": "End date/time in ISO 8601 format, e.g. 2026-09-30T23:00 or 2026-09-30."
       },
       "prompt": {
         "de": "",
@@ -1539,7 +1616,7 @@
       "system": {
         "path": "schema:endDate",
         "uri": "https://schema.org/endDate",
-        "datatype": "date",
+        "datatype": "datetime",
         "multiple": false,
         "required": false,
         "ask_user": true,
@@ -1564,8 +1641,8 @@
         "en": "Entry (Time)"
       },
       "description": {
-        "de": "Zeitpunkt des Einlasses (ISO 8601 DateTime oder HH:MM).",
-        "en": "Time of entry (ISO 8601 DateTime or HH:MM)."
+        "de": "Einlass-Zeit im ISO 8601-Format, z.B. 2026-09-15T19:00.",
+        "en": "Entry time in ISO 8601 format, e.g. 2026-09-15T19:00."
       },
       "prompt": {
         "de": "",
@@ -1574,7 +1651,7 @@
       "system": {
         "path": "schema:doorTime",
         "uri": "https://schema.org/doorTime",
-        "datatype": "date",
+        "datatype": "datetime",
         "multiple": false,
         "required": false,
         "ask_user": true,
@@ -1619,31 +1696,43 @@
           "concepts": [
             {
               "label": {
-                "de": "EventScheduled",
-                "en": "EventScheduled"
+                "de": "Geplant",
+                "en": "Scheduled"
               },
-              "uri": "https://schema.org/EventScheduled"
+              "uri": "https://schema.org/EventScheduled",
+              "value": "https://schema.org/EventScheduled"
             },
             {
               "label": {
-                "de": "EventCancelled",
-                "en": "EventCancelled"
+                "de": "Abgesagt",
+                "en": "Cancelled"
               },
-              "uri": "https://schema.org/EventCancelled"
+              "uri": "https://schema.org/EventCancelled",
+              "value": "https://schema.org/EventCancelled"
             },
             {
               "label": {
-                "de": "EventPostponed",
-                "en": "EventPostponed"
+                "de": "Verschoben",
+                "en": "Postponed"
               },
-              "uri": "https://schema.org/EventPostponed"
+              "uri": "https://schema.org/EventPostponed",
+              "value": "https://schema.org/EventPostponed"
             },
             {
               "label": {
-                "de": "EventRescheduled",
-                "en": "EventRescheduled"
+                "de": "Neu geplant",
+                "en": "Rescheduled"
               },
-              "uri": "https://schema.org/EventRescheduled"
+              "uri": "https://schema.org/EventRescheduled",
+              "value": "https://schema.org/EventRescheduled"
+            },
+            {
+              "label": {
+                "de": "Online verlegt",
+                "en": "Moved Online"
+              },
+              "uri": "https://schema.org/EventMovedOnline",
+              "value": "https://schema.org/EventMovedOnline"
             }
           ]
         },
@@ -1662,8 +1751,8 @@
         "en": "Previous Start"
       },
       "description": {
-        "de": "Vorheriges Startdatum bei Verschiebung (ISO 8601).",
-        "en": "Previous start date in case of postponement (ISO 8601)."
+        "de": "Vorherige Starts im ISO 8601-Format, z.B. 2026-08-15T20:00 (mehrere möglich).",
+        "en": "Previous starts in ISO 8601 format, e.g. 2026-08-15T20:00 (multiple)."
       },
       "prompt": {
         "de": "",
@@ -1672,7 +1761,7 @@
       "system": {
         "path": "schema:previousStartDate",
         "uri": "https://schema.org/previousStartDate",
-        "datatype": "date",
+        "datatype": "datetime",
         "multiple": true,
         "required": false,
         "ask_user": true,
@@ -1681,7 +1770,7 @@
           "keyword": true
         },
         "validation": {
-          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}([Tt].+)?$"
         },
         "normalization": {
           "trim": true
@@ -2725,7 +2814,26 @@
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
-                    "ai_fillable": true
+                    "ai_fillable": true,
+                    "vocabulary": {
+                      "type": "closed",
+                      "concepts": [
+                        { "label": { "de": "Euro (EUR)", "en": "Euro (EUR)" }, "value": "EUR" },
+                        { "label": { "de": "US-Dollar (USD)", "en": "US Dollar (USD)" }, "value": "USD" },
+                        { "label": { "de": "Britisches Pfund (GBP)", "en": "British Pound (GBP)" }, "value": "GBP" },
+                        { "label": { "de": "Schweizer Franken (CHF)", "en": "Swiss Franc (CHF)" }, "value": "CHF" },
+                        { "label": { "de": "Japanischer Yen (JPY)", "en": "Japanese Yen (JPY)" }, "value": "JPY" },
+                        { "label": { "de": "Kanadischer Dollar (CAD)", "en": "Canadian Dollar (CAD)" }, "value": "CAD" },
+                        { "label": { "de": "Australischer Dollar (AUD)", "en": "Australian Dollar (AUD)" }, "value": "AUD" },
+                        { "label": { "de": "Chinesischer Yuan (CNY)", "en": "Chinese Yuan (CNY)" }, "value": "CNY" },
+                        { "label": { "de": "Schwedische Krone (SEK)", "en": "Swedish Krona (SEK)" }, "value": "SEK" },
+                        { "label": { "de": "Norwegische Krone (NOK)", "en": "Norwegian Krone (NOK)" }, "value": "NOK" },
+                        { "label": { "de": "Dänische Krone (DKK)", "en": "Danish Krone (DKK)" }, "value": "DKK" },
+                        { "label": { "de": "Polnischer Złoty (PLN)", "en": "Polish Złoty (PLN)" }, "value": "PLN" },
+                        { "label": { "de": "Tschechische Krone (CZK)", "en": "Czech Koruna (CZK)" }, "value": "CZK" },
+                        { "label": { "de": "Ungarischer Forint (HUF)", "en": "Hungarian Forint (HUF)" }, "value": "HUF" }
+                      ]
+                    }
                   }
                 },
                 {
@@ -2783,8 +2891,8 @@
                     "en": "Valid From"
                   },
                   "description": {
-                    "de": "Gültig ab (Datum)",
-                    "en": "Valid from (date)"
+                    "de": "Gültig ab (Datum im Format YYYY-MM-DD, z.B. 2026-09-15)",
+                    "en": "Valid from (date in YYYY-MM-DD format, e.g. 2026-09-15)"
                   },
                   "prompt": {
                     "de": "",
@@ -2793,7 +2901,7 @@
                   "system": {
                     "path": "validFrom",
                     "uri": "https://schema.org/validFrom",
-                    "datatype": "string",
+                    "datatype": "date",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,
@@ -2807,8 +2915,8 @@
                     "en": "Valid Through"
                   },
                   "description": {
-                    "de": "Gültig bis (Datum)",
-                    "en": "Valid through (date)"
+                    "de": "Gültig bis (Datum im Format YYYY-MM-DD, z.B. 2026-09-30)",
+                    "en": "Valid through (date in YYYY-MM-DD format, e.g. 2026-09-30)"
                   },
                   "prompt": {
                     "de": "",
@@ -2817,7 +2925,7 @@
                   "system": {
                     "path": "validThrough",
                     "uri": "https://schema.org/validThrough",
-                    "datatype": "string",
+                    "datatype": "date",
                     "multiple": false,
                     "required": false,
                     "ask_user": true,

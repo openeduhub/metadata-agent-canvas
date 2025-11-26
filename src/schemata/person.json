@@ -1,6 +1,6 @@
 {
   "profileId": "core:person",
-  "version": "1.0.0",
+  "version": "1.8.0",
   "@context": {
     "schema": "https://schema.org/",
     "sdo": "https://schema.org/",
@@ -790,8 +790,8 @@
         "en": "Date of Birth (YYYY-MM-DD)"
       },
       "description": {
-        "de": "Geburtsdatum",
-        "en": "Date of birth"
+        "de": "Geburtsdatum im Format YYYY-MM-DD, z.B. 1985-03-15",
+        "en": "Date of birth in YYYY-MM-DD format, e.g. 1985-03-15"
       },
       "prompt": {
         "de": "",
@@ -845,8 +845,8 @@
         "en": "Date of death (optional)"
       },
       "description": {
-        "de": "Todesdatum",
-        "en": "Date of death"
+        "de": "Todesdatum im Format YYYY-MM-DD, z.B. 2020-12-31",
+        "en": "Date of death in YYYY-MM-DD format, e.g. 2020-12-31"
       },
       "prompt": {
         "de": "",
@@ -942,11 +942,57 @@
       "system": {
         "path": "schema:nationality",
         "uri": "sdo:nationality",
-        "datatype": "string",
+        "datatype": "array",
         "multiple": true,
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
+        "items": {
+          "datatype": "string"
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            { "label": { "de": "Deutschland", "en": "Germany" }, "value": "DE" },
+            { "label": { "de": "Österreich", "en": "Austria" }, "value": "AT" },
+            { "label": { "de": "Schweiz", "en": "Switzerland" }, "value": "CH" },
+            { "label": { "de": "Frankreich", "en": "France" }, "value": "FR" },
+            { "label": { "de": "Italien", "en": "Italy" }, "value": "IT" },
+            { "label": { "de": "Spanien", "en": "Spain" }, "value": "ES" },
+            { "label": { "de": "Portugal", "en": "Portugal" }, "value": "PT" },
+            { "label": { "de": "Niederlande", "en": "Netherlands" }, "value": "NL" },
+            { "label": { "de": "Belgien", "en": "Belgium" }, "value": "BE" },
+            { "label": { "de": "Luxemburg", "en": "Luxembourg" }, "value": "LU" },
+            { "label": { "de": "Vereinigtes Königreich", "en": "United Kingdom" }, "value": "GB" },
+            { "label": { "de": "Irland", "en": "Ireland" }, "value": "IE" },
+            { "label": { "de": "Polen", "en": "Poland" }, "value": "PL" },
+            { "label": { "de": "Tschechien", "en": "Czech Republic" }, "value": "CZ" },
+            { "label": { "de": "Slowakei", "en": "Slovakia" }, "value": "SK" },
+            { "label": { "de": "Ungarn", "en": "Hungary" }, "value": "HU" },
+            { "label": { "de": "Rumänien", "en": "Romania" }, "value": "RO" },
+            { "label": { "de": "Bulgarien", "en": "Bulgaria" }, "value": "BG" },
+            { "label": { "de": "Griechenland", "en": "Greece" }, "value": "GR" },
+            { "label": { "de": "Kroatien", "en": "Croatia" }, "value": "HR" },
+            { "label": { "de": "Slowenien", "en": "Slovenia" }, "value": "SI" },
+            { "label": { "de": "Dänemark", "en": "Denmark" }, "value": "DK" },
+            { "label": { "de": "Schweden", "en": "Sweden" }, "value": "SE" },
+            { "label": { "de": "Norwegen", "en": "Norway" }, "value": "NO" },
+            { "label": { "de": "Finnland", "en": "Finland" }, "value": "FI" },
+            { "label": { "de": "Russland", "en": "Russia" }, "value": "RU" },
+            { "label": { "de": "Ukraine", "en": "Ukraine" }, "value": "UA" },
+            { "label": { "de": "Türkei", "en": "Turkey" }, "value": "TR" },
+            { "label": { "de": "USA", "en": "United States" }, "value": "US" },
+            { "label": { "de": "Kanada", "en": "Canada" }, "value": "CA" },
+            { "label": { "de": "China", "en": "China" }, "value": "CN" },
+            { "label": { "de": "Japan", "en": "Japan" }, "value": "JP" },
+            { "label": { "de": "Südkorea", "en": "South Korea" }, "value": "KR" },
+            { "label": { "de": "Indien", "en": "India" }, "value": "IN" },
+            { "label": { "de": "Australien", "en": "Australia" }, "value": "AU" },
+            { "label": { "de": "Brasilien", "en": "Brazil" }, "value": "BR" },
+            { "label": { "de": "Mexiko", "en": "Mexico" }, "value": "MX" },
+            { "label": { "de": "Argentinien", "en": "Argentina" }, "value": "AR" }
+          ]
+        },
         "index": {
           "keyword": true
         },
@@ -980,8 +1026,50 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
+        "items": {
+          "datatype": "string"
+        },
         "validation": {
           "pattern": "^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$"
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            { "label": { "de": "Bulgarisch", "en": "Bulgarian" }, "value": "bg" },
+            { "label": { "de": "Dänisch", "en": "Danish" }, "value": "da" },
+            { "label": { "de": "Deutsch", "en": "German" }, "value": "de" },
+            { "label": { "de": "Englisch", "en": "English" }, "value": "en" },
+            { "label": { "de": "Estnisch", "en": "Estonian" }, "value": "et" },
+            { "label": { "de": "Finnisch", "en": "Finnish" }, "value": "fi" },
+            { "label": { "de": "Französisch", "en": "French" }, "value": "fr" },
+            { "label": { "de": "Griechisch", "en": "Greek" }, "value": "el" },
+            { "label": { "de": "Irisch", "en": "Irish" }, "value": "ga" },
+            { "label": { "de": "Italienisch", "en": "Italian" }, "value": "it" },
+            { "label": { "de": "Kroatisch", "en": "Croatian" }, "value": "hr" },
+            { "label": { "de": "Lettisch", "en": "Latvian" }, "value": "lv" },
+            { "label": { "de": "Litauisch", "en": "Lithuanian" }, "value": "lt" },
+            { "label": { "de": "Maltesisch", "en": "Maltese" }, "value": "mt" },
+            { "label": { "de": "Niederländisch", "en": "Dutch" }, "value": "nl" },
+            { "label": { "de": "Polnisch", "en": "Polish" }, "value": "pl" },
+            { "label": { "de": "Portugiesisch", "en": "Portuguese" }, "value": "pt" },
+            { "label": { "de": "Rumänisch", "en": "Romanian" }, "value": "ro" },
+            { "label": { "de": "Schwedisch", "en": "Swedish" }, "value": "sv" },
+            { "label": { "de": "Slowakisch", "en": "Slovak" }, "value": "sk" },
+            { "label": { "de": "Slowenisch", "en": "Slovenian" }, "value": "sl" },
+            { "label": { "de": "Spanisch", "en": "Spanish" }, "value": "es" },
+            { "label": { "de": "Tschechisch", "en": "Czech" }, "value": "cs" },
+            { "label": { "de": "Ungarisch", "en": "Hungarian" }, "value": "hu" },
+            { "label": { "de": "Norwegisch", "en": "Norwegian" }, "value": "no" },
+            { "label": { "de": "Russisch", "en": "Russian" }, "value": "ru" },
+            { "label": { "de": "Ukrainisch", "en": "Ukrainian" }, "value": "uk" },
+            { "label": { "de": "Türkisch", "en": "Turkish" }, "value": "tr" },
+            { "label": { "de": "Arabisch", "en": "Arabic" }, "value": "ar" },
+            { "label": { "de": "Persisch", "en": "Persian" }, "value": "fa" },
+            { "label": { "de": "Dari", "en": "Dari" }, "value": "prs" },
+            { "label": { "de": "Paschtu", "en": "Pashto" }, "value": "ps" },
+            { "label": { "de": "Chinesisch", "en": "Chinese" }, "value": "zh" },
+            { "label": { "de": "Japanisch", "en": "Japanese" }, "value": "ja" }
+          ]
         },
         "index": {
           "keyword": true

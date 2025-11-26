@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -45,6 +46,7 @@ import { environment } from '../../../environments/environment';
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatCardModule,
     MatRadioModule,
     MatSelectModule,
@@ -67,6 +69,14 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   llmProvider = environment.llmProvider; // Active LLM provider
   llmModel = this.getActiveLlmModel(); // Active LLM model
   
+  // Viewer mode properties
+  isViewerMode = false;
+  isReadonly = false;
+  showControls = true;  // Show controls (JSON-Loader, Language Switcher) by default
+  
+  // Compact UI mode (clean interface for bookmarklet/plugin)
+  isCompactUI = false;  // Hides input section, shows floating controls + content type
+  
   private destroy$ = new Subject<void>();
   private savedScrollPosition = 0;
 
@@ -85,6 +95,40 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('🚀 CanvasView ngOnInit started');
+    
+    // Check for viewer mode and compact UI query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    this.isViewerMode = urlParams.get('mode') === 'viewer';
+    this.isReadonly = urlParams.get('readonly') === 'true';
+    this.isCompactUI = urlParams.get('ui') === 'compact';
+    const autoloadFile = urlParams.get('autoload');
+    const controlsParam = urlParams.get('controls');
+    
+    // Controls visibility logic:
+    // 1. If 'controls' parameter is explicitly set, use that value
+    // 2. Otherwise: Hide controls if readonly with autoload
+    // 3. Show them when user needs to manually load JSON
+    if (controlsParam !== null) {
+      // Explicit control via URL parameter
+      this.showControls = controlsParam === 'true' || controlsParam === '1';
+    } else {
+      // Automatic: hide if readonly + autoload
+      this.showControls = !(this.isReadonly && autoloadFile);
+    }
+    
+    if (this.isCompactUI) {
+      console.log(`🎨 Compact UI mode activated - minimal interface with floating controls`);
+    }
+    
+    if (this.isViewerMode) {
+      console.log(`👁️ Viewer mode activated (readonly: ${this.isReadonly}, showControls: ${this.showControls})`);
+      
+      // Auto-load JSON file if specified
+      if (autoloadFile) {
+        console.log(`📂 Auto-loading JSON file: ${autoloadFile}`);
+        this.autoLoadJsonFile(autoloadFile);
+      }
+    }
     
     // Pre-load core schema (non-blocking - runs in background)
     this.canvasService.ensureCoreSchemaLoaded().then(() => {
@@ -151,8 +195,48 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     // Listen for postMessage from parent window (test integration)
     this.setupPostMessageListener();
     
+    // Listen for auto-load JSON event (viewer mode)
+    if (this.isViewerMode) {
+      this.setupAutoLoadListener();
+    }
+    
     // Auto-start extraction if we have page data from integration
     this.handleIntegrationMode();
+  }
+  
+  /**
+   * Setup listener for auto-load JSON event (viewer mode)
+   */
+  private setupAutoLoadListener(): void {
+    window.addEventListener('loadExampleJson', (event: any) => {
+      console.log('👁️ Auto-loading example JSON for viewer mode...');
+      const jsonData = event.detail;
+      if (jsonData) {
+        this.onJsonLoaded({ metadata: jsonData, fileName: 'Example Data' });
+      }
+    });
+  }
+  
+  /**
+   * Auto-load JSON file from assets/examples
+   */
+  private async autoLoadJsonFile(filename: string): Promise<void> {
+    try {
+      const response = await fetch(`/assets/examples/${filename}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${filename}: ${response.status}`);
+      }
+      const jsonData = await response.json();
+      
+      // Delay to ensure Angular is ready
+      setTimeout(() => {
+        this.onJsonLoaded({ metadata: jsonData, fileName: filename });
+        this.cdr.detectChanges();
+      }, 500);
+    } catch (error) {
+      console.error('❌ Failed to auto-load JSON file:', error);
+      alert(`Fehler beim Laden der Datei ${filename}. Bitte manuell laden.`);
+    }
   }
   
   /**
@@ -214,6 +298,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         }
         
         console.log('✅ Text successfully set in canvas textarea');
+        
+        // Auto-start extraction in Compact UI mode
+        this.autoStartExtractionIfCompact();
       }
       
       // Handle structured SET_PAGE_DATA (bookmarklet/plugin with URL and structured data)
@@ -274,6 +361,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         }
         
         console.log('✅ Page data successfully set in canvas');
+        
+        // Auto-start extraction in Compact UI mode
+        this.autoStartExtractionIfCompact();
       }
       
       // Handle PLUGIN_PAGE_DATA (Browser-Plugin with page extraction)
@@ -329,8 +419,25 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         }
         
         console.log('✅ Plugin page data successfully set in canvas, userText length:', this.userText.length);
+        
+        // Auto-start extraction in Compact UI mode
+        this.autoStartExtractionIfCompact();
       }
     });
+  }
+  
+  /**
+   * Auto-start extraction in Compact UI mode
+   */
+  private autoStartExtractionIfCompact(): void {
+    if (this.isCompactUI && this.userText.trim()) {
+      console.log('🎨 Compact UI mode: Auto-starting extraction...');
+      
+      // Use setTimeout to ensure UI is updated first
+      setTimeout(() => {
+        this.startExtraction();
+      }, 500);
+    }
   }
 
   ngOnDestroy(): void {
@@ -862,10 +969,11 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get filled fields count for a group
+   * Get filled fields count for a group (only actual input fields)
    */
   getFilledFieldsCount(group: FieldGroup): number {
-    return group.fields.filter(f => f.status === FieldStatus.FILLED).length;
+    const flatFields = this.getFlattenedFields(group.fields);
+    return flatFields.filter(f => f.status === FieldStatus.FILLED).length;
   }
 
   /**
@@ -986,6 +1094,26 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Flatten fields to include subfields (but skip parent containers)
+   */
+  getFlattenedFields(fields: any[]): any[] {
+    const flattened: any[] = [];
+    
+    for (const field of fields) {
+      if (field.isParent && field.subFields && field.subFields.length > 0) {
+        // Skip parent, add all subfields
+        flattened.push(...field.subFields);
+      } else if (!field.isParent) {
+        // Add regular field
+        flattened.push(field);
+      }
+      // If parent has no subfields, skip it entirely
+    }
+    
+    return flattened;
+  }
+
+  /**
    * Handle JSON file loaded
    */
   async onJsonLoaded(data: LoadedJsonData): Promise<void> {
@@ -1024,7 +1152,12 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         }
       }
       
-      alert(`✅ JSON erfolgreich geladen!\n\n${data.fileName}\nSchema: ${schemaFile}\nInhaltsart: ${contentTypeLabel}\nSprache: ${currentLanguage}`);
+      // Show success alert only if not in viewer mode
+      if (!this.isViewerMode) {
+        alert(`✅ JSON erfolgreich geladen!\n\n${data.fileName}\nSchema: ${schemaFile}\nInhaltsart: ${contentTypeLabel}\nSprache: ${currentLanguage}`);
+      } else {
+        console.log(`✅ JSON erfolgreich geladen: ${data.fileName} (Viewer-Modus: keine Meldung)`);
+      }
       this.cdr.detectChanges();
     } catch (error) {
       console.error('❌ Error loading JSON:', error);

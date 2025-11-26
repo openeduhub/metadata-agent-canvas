@@ -1,6 +1,6 @@
 {
   "profileId": "oeh:educationalOffering",
-  "version": "1.2.0",
+  "version": "1.8.0",
   "@context": {
     "schema": "https://schema.org/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
@@ -1072,8 +1072,8 @@
         "en": "Application start"
       },
       "description": {
-        "de": "Datum, ab dem Bewerbungen entgegengenommen werden (ISO 8601).",
-        "en": "Date from which applications are accepted (ISO 8601)."
+        "de": "Datum, ab dem Bewerbungen entgegengenommen werden im Format YYYY-MM-DD, z.B. 2026-01-15.",
+        "en": "Date from which applications are accepted in YYYY-MM-DD format, e.g. 2026-01-15."
       },
       "prompt": {
         "de": "",
@@ -1133,8 +1133,8 @@
         "en": "Program Start"
       },
       "description": {
-        "de": "Startdatum des Programms (ISO 8601).",
-        "en": "Start date of the program (ISO 8601)."
+        "de": "Startdatum des Programms im Format YYYY-MM-DD, z.B. 2026-09-01.",
+        "en": "Start date of the program in YYYY-MM-DD format, e.g. 2026-09-01."
       },
       "prompt": {
         "de": "",
@@ -1165,8 +1165,8 @@
         "en": "Program End"
       },
       "description": {
-        "de": "Enddatum des Programms (ISO 8601).",
-        "en": "End date of the program (ISO 8601)."
+        "de": "Enddatum des Programms im Format YYYY-MM-DD, z.B. 2029-06-30.",
+        "en": "End date of the program in YYYY-MM-DD format, e.g. 2029-06-30."
       },
       "prompt": {
         "de": "",

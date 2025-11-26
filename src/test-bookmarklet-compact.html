@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Test-Seite für Bookmarklet Compact UI Mode">
+  <meta name="keywords" content="Test, Bookmarklet, Metadata, Compact UI">
+  <meta name="author" content="Test Author">
+  
+  <!-- OpenGraph -->
+  <meta property="og:title" content="Compact UI Test Page">
+  <meta property="og:description" content="Eine Test-Seite für den neuen Compact UI Modus">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="de_DE">
+  
+  <!-- Dublin Core -->
+  <meta name="DC.title" content="Bookmarklet Compact UI Test">
+  <meta name="DC.creator" content="Test Creator">
+  <meta name="DC.subject" content="Informatik, Bildung">
+  <meta name="DC.rights" content="CC BY 4.0">
+  
+  <!-- LRMI -->
+  <meta name="lrmi:educationalUse" content="self study">
+  <meta name="lrmi:educationalLevel" content="University">
+  <meta name="lrmi:learningResourceType" content="tutorial">
+  
+  <title>Bookmarklet Compact UI Test - Lokale Entwicklung</title>
+  
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+      line-height: 1.6;
+      background: #f5f7fb;
+    }
+    h1 { 
+      color: #1976d2; 
+      border-bottom: 3px solid #1976d2;
+      padding-bottom: 12px;
+    }
+    h2 {
+      color: #424242;
+      margin-top: 32px;
+    }
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #1976d2;
+      padding: 16px;
+      margin: 24px 0;
+      border-radius: 4px;
+    }
+    .warning-box {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      padding: 16px;
+      margin: 24px 0;
+      border-radius: 4px;
+    }
+    .success-box {
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      padding: 16px;
+      margin: 24px 0;
+      border-radius: 4px;
+    }
+    .test-button {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 8px 8px 8px 0;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .test-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .btn-normal { background: #1976d2; }
+    .btn-compact { background: #9c27b0; }
+    .btn-viewer { background: #00796b; }
+    
+    pre {
+      background: #263238;
+      color: #aed581;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+    }
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #1976d2;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 Bookmarklet Compact UI Test - Localhost</h1>
+  
+  <div class="warning-box">
+    <strong>⚠️ Wichtig:</strong> Dev-Server muss auf <code>http://localhost:4200</code> laufen!<br>
+    Starte mit: <code>npm start</code>
+  </div>
+  
+  <div class="info-box">
+    <strong>🎯 Verfügbare Modi:</strong>
+    <ul>
+      <li>📝 <strong>Normal Mode</strong> - Standard-UI mit Texteingabefeld, Floating Controls unten</li>
+      <li>🎨 <strong>Compact UI Mode</strong> - Minimale UI, Auto-Start, zweigeteile M3 Toolbar unten zentriert</li>
+      <li>👁️ <strong>Viewer Mode</strong> - Read-Only Ansicht mit Floating Controls unten</li>
+    </ul>
+    <strong>🎨 Design:</strong> Material Design 3 Toolbars (weiß, runde Buttons, unten schwebend)
+  </div>
+
+  <h2>🚀 Direkt testen (empfohlen)</h2>
+  
+  <button class="test-button btn-normal" onclick="testNormalMode()">
+    📝 Normal Mode testen
+  </button>
+  
+  <button class="test-button btn-compact" onclick="testCompactMode()">
+    🎨 Compact UI testen
+  </button>
+  
+  <button class="test-button btn-viewer" onclick="testViewerMode()">
+    👁️ Viewer Mode testen
+  </button>
+
+  <h2>🔖 Drag & Drop Bookmarklets</h2>
+  <p>Ziehe diese Links in deine Lesezeichenleiste für schnellen Zugriff:</p>
+  
+  <div style="margin: 24px 0; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+    <p><strong>📝 Normal Mode:</strong></p>
+    <a href="javascript:(function(){const f=document.createElement('iframe');f.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:999999';f.src='http://localhost:4200/';document.body.appendChild(f);console.log('✅ Canvas iframe loaded (Normal Mode)')})();" 
+       class="test-button btn-normal">
+      🔖 Metadata Canvas (Normal)
+    </a>
+    
+    <p style="margin-top: 24px;"><strong>🎨 Compact UI Mode:</strong></p>
+    <a href="javascript:(function(){const f=document.createElement('iframe');f.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:999999';f.src='http://localhost:4200/?ui=compact';document.body.appendChild(f);console.log('✅ Canvas iframe loaded (Compact UI Mode)')})();" 
+       class="test-button btn-compact">
+      🔖 Metadata Canvas (Compact)
+    </a>
+    
+    <p style="margin-top: 24px;"><strong>👁️ Viewer Mode (Read-Only):</strong></p>
+    <a href="javascript:(function(){const f=document.createElement('iframe');f.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:999999';f.src='http://localhost:4200/?mode=viewer&readonly=true';document.body.appendChild(f);console.log('✅ Canvas iframe loaded (Viewer Mode)')})();" 
+       class="test-button btn-viewer">
+      🔖 Metadata Viewer (Read-Only)
+    </a>
+  </div>
+
+  <h2>📊 Erwartetes Verhalten</h2>
+  
+  <div class="success-box">
+    <strong>📝 Normal Mode:</strong>
+    <ul>
+      <li>✅ Texteingabefeld sichtbar</li>
+      <li>✅ Extract + Reset Buttons</li>
+      <li>✅ Content-Type Anzeige unter Input</li>
+      <li>✅ Floating Controls UNTEN MITTE (M3 Toolbar, weiß, runde Buttons)</li>
+      <li>✅ Buttons: JSON-Loader, Save, Upload, Language, Close</li>
+      <li>✅ Manuelle Extraktion erforderlich</li>
+    </ul>
+  </div>
+  
+  <div class="success-box">
+    <strong>🎨 Compact UI Mode:</strong>
+    <ul>
+      <li>❌ Texteingabefeld versteckt</li>
+      <li>✅ Floating Controls (Links): Content-Type <strong>Split Button</strong> (Display | Dropdown)</li>
+      <li>✅ Floating Controls (Rechts): JSON-Loader, Save, Upload, Language, Close</li>
+      <li>✅ Beide Container schweben UNTEN ZENTRIERT (M3 Pill-Shape, 56px Höhe)</li>
+      <li>✅ Weißer Hintergrund, einheitliches Design, runde Icon-Buttons</li>
+      <li>✅ Auto-Start der Extraktion nach Datenempfang</li>
+      <li>✅ Maximale Canvas-Fläche</li>
+      <li>✅ Upload-Button mit blauem Glow-Effekt wenn bereit</li>
+    </ul>
+  </div>
+  
+  <div class="success-box">
+    <strong>👁️ Viewer Mode:</strong>
+    <ul>
+      <li>❌ Texteingabefeld versteckt</li>
+      <li>✅ Felder read-only (nicht editierbar)</li>
+      <li>✅ Floating Controls UNTEN ZENTRIERT (M3 Toolbar)</li>
+      <li>✅ Content-Type Anzeige links (wenn Controls aktiviert)</li>
+      <li>✅ Buttons: JSON-Loader, Save, Language</li>
+      <li>✅ Nur zur Ansicht</li>
+    </ul>
+  </div>
+
+  <h2>📦 Modi-Vergleich</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Normal Mode</th>
+        <th>Compact UI Mode</th>
+        <th>Viewer Mode</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Input-Feld</strong></td>
+        <td>✅ Sichtbar</td>
+        <td>❌ Versteckt</td>
+        <td>❌ Versteckt</td>
+      </tr>
+      <tr>
+        <td><strong>Content-Type</strong></td>
+        <td>✅ Unter Input (Hellblau)</td>
+        <td>✅ Floating Split Button Unten (Weiß)</td>
+        <td>✅ Floating Links Unten</td>
+      </tr>
+      <tr>
+        <td><strong>Auto-Start</strong></td>
+        <td>❌ Manuell</td>
+        <td>✅ Automatisch</td>
+        <td>❌ N/A</td>
+      </tr>
+      <tr>
+        <td><strong>Editierbar</strong></td>
+        <td>✅ Ja</td>
+        <td>✅ Ja</td>
+        <td>❌ Read-Only</td>
+      </tr>
+      <tr>
+        <td><strong>Controls Position</strong></td>
+        <td>🔵 Unten Mitte</td>
+        <td>🔵 Unten Mitte (2-teilig)</td>
+        <td>🔵 Unten Mitte</td>
+      </tr>
+      <tr>
+        <td><strong>Design</strong></td>
+        <td>M3 Toolbar</td>
+        <td>M3 Toolbar (Pill)</td>
+        <td>M3 Toolbar</td>
+      </tr>
+      <tr>
+        <td><strong>Use Case</strong></td>
+        <td>Standalone</td>
+        <td>Bookmarklet/Plugin</td>
+        <td>JSON ansehen</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>🧪 Erwartete Test-Daten</h2>
+  <div class="info-box">
+    <strong>Diese Seite enthält folgende Metadaten:</strong>
+    <ul>
+      <li>Titel: "Bookmarklet Compact UI Test - Lokale Entwicklung"</li>
+      <li>Beschreibung: "Test-Seite für Bookmarklet Compact UI Mode"</li>
+      <li>Author: "Test Author"</li>
+      <li>Dublin Core Creator: "Test Creator"</li>
+      <li>Dublin Core Subject: "Informatik, Bildung"</li>
+      <li>LRMI Educational Use: "self study"</li>
+      <li>LRMI Educational Level: "University"</li>
+      <li>JSON-LD Event: "Test Workshop: Metadata Extraktion"</li>
+    </ul>
+  </div>
+
+  <h2>💻 Browser Console</h2>
+  <p>Öffne die Browser-Konsole (F12) für Debugging:</p>
+  <pre>// Erwartete Console Logs:
+✅ Canvas iframe loaded (Compact UI Mode)
+📬 postMessage received from: ...
+🎨 Compact UI mode: Auto-starting extraction...
+🚀 Starting extraction...
+📊 Canvas extraction started</pre>
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": "Test Workshop: Metadata Extraktion",
+    "description": "Ein Workshop über Metadaten-Extraktion mit Compact UI",
+    "startDate": "2025-12-01T10:00:00+01:00",
+    "endDate": "2025-12-01T16:00:00+01:00",
+    "location": {
+      "@type": "Place",
+      "name": "Online",
+      "address": {
+        "@type": "VirtualLocation",
+        "url": "https://example.com/workshop"
+      }
+    },
+    "organizer": {
+      "@type": "Organization",
+      "name": "Test Organization"
+    }
+  }
+  </script>
+  
+  <script>
+    function testNormalMode() {
+      console.log('%c🚀 Testing Normal Mode', 'color: #1976d2; font-size: 16px; font-weight: bold');
+      
+      // Create iframe
+      const iframe = document.createElement('iframe');
+      iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:999999';
+      iframe.src = 'http://localhost:4200/';
+      
+      // Add close button
+      const closeBtn = createCloseButton();
+      closeBtn.onclick = () => {
+        document.body.removeChild(iframe);
+        document.body.removeChild(closeBtn);
+      };
+      
+      document.body.appendChild(iframe);
+      document.body.appendChild(closeBtn);
+      
+      console.log('✅ Canvas iframe loaded (Normal Mode)');
+    }
+    
+    function testCompactMode() {
+      console.log('%c🎨 Testing Compact UI Mode', 'color: #9c27b0; font-size: 16px; font-weight: bold');
+      console.log('Expected: Auto-start extraction after data received');
+      
+      // Create iframe with compact UI parameter
+      const iframe = document.createElement('iframe');
+      iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:999999';
+      iframe.src = 'http://localhost:4200/?ui=compact';
+      
+      // Add close button
+      const closeBtn = createCloseButton();
+      closeBtn.onclick = () => {
+        document.body.removeChild(iframe);
+        document.body.removeChild(closeBtn);
+      };
+      
+      document.body.appendChild(iframe);
+      document.body.appendChild(closeBtn);
+      
+      console.log('✅ Canvas iframe loaded (Compact UI Mode)');
+    }
+    
+    function testViewerMode() {
+      console.log('%c👁️ Testing Viewer Mode', 'color: #00796b; font-size: 16px; font-weight: bold');
+      
+      // Create iframe with viewer mode parameters
+      const iframe = document.createElement('iframe');
+      iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:999999';
+      iframe.src = 'http://localhost:4200/?mode=viewer&readonly=true';
+      
+      // Add close button
+      const closeBtn = createCloseButton();
+      closeBtn.onclick = () => {
+        document.body.removeChild(iframe);
+        document.body.removeChild(closeBtn);
+      };
+      
+      document.body.appendChild(iframe);
+      document.body.appendChild(closeBtn);
+      
+      console.log('✅ Canvas iframe loaded (Viewer Mode)');
+    }
+    
+    function createCloseButton() {
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = '✖ Schließen';
+      closeBtn.style.cssText = 'position:fixed;top:16px;right:16px;z-index:9999999;padding:8px 16px;background:#f44336;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:600;box-shadow:0 2px 4px rgba(0,0,0,0.3);';
+      closeBtn.onmouseenter = () => closeBtn.style.background = '#d32f2f';
+      closeBtn.onmouseleave = () => closeBtn.style.background = '#f44336';
+      return closeBtn;
+    }
+    
+    // Log page info
+    console.log('%c📄 Test Page Loaded', 'color: #4caf50; font-size: 16px; font-weight: bold');
+    console.log('Title:', document.title);
+    console.log('Meta description:', document.querySelector('meta[name="description"]')?.content);
+    console.log('DC.creator:', document.querySelector('meta[name="DC.creator"]')?.content);
+    console.log('LRMI educationalUse:', document.querySelector('meta[name="lrmi:educationalUse"]')?.content);
+  </script>
+</body>
+</html>

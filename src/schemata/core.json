@@ -1,6 +1,6 @@
 {
   "profileId": "core:descriptive",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "@context": {
     "schema": "https://schema.org/",
     "cclom": "https://example.org/cclom/",
@@ -404,43 +404,50 @@
               "label": {
                 "de": "CC0",
                 "en": "CC0"
-              }
+              },
+              "value": "CC0"
             },
             {
               "label": {
                 "de": "CC BY",
                 "en": "CC BY"
-              }
+              },
+              "value": "CC BY"
             },
             {
               "label": {
                 "de": "CC BY-SA",
                 "en": "CC BY-SA"
-              }
+              },
+              "value": "CC BY-SA"
             },
             {
               "label": {
                 "de": "CC BY-ND",
                 "en": "CC BY-ND"
-              }
+              },
+              "value": "CC BY-ND"
             },
             {
               "label": {
                 "de": "CC BY-NC",
                 "en": "CC BY-NC"
-              }
+              },
+              "value": "CC BY-NC"
             },
             {
               "label": {
                 "de": "CC BY-NC-SA",
                 "en": "CC BY-NC-SA"
-              }
+              },
+              "value": "CC BY-NC-SA"
             },
             {
               "label": {
                 "de": "CC BY-NC-ND",
                 "en": "CC BY-NC-ND"
-              }
+              },
+              "value": "CC BY-NC-ND"
             }
           ]
         },
@@ -514,6 +521,45 @@
         },
         "validation": {
           "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+        },
+        "vocabulary": {
+          "type": "closed",
+          "concepts": [
+            { "label": { "de": "Bulgarisch", "en": "Bulgarian" }, "value": "bg" },
+            { "label": { "de": "Dänisch", "en": "Danish" }, "value": "da" },
+            { "label": { "de": "Deutsch", "en": "German" }, "value": "de" },
+            { "label": { "de": "Englisch", "en": "English" }, "value": "en" },
+            { "label": { "de": "Estnisch", "en": "Estonian" }, "value": "et" },
+            { "label": { "de": "Finnisch", "en": "Finnish" }, "value": "fi" },
+            { "label": { "de": "Französisch", "en": "French" }, "value": "fr" },
+            { "label": { "de": "Griechisch", "en": "Greek" }, "value": "el" },
+            { "label": { "de": "Irisch", "en": "Irish" }, "value": "ga" },
+            { "label": { "de": "Italienisch", "en": "Italian" }, "value": "it" },
+            { "label": { "de": "Kroatisch", "en": "Croatian" }, "value": "hr" },
+            { "label": { "de": "Lettisch", "en": "Latvian" }, "value": "lv" },
+            { "label": { "de": "Litauisch", "en": "Lithuanian" }, "value": "lt" },
+            { "label": { "de": "Maltesisch", "en": "Maltese" }, "value": "mt" },
+            { "label": { "de": "Niederländisch", "en": "Dutch" }, "value": "nl" },
+            { "label": { "de": "Polnisch", "en": "Polish" }, "value": "pl" },
+            { "label": { "de": "Portugiesisch", "en": "Portuguese" }, "value": "pt" },
+            { "label": { "de": "Rumänisch", "en": "Romanian" }, "value": "ro" },
+            { "label": { "de": "Schwedisch", "en": "Swedish" }, "value": "sv" },
+            { "label": { "de": "Slowakisch", "en": "Slovak" }, "value": "sk" },
+            { "label": { "de": "Slowenisch", "en": "Slovenian" }, "value": "sl" },
+            { "label": { "de": "Spanisch", "en": "Spanish" }, "value": "es" },
+            { "label": { "de": "Tschechisch", "en": "Czech" }, "value": "cs" },
+            { "label": { "de": "Ungarisch", "en": "Hungarian" }, "value": "hu" },
+            { "label": { "de": "Norwegisch", "en": "Norwegian" }, "value": "no" },
+            { "label": { "de": "Russisch", "en": "Russian" }, "value": "ru" },
+            { "label": { "de": "Ukrainisch", "en": "Ukrainian" }, "value": "uk" },
+            { "label": { "de": "Türkisch", "en": "Turkish" }, "value": "tr" },
+            { "label": { "de": "Arabisch", "en": "Arabic" }, "value": "ar" },
+            { "label": { "de": "Persisch", "en": "Persian" }, "value": "fa" },
+            { "label": { "de": "Dari", "en": "Dari" }, "value": "prs" },
+            { "label": { "de": "Paschtu", "en": "Pashto" }, "value": "ps" },
+            { "label": { "de": "Chinesisch", "en": "Chinese" }, "value": "zh" },
+            { "label": { "de": "Japanisch", "en": "Japanese" }, "value": "ja" }
+          ]
         },
         "normalization": {
           "trim": true,
