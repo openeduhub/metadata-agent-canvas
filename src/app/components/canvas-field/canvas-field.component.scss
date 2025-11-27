@@ -69,8 +69,9 @@
       resize: vertical;
       min-height: 32px;
       line-height: 1.5;
-      padding: 4px 0;
+      padding: 4px 0 8px 0;  // Extra bottom padding for CDK autosize
       margin: 0;
+      overflow: hidden;  // Hide scrollbar - CDK handles height
     }
 
   }

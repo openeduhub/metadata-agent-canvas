@@ -25,7 +25,7 @@ import { SchemaLocalizerService } from '../../services/schema-localizer.service'
 import { IntegrationModeService } from '../../services/integration-mode.service';
 import { GuestSubmissionService } from '../../services/guest-submission.service';
 import { I18nService } from '../../services/i18n.service';
-import { CanvasState, FieldGroup, FieldStatus } from '../../models/canvas-models';
+import { CanvasState, CanvasFieldState, FieldGroup, FieldStatus } from '../../models/canvas-models';
 import { CanvasFieldComponent } from '../canvas-field/canvas-field.component';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { JsonLoaderComponent, LoadedJsonData } from '../json-loader/json-loader.component';
@@ -211,8 +211,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     
     this.isLoadingInput = true;
     try {
+      // Ensure core schema is loaded first (required for complex object expansion)
+      await this.canvasService.ensureCoreSchemaLoaded();
       await this.onJsonLoaded({ metadata, fileName: 'Input Data' });
-      } catch (error) {
+    } catch (error) {
       console.error('❌ Error loading metadata from input:', error);
     } finally {
       this.isLoadingInput = false;
@@ -667,20 +669,34 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Check if all required fields are filled
+   * Get fields that are visible based on showCoreFields/showSpecialFields settings
+   */
+  private getVisibleFields(): CanvasFieldState[] {
+    const fields: CanvasFieldState[] = [];
+    if (this._showCoreFields) {
+      fields.push(...this.state.coreFields);
+    }
+    if (this._showSpecialFields) {
+      fields.push(...this.state.specialFields);
+    }
+    return fields;
+  }
+
+  /**
+   * Check if all required fields are filled (only visible fields)
    */
   allRequiredFieldsFilled(): boolean {
-    const allFields = [...this.state.coreFields, ...this.state.specialFields];
-    const requiredFields = allFields.filter(f => f.isRequired);
+    const visibleFields = this.getVisibleFields();
+    const requiredFields = visibleFields.filter(f => f.isRequired);
     return requiredFields.every(f => f.status === FieldStatus.FILLED);
   }
 
   /**
-   * Get required fields count
+   * Get required fields count (only visible fields)
    */
   getRequiredFieldsStatus(): { filled: number; total: number } {
-    const allFields = [...this.state.coreFields, ...this.state.specialFields];
-    const requiredFields = allFields.filter(f => f.isRequired);
+    const visibleFields = this.getVisibleFields();
+    const requiredFields = visibleFields.filter(f => f.isRequired);
     const filledRequired = requiredFields.filter(f => f.status === FieldStatus.FILLED);
     
     return {
@@ -1284,43 +1300,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
    */
   async onJsonLoaded(data: LoadedJsonData): Promise<void> {
     try {
-      await this.canvasService.importJsonData(data.metadata, data.detectedSchema);
-      
-      const currentLanguage = this.i18n.getCurrentLanguage();
-      
-      // Try to get content type info from imported JSON directly
-      let contentTypeLabel = this.i18n.instant('CONTENT_TYPE.NOT_DETECTED');
-      let schemaFile = data.detectedSchema || 'Standard';
-      
-      const contentTypeField = data.metadata['ccm:oeh_flex_lrt'];
-      if (contentTypeField && typeof contentTypeField.value === 'object') {
-        const metadata = contentTypeField.value;
-        
-        // Extract label based on current language
-        if (metadata.displayLabel && typeof metadata.displayLabel === 'string') {
-          contentTypeLabel = metadata.displayLabel;
-        } else if (metadata.label && typeof metadata.label === 'object') {
-          // Get label for current language from multilingual object
-          contentTypeLabel = metadata.label[currentLanguage] || metadata.label['de'] || metadata.label['en'] || contentTypeLabel;
-        } else if (typeof metadata.label === 'string') {
-          contentTypeLabel = metadata.label;
-        }
-        
-        schemaFile = metadata.schema_file || schemaFile;
-      } else {
-        // Fallback: try to get from service (for older exports)
-        const contentType = this.canvasService.getContentTypeConcept();
-        if (contentType) {
-          contentTypeLabel = contentType.label;
-          schemaFile = contentType.schema_file || schemaFile;
-        }
-      }
-      
-      // Show success alert only if not in viewer mode
-      if (!this.isViewerMode) {
-        alert(`✅ JSON erfolgreich geladen!\n\n${data.fileName}\nSchema: ${schemaFile}\nInhaltsart: ${contentTypeLabel}\nSprache: ${currentLanguage}`);
-      } else {
-        }
+      await this.canvasService.importJsonData(data.metadata);
       this.cdr.detectChanges();
     } catch (error) {
       console.error('❌ Error loading JSON:', error);
@@ -1329,11 +1309,27 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Check if metadata can be submitted (all required fields filled)
+   * Check if metadata can be submitted (all visible required fields filled)
+   * Hidden fields (via showCoreFields/showSpecialFields) are not validated
    */
   canSubmit(): boolean {
-    const allFields = [...this.state.coreFields, ...this.state.specialFields];
-    const requiredFields = allFields.filter(f => f.isRequired);
+    const visibleFields = this.getVisibleFields();
+    
+    // Must have visible fields to submit
+    if (visibleFields.length === 0) return false;
+    
+    // Must have at least one field with a value
+    const hasAnyValue = visibleFields.some(f => {
+      if (Array.isArray(f.value)) return f.value.length > 0;
+      return f.value !== null && f.value !== undefined && f.value !== '';
+    });
+    if (!hasAnyValue) return false;
+    
+    const requiredFields = visibleFields.filter(f => f.isRequired);
+    
+    // If no required fields but has some values, allow submit
+    if (requiredFields.length === 0) return true;
+    
     const filledRequiredFields = requiredFields.filter(f => {
       if (Array.isArray(f.value)) {
         return f.value.length > 0;
@@ -1341,7 +1337,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
       return f.value !== null && f.value !== undefined && f.value !== '';
     });
     
-    return requiredFields.length > 0 && filledRequiredFields.length === requiredFields.length;
+    return filledRequiredFields.length === requiredFields.length;
   }
 
   /**

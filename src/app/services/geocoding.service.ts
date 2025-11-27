@@ -171,17 +171,22 @@ export class GeocodingService {
     // Process sequentially to respect rate limit (not in parallel)
     const geocodedLocations: any[] = [];
     for (const location of locations) {
-      // Check if it's a Place with address (not VirtualLocation)
-      if (location['@type'] === 'Place' && location.address) {
+      // Check if location has an address to geocode
+      // Skip VirtualLocation (has url but no address) and already geocoded places
+      const hasAddress = location.address && 
+        (location.address.streetAddress || location.address.addressLocality || location.address.postalCode);
+      const needsGeocoding = !location.geo || 
+        (typeof location.geo === 'object' && Object.keys(location.geo).length === 0);
+      
+      if (hasAddress && needsGeocoding) {
         const geocoded = await this.geocodePlace(location);
         geocodedLocations.push(geocoded);
       } else {
-        // Return as-is for VirtualLocation or PostalAddress
+        // Return as-is for VirtualLocation or already geocoded
         geocodedLocations.push(location);
       }
     }
 
-    const geocodedCount = geocodedLocations.filter(l => l.geo).length;
     return geocodedLocations;
   }
 

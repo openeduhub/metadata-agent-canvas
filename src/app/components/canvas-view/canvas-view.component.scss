@@ -52,14 +52,7 @@
       border: none;
       border-radius: 0;
       box-shadow: none;
-      
-      /* Gruppe trennen durch Linie statt Card */
-      border-bottom: 1px solid #e0e0e0;
-      padding-bottom: 24px;
-      
-      &:last-child {
-        border-bottom: none;
-      }
+      margin-bottom: 16px;
     }
     
     /* Gruppen-Header vereinfachen */

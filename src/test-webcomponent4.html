@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Component Test - Content Type Selector</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #f5f5f5; }
+        
+        /* Header mit Dropdown */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #1976d2;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        #header h1 {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        #content-type-select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        
+        #load-btn {
+            padding: 8px 16px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        #load-btn:hover { background: #45a049; }
+        
+        /* Canvas Container */
+        #canvas-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 400px;
+            bottom: 0;
+            background: white;
+            overflow: auto;
+        }
+        
+        metadata-agent-canvas {
+            display: block;
+            width: 100%;
+            min-height: 100%;
+        }
+        
+        /* Output Panel */
+        #output-panel {
+            position: fixed;
+            top: 60px;
+            right: 0;
+            width: 400px;
+            bottom: 0;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            overflow: auto;
+            border-left: 1px solid #333;
+        }
+        
+        #output-panel .panel-header {
+            position: sticky;
+            top: 0;
+            background: #333;
+            padding: 10px 15px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #output-panel .panel-header h2 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+        }
+        
+        #output-panel .stats {
+            display: flex;
+            gap: 15px;
+            font-size: 11px;
+        }
+        
+        #output-panel .stats span {
+            color: #888;
+        }
+        
+        #output-panel .stats .count {
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+        
+        #output-content {
+            padding: 15px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .json-key { color: #9cdcfe; }
+        .json-string { color: #ce9178; }
+        .json-number { color: #b5cea8; }
+        .json-boolean { color: #569cd6; }
+        .json-null { color: #569cd6; }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>Metadata Agent Canvas</h1>
+        <select id="content-type-select">
+            <option value="">-- Inhaltsart wählen --</option>
+            <option value="event.json">📅 Veranstaltung</option>
+            <option value="person.json">👤 Person</option>
+            <option value="organization.json">🏢 Organisation</option>
+            <option value="learning_material.json">📚 Lernmaterial</option>
+            <option value="education_offer.json">🎓 Bildungsangebote</option>
+            <option value="occupation.json">💼 Berufe</option>
+            <option value="prompt.json">💭 Prompts</option>
+            <option value="tool_service.json">🛠️ Tools & Services</option>
+            <option value="source.json">📰 Quelle</option>
+            <option value="didactic_planning_tools.json">📋 Didaktische Planungswerkzeuge</option>
+        </select>
+        <button id="load-btn">Schema laden</button>
+    </div>
+
+    <div id="canvas-container">
+        <metadata-agent-canvas id="canvas"></metadata-agent-canvas>
+    </div>
+    
+    <div id="output-panel">
+        <div class="panel-header">
+            <h2>Output (Live)</h2>
+            <div class="stats">
+                <span>Changes: <span id="change-count" class="count">0</span></span>
+                <span>Fields: <span id="field-count" class="count">0</span></span>
+            </div>
+        </div>
+        <pre id="output-content">// Wähle eine Inhaltsart und klicke "Schema laden"</pre>
+    </div>
+
+    <script>
+        // =========================================================
+        // ERGEBNIS-VARIABLEN
+        // =========================================================
+        let currentMetadata = null;
+        let changeCount = 0;
+
+        // JSON Syntax Highlighting
+        function syntaxHighlight(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, null, 2);
+            }
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // Output aktualisieren
+        function updateOutput(data) {
+            const output = document.getElementById('output-content');
+            if (data) {
+                output.innerHTML = syntaxHighlight(data);
+                // Field count
+                const fieldCount = Object.keys(data).filter(k => 
+                    !['metadataset', 'schemaVersion', 'exportedAt', 'language'].includes(k)
+                ).length;
+                document.getElementById('field-count').textContent = fieldCount;
+            } else {
+                output.textContent = '// Keine Daten';
+            }
+            document.getElementById('change-count').textContent = changeCount;
+        }
+
+        // Scripts laden
+        async function loadScripts() {
+            const baseUrl = '/';
+            const scripts = ['runtime.js', 'polyfills.js', 'main.js'];
+            for (const src of scripts) {
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = baseUrl + src;
+                    s.onload = resolve;
+                    s.onerror = reject;
+                    document.body.appendChild(s);
+                });
+            }
+        }
+
+        // Inhaltsart laden (mit neuem Compact-Format)
+        function loadContentType(schemaFile) {
+            const canvas = document.getElementById('canvas');
+            
+            // Neues Compact-Format: nur metadataset angeben
+            const compactJson = {
+                metadataset: schemaFile,
+                schemaVersion: "1.8.0",
+                exportedAt: new Date().toISOString(),
+                language: "de"
+            };
+            
+            console.log('📥 Lade Schema:', schemaFile);
+            console.log('📄 Compact JSON:', compactJson);
+            
+            // Metadaten laden
+            canvas.metadataInput = compactJson;
+            
+            // Output aktualisieren
+            updateOutput(compactJson);
+        }
+
+        // Initialisierung
+        (async function() {
+            try {
+                await loadScripts();
+                await customElements.whenDefined('metadata-agent-canvas');
+                
+                const canvas = document.getElementById('canvas');
+                const select = document.getElementById('content-type-select');
+                const loadBtn = document.getElementById('load-btn');
+                
+                // Konfiguration
+                canvas.viewerMode = true;
+                canvas.readonly = false;
+                canvas.controls = false;
+                canvas.showCoreFields = false;
+                canvas.showFieldActions = false;
+                canvas.borderless = true;
+                canvas.backgroundColor = '#ffffff';
+                
+                // Event-Listener für Änderungen
+                canvas.addEventListener('metadataChange', (event) => {
+                    changeCount++;
+                    currentMetadata = event.detail;
+                    updateOutput(currentMetadata);
+                    console.log('📝 metadataChange:', currentMetadata);
+                });
+                
+                // Event-Listener für Submit
+                canvas.addEventListener('metadataSubmit', (event) => {
+                    console.log('✅ metadataSubmit:', event.detail);
+                    alert('Metadaten gespeichert! Siehe Konsole für Details.');
+                });
+                
+                // Load-Button Handler
+                loadBtn.addEventListener('click', () => {
+                    const schemaFile = select.value;
+                    if (schemaFile) {
+                        changeCount = 0;
+                        loadContentType(schemaFile);
+                    } else {
+                        alert('Bitte wähle eine Inhaltsart aus.');
+                    }
+                });
+                
+                // Dropdown Change Handler (optional: direkt laden)
+                select.addEventListener('change', () => {
+                    const schemaFile = select.value;
+                    if (schemaFile) {
+                        changeCount = 0;
+                        loadContentType(schemaFile);
+                    }
+                });
+                
+                console.log('✅ Web Component konfiguriert');
+                console.log('💡 Wähle eine Inhaltsart aus dem Dropdown');
+                console.log('💡 Variable: currentMetadata');
+                
+            } catch (e) {
+                console.error('❌ Fehler:', e);
+                document.getElementById('output-content').textContent = '❌ Fehler: ' + e.message;
+            }
+        })();
+    </script>
+</body>
+</html>

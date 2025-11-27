@@ -70,6 +70,11 @@
                 "glob": "test-webcomponent3.html",
                 "input": "src",
                 "output": "."
+              },
+              {
+                "glob": "test-webcomponent4.html",
+                "input": "src",
+                "output": "."
               }
             ],
             "styles": ["src/styles.scss"],

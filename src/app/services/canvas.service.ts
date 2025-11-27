@@ -17,6 +17,10 @@ import { environment } from '../../environments/environment';
 export class CanvasService {
   private stateSubject = new BehaviorSubject<CanvasState>(this.getInitialState());
   public state$: Observable<CanvasState> = this.stateSubject.asObservable();
+  
+  /** Debounce timer for geocoding (prevents excessive API calls during typing) */
+  private geocodingDebounceTimer: any = null;
+  private readonly GEOCODING_DEBOUNCE_MS = 1500; // 1.5 seconds after last keystroke
 
   constructor(
     private schemaLoader: SchemaLoaderService,
@@ -175,14 +179,9 @@ export class CanvasService {
     // Group fields
     const fieldGroups = this.groupFields(coreFields);
     
-    // Count all fields including potential subfields for consistent display
-    const allSubFields: CanvasFieldState[] = [];
-    coreFields.forEach(field => {
-      if (field.isParent && field.subFields) {
-        allSubFields.push(...field.subFields);
-      }
-    });
-    const totalFieldsCount = coreFields.length + allSubFields.length;
+    // Count only top-level fields (excluding ccm:oeh_flex_lrt for consistency)
+    const countableFields = coreFields.filter(f => f.fieldId !== 'ccm:oeh_flex_lrt');
+    const totalFieldsCount = countableFields.length;
     
     // Initialize metadata template
     const template = await this.schemaLoader.getOutputTemplate('core.json').toPromise();
@@ -425,14 +424,9 @@ export class CanvasService {
     const allFields = [...state.coreFields, ...specialFields];
     const fieldGroups = this.groupFields(allFields);
 
-    // Count all fields including subfields for consistent display
-    const allSubFields: CanvasFieldState[] = [];
-    allFields.forEach(field => {
-      if (field.isParent && field.subFields) {
-        allSubFields.push(...field.subFields);
-      }
-    });
-    const totalFieldsCount = allFields.length + allSubFields.length;
+    // Count only top-level fields (excluding ccm:oeh_flex_lrt for consistency)
+    const countableFields = allFields.filter(f => f.fieldId !== 'ccm:oeh_flex_lrt');
+    const totalFieldsCount = countableFields.length;
 
     // Merge template
     const template = await this.schemaLoader.getOutputTemplate(schemaFile).toPromise();
@@ -646,11 +640,18 @@ export class CanvasService {
     });
     
     const allFields = [...updatedCoreFields, ...updatedSpecialFields];
-    const allFieldsWithSubFields = [...allFields, ...allSubFields];
     
-    // Recalculate filled fields (including subfields)
-    const filledFields = allFieldsWithSubFields.filter(f => f.status === FieldStatus.FILLED).length;
-    const totalFieldsCount = allFieldsWithSubFields.length;
+    // Count only top-level fields (excluding ccm:oeh_flex_lrt for consistency)
+    const countableFields = allFields.filter(f => f.fieldId !== 'ccm:oeh_flex_lrt');
+    const filledFields = countableFields.filter(f => {
+      if (f.status !== FieldStatus.FILLED) return false;
+      const v = f.value;
+      // Skip arrays with only empty objects
+      if (Array.isArray(v) && v.every((item: any) => 
+        typeof item === 'object' && item !== null && Object.keys(item).length === 0)) return false;
+      return true;
+    }).length;
+    const totalFieldsCount = countableFields.length;
     const extractionProgress = totalFieldsCount > 0 ? (filledFields / totalFieldsCount) * 100 : 0;
 
     // Regroup fields (only top-level fields, subfields are accessed via field.subFields)
@@ -775,10 +776,17 @@ export class CanvasService {
       return;
     }
 
-    // Check if this is an address field change - trigger re-geocoding
+    // Check if this is an address field change - trigger re-geocoding with debounce
     if (this.isAddressField(fieldId)) {
-      // Defer geocoding to allow the value to be set first
-      setTimeout(() => this.triggerReGeocoding(fieldId), 100);
+      // Clear previous timer to implement debounce
+      if (this.geocodingDebounceTimer) {
+        clearTimeout(this.geocodingDebounceTimer);
+      }
+      // Only trigger geocoding after user stops typing for 1.5 seconds
+      this.geocodingDebounceTimer = setTimeout(() => {
+        this.triggerReGeocoding(fieldId);
+        this.geocodingDebounceTimer = null;
+      }, this.GEOCODING_DEBOUNCE_MS);
     }
 
     // Skip normalization for structured fields (fields with shape definition)
@@ -1340,17 +1348,33 @@ export class CanvasService {
   
   /**
    * Trigger re-geocoding when user changes an address field
+   * Handles multiple locations by extracting array index from changed field
    */
   private async triggerReGeocoding(fieldId: string): Promise<void> {
     const state = this.getCurrentState();
     const allFields = [...state.coreFields, ...state.specialFields];
     
+    // Extract array index from the changed field (e.g., "schema:location[1].address.streetAddress" -> 1)
+    const getArrayIndex = (fId: string): number => {
+      const match = fId.match(/\[(\d+)\]/);
+      return match ? parseInt(match[1], 10) : 0;
+    };
+    const changedArrayIndex = getArrayIndex(fieldId);
+    
+    
     // Find the parent location field for this address field
     let parentField: any = null;
     for (const field of allFields) {
       if (field.isParent && field.subFields) {
-        const hasThisSubField = field.subFields.some((sf: any) => sf.fieldId === fieldId);
-        if (hasThisSubField) {
+        // Search recursively in subFields
+        const findInSubFields = (fields: any[]): boolean => {
+          for (const sf of fields) {
+            if (sf.fieldId === fieldId) return true;
+            if (sf.subFields && findInSubFields(sf.subFields)) return true;
+          }
+          return false;
+        };
+        if (findInSubFields(field.subFields)) {
           parentField = field;
           break;
         }
@@ -1363,16 +1387,28 @@ export class CanvasService {
     
     const subFields = parentField.subFields!;
     
-    // Build address from current sub-field values
-    const streetField = subFields.find((sf: any) => sf.fieldId.includes('streetAddress'));
-    const postalField = subFields.find((sf: any) => sf.fieldId.includes('postalCode'));
-    const localityField = subFields.find((sf: any) => sf.fieldId.includes('addressLocality'));
-    const regionField = subFields.find((sf: any) => sf.fieldId.includes('addressRegion'));
-    const countryField = subFields.find((sf: any) => sf.fieldId.includes('addressCountry'));
+    // Recursive helper to find field matching predicate AND array index
+    const findFieldRecursive = (fields: any[], predicate: (f: any) => boolean): any => {
+      for (const f of fields) {
+        if (predicate(f) && getArrayIndex(f.fieldId) === changedArrayIndex) return f;
+        if (f.subFields && f.subFields.length > 0) {
+          const found = findFieldRecursive(f.subFields, predicate);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
     
-    // Find geo coordinate fields
-    const latField = subFields.find((sf: any) => sf.fieldId.includes('latitude'));
-    const lonField = subFields.find((sf: any) => sf.fieldId.includes('longitude'));
+    // Build address from current sub-field values (search recursively, matching array index)
+    const streetField = findFieldRecursive(subFields, (sf: any) => sf.fieldId.includes('streetAddress'));
+    const postalField = findFieldRecursive(subFields, (sf: any) => sf.fieldId.includes('postalCode'));
+    const localityField = findFieldRecursive(subFields, (sf: any) => sf.fieldId.includes('addressLocality'));
+    const regionField = findFieldRecursive(subFields, (sf: any) => sf.fieldId.includes('addressRegion'));
+    const countryField = findFieldRecursive(subFields, (sf: any) => sf.fieldId.includes('addressCountry'));
+    
+    // Find geo coordinate fields (nested under geo parent, matching array index)
+    const latField = findFieldRecursive(subFields, (sf: any) => sf.fieldId.includes('latitude'));
+    const lonField = findFieldRecursive(subFields, (sf: any) => sf.fieldId.includes('longitude'));
     
     // Check if we have enough address data
     const hasAddress = (streetField?.value || postalField?.value || localityField?.value);
@@ -1409,13 +1445,12 @@ export class CanvasService {
         if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
           this.updateFieldStatus(regionField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressRegion, 1.0);
           this.updateMetadata(regionField.fieldId, geoResult.enrichedAddress.addressRegion);
-          }
+        }
         if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
           this.updateFieldStatus(countryField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressCountry, 1.0);
           this.updateMetadata(countryField.fieldId, geoResult.enrichedAddress.addressCountry);
-          }
-        
         }
+      }
     } catch (error) {
       console.error(`❌ Re-geocoding failed:`, error);
     }
@@ -1424,6 +1459,7 @@ export class CanvasService {
   /**
    * Auto-enrich with geocoding after extraction
    * Fills empty geo fields (latitude/longitude) automatically
+   * Handles multiple locations in arrays (e.g., schema:location[0], schema:location[1])
    */
   private async autoEnrichWithGeocoding(): Promise<void> {
     const state = this.getCurrentState();
@@ -1443,78 +1479,112 @@ export class CanvasService {
     
     let geocodedCount = 0;
     
+    // Recursive helper to find ALL fields matching predicate in nested subFields
+    const findAllFieldsRecursive = (fields: any[], predicate: (f: any) => boolean): any[] => {
+      const results: any[] = [];
+      for (const f of fields) {
+        if (predicate(f)) results.push(f);
+        if (f.subFields && f.subFields.length > 0) {
+          results.push(...findAllFieldsRecursive(f.subFields, predicate));
+        }
+      }
+      return results;
+    };
+    
+    // Helper to extract array index from field ID (e.g., "schema:location[1].geo.latitude" -> 1)
+    const getArrayIndex = (fieldId: string): number => {
+      const match = fieldId.match(/\[(\d+)\]/);
+      return match ? parseInt(match[1], 10) : 0;
+    };
+    
     for (const parentField of locationParentFields) {
       const subFields = parentField.subFields!;
       
-      // Find address sub-fields
-      const streetField = subFields.find(sf => sf.fieldId.includes('streetAddress'));
-      const postalField = subFields.find(sf => sf.fieldId.includes('postalCode'));
-      const localityField = subFields.find(sf => sf.fieldId.includes('addressLocality'));
-      const regionField = subFields.find(sf => sf.fieldId.includes('addressRegion'));
-      const countryField = subFields.find(sf => sf.fieldId.includes('addressCountry'));
+      // Find ALL latitude fields (there may be multiple for different array items)
+      const allLatFields = findAllFieldsRecursive(subFields, sf => sf.fieldId.includes('latitude'));
       
-      // Find geo coordinate fields
-      const latField = subFields.find(sf => sf.fieldId.includes('latitude'));
-      const lonField = subFields.find(sf => sf.fieldId.includes('longitude'));
+      // Group fields by array index
+      const locationIndices = new Set<number>();
+      allLatFields.forEach(f => locationIndices.add(getArrayIndex(f.fieldId)));
       
-      // Check if we have address data
-      const hasAddress = (streetField?.value || postalField?.value || localityField?.value);
-      
-      if (!hasAddress) {
-        continue;
-      }
-      
-      // Skip if geo coordinates already exist
-      if (latField?.value && lonField?.value) {
-        continue;
-      }
-      
-      if (!latField || !lonField) {
-        continue;
-      }
-      
-      // Build address object
-      const address: any = {
-        streetAddress: streetField?.value || '',
-        postalCode: postalField?.value || '',
-        addressLocality: localityField?.value || '',
-        addressRegion: regionField?.value || '',
-        addressCountry: countryField?.value || ''
-      };
-      
-      try {
-        const geoResult = await this.geocodingService.geocodeAddress(address);
+      // Process each location entry separately
+      for (const arrayIndex of locationIndices) {
+        // Find fields for this specific array index
+        const matchesIndex = (fieldId: string) => {
+          const fieldIndex = getArrayIndex(fieldId);
+          return fieldIndex === arrayIndex;
+        };
         
-        if (geoResult) {
-          // Update latitude field using proper method (ensures Change Detection)
-          this.updateFieldStatus(latField.fieldId, FieldStatus.FILLED, geoResult.latitude, 1.0);
-          this.updateMetadata(latField.fieldId, geoResult.latitude);
+        const streetField = findAllFieldsRecursive(subFields, sf => 
+          sf.fieldId.includes('streetAddress') && matchesIndex(sf.fieldId))[0];
+        const postalField = findAllFieldsRecursive(subFields, sf => 
+          sf.fieldId.includes('postalCode') && matchesIndex(sf.fieldId))[0];
+        const localityField = findAllFieldsRecursive(subFields, sf => 
+          sf.fieldId.includes('addressLocality') && matchesIndex(sf.fieldId))[0];
+        const regionField = findAllFieldsRecursive(subFields, sf => 
+          sf.fieldId.includes('addressRegion') && matchesIndex(sf.fieldId))[0];
+        const countryField = findAllFieldsRecursive(subFields, sf => 
+          sf.fieldId.includes('addressCountry') && matchesIndex(sf.fieldId))[0];
+        const latField = findAllFieldsRecursive(subFields, sf => 
+          sf.fieldId.includes('latitude') && matchesIndex(sf.fieldId))[0];
+        const lonField = findAllFieldsRecursive(subFields, sf => 
+          sf.fieldId.includes('longitude') && matchesIndex(sf.fieldId))[0];
+        
+        // Check if we have address data for this location
+        const hasAddress = (streetField?.value || postalField?.value || localityField?.value);
+        
+        if (!hasAddress) {
+          continue;
+        }
+        
+        // Skip if geo coordinates already exist for this location
+        if (latField?.value && lonField?.value) {
+          continue;
+        }
+        
+        if (!latField || !lonField) {
+          continue;
+        }
+        
+        // Build address object
+        const address: any = {
+          streetAddress: streetField?.value || '',
+          postalCode: postalField?.value || '',
+          addressLocality: localityField?.value || '',
+          addressRegion: regionField?.value || '',
+          addressCountry: countryField?.value || ''
+        };
+        
+        try {
+          const geoResult = await this.geocodingService.geocodeAddress(address);
           
-          // Update longitude field using proper method (ensures Change Detection)
-          this.updateFieldStatus(lonField.fieldId, FieldStatus.FILLED, geoResult.longitude, 1.0);
-          this.updateMetadata(lonField.fieldId, geoResult.longitude);
-          
-          // Also update region and country if returned by geocoding API
-          if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
-            this.updateFieldStatus(regionField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressRegion, 1.0);
-            this.updateMetadata(regionField.fieldId, geoResult.enrichedAddress.addressRegion);
+          if (geoResult) {
+            // Update latitude field
+            this.updateFieldStatus(latField.fieldId, FieldStatus.FILLED, geoResult.latitude, 1.0);
+            this.updateMetadata(latField.fieldId, geoResult.latitude);
+            
+            // Update longitude field
+            this.updateFieldStatus(lonField.fieldId, FieldStatus.FILLED, geoResult.longitude, 1.0);
+            this.updateMetadata(lonField.fieldId, geoResult.longitude);
+            
+            // Also update region and country if returned by geocoding API
+            if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
+              this.updateFieldStatus(regionField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressRegion, 1.0);
+              this.updateMetadata(regionField.fieldId, geoResult.enrichedAddress.addressRegion);
             }
-          if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
-            this.updateFieldStatus(countryField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressCountry, 1.0);
-            this.updateMetadata(countryField.fieldId, geoResult.enrichedAddress.addressCountry);
+            if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
+              this.updateFieldStatus(countryField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressCountry, 1.0);
+              this.updateMetadata(countryField.fieldId, geoResult.enrichedAddress.addressCountry);
             }
-          
-          geocodedCount++;
-          } else {
+            
+            geocodedCount++;
           }
-      } catch (error) {
-        console.error(`   ❌ Geocoding failed:`, error);
+        } catch (error) {
+          console.error(`❌ Geocoding failed:`, error);
+        }
       }
     }
     
-    if (geocodedCount > 0) {
-      } else {
-      }
   }
 
   /**
@@ -1689,190 +1759,108 @@ export class CanvasService {
 
   /**
    * Import JSON data and pre-fill fields
-   * Supports both old format (flat) and new format (structured with metadata)
+   * Compact format: { metadataset, schemaVersion, fieldId: { value, repoField } }
    */
-  async importJsonData(jsonData: any, detectedSchema?: string): Promise<void> {
+  async importJsonData(jsonData: any): Promise<void> {
     try {
-      // Detect format: new structured format has objects with 'value' property
-      const isNewFormat = this.detectJsonFormat(jsonData);
-      // Convert old format to new format if needed
-      const normalizedData = isNewFormat ? jsonData : this.convertOldToNewFormat(jsonData);
-      
       // Step 1: Initialize with correct schema
       await this.initializeCoreFields();
 
-      // Step 2: Detect content type from ccm:oeh_flex_lrt or metadataset
-      let contentTypeValue: string | null = null;
-      let schemaFileToLoad: string | null = null;
+      // Step 2: Load schema from metadataset
+      let schemaFileToLoad: string | null = jsonData.metadataset || null;
+      
+      // Ensure .json extension
+      if (schemaFileToLoad && !schemaFileToLoad.endsWith('.json')) {
+        schemaFileToLoad = `${schemaFileToLoad}.json`;
+      }
 
-      // First priority: ccm:oeh_flex_lrt structured metadata
-      const contentTypeField = normalizedData['ccm:oeh_flex_lrt'];
-      if (contentTypeField && typeof contentTypeField.value === 'object' && contentTypeField.value.schema_file) {
-        schemaFileToLoad = contentTypeField.value.schema_file;
-        }
-      // Second priority: metadataset field
-      else if (detectedSchema && detectedSchema !== 'mds_oeh') {
-        // Remove 'mds_oeh_' prefix if present and ensure .json extension
-        schemaFileToLoad = detectedSchema.replace('mds_oeh_', '');
-        if (!schemaFileToLoad.endsWith('.json')) {
-          schemaFileToLoad = `${schemaFileToLoad}.json`;
-        }
-        }
-
-      // Load the detected schema
+      // Load the schema (without triggering updateCanvasFields via fillContentTypeField)
       if (schemaFileToLoad) {
         try {
           await this.loadSpecialSchema(schemaFileToLoad);
-          this.fillContentTypeField(schemaFileToLoad);
-          contentTypeValue = schemaFileToLoad;
-          
-          // IMPORTANT: Update state so selectedContentType is available for schema lookups
-          const currentState = this.getCurrentState();
-          this.updateState({
-            ...currentState,
-            selectedContentType: schemaFileToLoad
-          });
-          } catch (error) {
-          }
+        } catch (error) {
+          console.error('❌ Failed to load schema:', schemaFileToLoad, error);
+        }
       }
 
       // Step 3: Map JSON data to fields
       const state = this.getCurrentState();
       const allFields = [...state.coreFields, ...state.specialFields];
-      
-      let importedCount = 0;
       const fieldUpdates: { [key: string]: CanvasFieldState } = {};
       
-      for (const field of allFields) {
-        const fieldData = normalizedData[field.fieldId];
-        
-        // Special handling for ccm:oeh_flex_lrt - extract label for display
-        if (field.fieldId === 'ccm:oeh_flex_lrt' && fieldData && typeof fieldData.value === 'object') {
-          const contentTypeMetadata = fieldData.value;
-          const currentLang = this.i18n.getCurrentLanguage();
-          
-          // Extract display label based on current language
-          let displayLabel = '';
-          
-          // Priority 1: Use displayLabel if available and matches current language preference
-          if (contentTypeMetadata.displayLabel && typeof contentTypeMetadata.displayLabel === 'string') {
-            displayLabel = contentTypeMetadata.displayLabel;
+      // Fill content type field directly (to avoid triggering updateCanvasFields prematurely)
+      if (schemaFileToLoad) {
+        const contentTypeField = state.coreFields.find(f => f.fieldId === 'ccm:oeh_flex_lrt');
+        if (contentTypeField?.vocabulary) {
+          const concept = contentTypeField.vocabulary.concepts.find((c: any) => c.schema_file === schemaFileToLoad);
+          if (concept) {
+            fieldUpdates['ccm:oeh_flex_lrt'] = {
+              ...contentTypeField,
+              value: { schema_file: concept.schema_file, uri: concept.uri, label: concept.label },
+              status: FieldStatus.FILLED
+            };
           }
-          // Priority 2: Use localized label from multilingual object
-          else if (contentTypeMetadata.label && typeof contentTypeMetadata.label === 'object') {
-            displayLabel = contentTypeMetadata.label[currentLang] || contentTypeMetadata.label['de'] || contentTypeMetadata.label['en'] || '';
-          }
-          // Priority 3: Use label as string (backward compatibility)
-          else if (typeof contentTypeMetadata.label === 'string') {
-            displayLabel = contentTypeMetadata.label;
-          }
-          // Fallback: Use schema_file
-          else {
-            displayLabel = contentTypeMetadata.schema_file || '';
-          }
-          
-          const updatedField: CanvasFieldState = {
-            ...field,
-            value: displayLabel,
-            status: 'filled' as FieldStatus
-          };
-          
-          fieldUpdates[field.fieldId] = updatedField;
-          importedCount++;
-          
-          // Store structured metadata separately
-          this.updateMetadata('ccm:oeh_flex_lrt', contentTypeMetadata);
-          continue;
         }
+      }
+      
+      for (const field of allFields) {
+        const fieldData = jsonData[field.fieldId];
         
-        if (fieldData && fieldData.value !== undefined && fieldData.value !== null) {
-          const jsonValue = fieldData.value;
+        // Skip if field not in JSON
+        if (fieldData === undefined || fieldData === null) continue;
+        
+        // Compact format: value is stored directly (not wrapped in {value: ...})
+        const jsonValue = fieldData;
+        
+        // Get schema definition for complex object handling
+        const schemaName = field.schemaName === 'Core' ? 'core.json' : (schemaFileToLoad || state.selectedContentType);
+        const schema = schemaName ? this.schemaLoader.getCachedSchema(schemaName) : null;
+        const schemaFieldDef = schema?.fields?.find((f: any) => f.id === field.fieldId);
+        
+        // Check if this is a complex object (array of objects, nested structure)
+        const hasVariants = schemaFieldDef?.system?.items?.variants;
+        const hasShape = field.shape || schemaFieldDef?.system?.items?.shape;
+        const isComplexObject = (hasShape || hasVariants) && 
+                                (typeof jsonValue === 'object' || Array.isArray(jsonValue));
+        
+        if (isComplexObject) {
+          // Use ShapeExpander to create sub-fields
+          const subFields = this.shapeExpander.expandFieldWithShape(field, jsonValue, schemaFieldDef);
           
-          // Check if field has schema hints from export (NEW: use hints for reconstruction)
-          const schemaInfo = fieldData._schema_info;
-          const hasSchemaHints = schemaInfo && schemaInfo.hasSubFields;
-          
-          // Get full schema definition for this field to check for variants
-          // For Core fields use core.json, for Special fields use state.selectedContentType
-          const currentState = this.getCurrentState();
-          const schemaName = field.schemaName === 'Core' ? 'core.json' : currentState.selectedContentType;
-          const schema = schemaName ? this.schemaLoader.getCachedSchema(schemaName) : null;
-          const schemaFieldDef = schema?.fields?.find((f: any) => f.id === field.fieldId);
-          
-          // Check if this field has variants (complex object structure) or is a shape-based object
-          // Prioritize schema hints from export if available
-          const hasVariants = hasSchemaHints ? schemaInfo.hasVariants : (schemaFieldDef?.system?.items?.variants);
-          const hasShape = hasSchemaHints ? schemaInfo.hasShape : (field.shape || schemaFieldDef?.system?.items?.shape);
-          const isComplexObject = (hasSchemaHints || hasShape || hasVariants || field.datatype === 'array') && 
-                                  (typeof jsonValue === 'object' || Array.isArray(jsonValue));
-          
-          if (isComplexObject) {
-            // CRITICAL: Pass the actual data value, not schema metadata
-            // For arrays, the value should be the array of data objects
-            // For objects, the value should be the data object
-            // Use ShapeExpander to create sub-fields from the imported value
-            // Schema hints help ensure correct variant selection
-            const subFields = this.shapeExpander.expandFieldWithShape(field, jsonValue, schemaFieldDef);
+          if (subFields.length > 0) {
+            fieldUpdates[field.fieldId] = {
+              ...field,
+              value: jsonValue,
+              status: 'filled' as FieldStatus,
+              isParent: true,
+              subFields: subFields
+            };
             
-            if (subFields.length > 0) {
-              // Mark parent as having sub-fields
-              const updatedField: CanvasFieldState = {
-                ...field,
-                value: jsonValue,
-                status: 'filled' as FieldStatus,
-                isParent: true,
-                subFields: subFields
-              };
-              
-              fieldUpdates[field.fieldId] = updatedField;
-              
-              // Add all sub-fields to updates
-              subFields.forEach(subField => {
-                fieldUpdates[subField.fieldId] = subField;
-              });
-              
-              importedCount++;
-              
-              // Validate reconstruction if we have schema hints
-              if (hasSchemaHints && schemaInfo.subFieldPaths) {
-                const createdPaths = subFields.map((sf: any) => sf.path).filter((p: string) => p);
-                const expectedPaths = schemaInfo.subFieldPaths;
-                const missingPaths = expectedPaths.filter((p: string) => !createdPaths.includes(p));
-                
-                if (missingPaths.length > 0) {
-                  } else {
-                  }
-              }
-            } else {
-              // No subfields created - treat as regular array/object field
-              const updatedField: CanvasFieldState = {
-                ...field,
-                value: jsonValue,
-                status: 'filled' as FieldStatus
-              };
-              
-              fieldUpdates[field.fieldId] = updatedField;
-              importedCount++;
-            }
+            subFields.forEach(subField => {
+              fieldUpdates[subField.fieldId] = subField;
+            });
           } else {
-            // Regular field without shape
-            const updatedField: CanvasFieldState = {
+            fieldUpdates[field.fieldId] = {
               ...field,
               value: jsonValue,
               status: 'filled' as FieldStatus
             };
-            
-            fieldUpdates[field.fieldId] = updatedField;
-            importedCount++;
           }
+        } else {
+          // Simple field
+          fieldUpdates[field.fieldId] = {
+            ...field,
+            value: jsonValue,
+            status: 'filled' as FieldStatus
+          };
         }
       }
 
-      // Step 4: Apply all field updates and collect sub-fields
+      // Step 4: Apply updates
       const updatedCoreFields = state.coreFields.map(f => fieldUpdates[f.fieldId] || f);
       const updatedSpecialFields = state.specialFields.map(f => fieldUpdates[f.fieldId] || f);
       
-      // Collect all sub-fields from updated fields
+      // Collect sub-fields
       const allSubFields: CanvasFieldState[] = [];
       [...updatedCoreFields, ...updatedSpecialFields].forEach(field => {
         if (field.isParent && field.subFields) {
@@ -1880,250 +1868,74 @@ export class CanvasService {
         }
       });
 
-      // Step 5: Update field groups with imported values
-      // IMPORTANT: Only group top-level fields, subfields are accessed via field.subFields
+      // Update state - count only top-level fields (excluding ccm:oeh_flex_lrt)
       const topLevelFields = [...updatedCoreFields, ...updatedSpecialFields];
-      const allFieldsWithSubFields = [...topLevelFields, ...allSubFields];
-      const updatedFieldGroups = this.groupFields(topLevelFields);
-
-      // Count all filled fields (including sub-fields for accurate progress)
-      const filledCount = allFieldsWithSubFields
-        .filter(f => f.value !== undefined && f.value !== null && f.value !== '' && 
-                     (!Array.isArray(f.value) || f.value.length > 0)).length;
-
-      // Count all fields including subfields for accurate display
-      const totalFieldsCount = allFieldsWithSubFields.length;
-
-      // Calculate progress based on ALL fields (not just top-level)
-      const progress = totalFieldsCount > 0 
-        ? Math.round((filledCount / totalFieldsCount) * 100)
+      const countableFields = topLevelFields.filter(f => f.fieldId !== 'ccm:oeh_flex_lrt');
+      
+      const filledCount = countableFields
+        .filter(f => {
+          const v = f.value;
+          if (v === undefined || v === null || v === '') return false;
+          if (Array.isArray(v) && v.length === 0) return false;
+          // Skip arrays with only empty objects
+          if (Array.isArray(v) && v.every((item: any) => 
+            typeof item === 'object' && item !== null && Object.keys(item).length === 0)) return false;
+          return true;
+        }).length;
+      
+      const progress = countableFields.length > 0 
+        ? Math.round((filledCount / countableFields.length) * 100)
         : 0;
       
       this.updateState({
         coreFields: updatedCoreFields,
         specialFields: updatedSpecialFields,
-        fieldGroups: updatedFieldGroups,
+        fieldGroups: this.groupFields(topLevelFields),
         filledFields: filledCount,
-        totalFields: totalFieldsCount,  // Count ALL fields (top-level + subfields)
-        detectedContentType: contentTypeValue,
-        selectedContentType: contentTypeValue,
+        totalFields: countableFields.length,
+        detectedContentType: schemaFileToLoad,
+        selectedContentType: schemaFileToLoad,
         isExtracting: false,
-        extractionProgress: progress  // Calculate based on actual filled fields
+        extractionProgress: progress
       });
 
-      } catch (error) {
+    } catch (error) {
       console.error('❌ Error importing JSON:', error);
       throw error;
     }
   }
 
-  /**
-   * Detect if JSON is in new structured format
-   */
-  private detectJsonFormat(jsonData: any): boolean {
-    // Check a few fields to see if they have the 'value' property
-    const sampleKeys = Object.keys(jsonData).filter(k => 
-      !['metadataset', 'exportedAt', 'language'].includes(k)
-    ).slice(0, 5);
-
-    let structuredCount = 0;
-    for (const key of sampleKeys) {
-      const value = jsonData[key];
-      if (value && typeof value === 'object' && 'value' in value && 'repoField' in value) {
-        structuredCount++;
-      }
-    }
-
-    // If more than half of sample fields are structured, it's the new format
-    return structuredCount > sampleKeys.length / 2;
-  }
 
   /**
-   * Convert old flat format to new structured format
-   */
-  private convertOldToNewFormat(jsonData: any): any {
-    const converted: any = {};
-
-    // Copy metadata fields
-    if (jsonData.metadataset) converted.metadataset = jsonData.metadataset;
-    if (jsonData['ccm:metadataset']) converted.metadataset = jsonData['ccm:metadataset'];
-
-    // Process all fields
-    for (const key of Object.keys(jsonData)) {
-      // Skip special fields and repo_field/display suffixes
-      if (key === 'metadataset' || key === 'ccm:metadataset' || 
-          key.endsWith('_repo_field') || key.endsWith('_display')) {
-        continue;
-      }
-
-      let value = jsonData[key];
-      
-      // Normalize repository format values
-      value = this.normalizeRepositoryValue(value);
-
-      // Create structured field data
-      const fieldData: any = {
-        value: value,
-        repoField: jsonData[`${key}_repo_field`] !== false, // Default true
-        datatype: 'string', // Will be overridden by schema
-        multiple: Array.isArray(value),
-        required: false,
-        schema: 'core',
-        hasVocabulary: false
-      };
-
-      // Add display value if present
-      if (jsonData[`${key}_display`]) {
-        fieldData.displayValue = jsonData[`${key}_display`];
-      }
-
-      converted[key] = fieldData;
-    }
-
-    return converted;
-  }
-
-  /**
-   * Normalize repository format values to simple types
-   * Repository format: {type, key, item_id} or [{type, key, item_id}, ...]
-   * BUT: Preserve complex objects with shape (subfields)
-   */
-  private normalizeRepositoryValue(value: any): any {
-    if (value === null || value === undefined) {
-      return value;
-    }
-
-    // Array of values
-    if (Array.isArray(value)) {
-      const normalized = value.map(item => {
-        // If it's a repository wrapper object (not a complex shape object)
-        if (this.isRepositoryWrapperObject(item)) {
-          // Extract key or item_id
-          return item.key || item.item_id || item;
-        }
-        // Keep complex objects (shapes) as-is
-        return item;
-      });
-      return normalized;
-    }
-
-    // Single repository wrapper object (not a complex shape object)
-    if (this.isRepositoryWrapperObject(value)) {
-      return value.key || value.item_id || value;
-    }
-
-    // Keep complex objects (shapes) as-is
-    return value;
-  }
-
-  /**
-   * Check if value is a repository wrapper object (not a complex shape)
-   * Repository wrappers have: type, key, item_id
-   * Complex shapes have: @type, price, url, etc. (business logic fields)
-   */
-  private isRepositoryWrapperObject(value: any): boolean {
-    if (typeof value !== 'object' || value === null) {
-      return false;
-    }
-
-    // If it has @type (schema.org type), it's a complex shape, not a wrapper
-    if ('@type' in value) {
-      return false;
-    }
-
-    // Check if it looks like a repository wrapper
-    const hasRepositoryKeys = ('key' in value || 'item_id' in value) && 'type' in value;
-    
-    // Make sure it doesn't have business logic fields (shape indicators)
-    const hasShapeFields = 'price' in value || 'url' in value || 'serviceType' in value || 'description' in value;
-    
-    return hasRepositoryKeys && !hasShapeFields;
-  }
-
-  /**
-   * Export current state as JSON with new structured format
-   * Each field contains value and all metadata in one object
+   * Export current state as compact JSON
+   * Values are stored directly without wrapper (repoField comes from schema on import)
    */
   exportAsJson(): any {
     const state = this.getCurrentState();
     const allFields = [...state.coreFields, ...state.specialFields];
     const currentLanguage = this.i18n.getCurrentLanguage();
     
+    // Header with schema info
     const output: any = {
-      metadataset: 'mds_oeh',
+      metadataset: state.selectedContentType || 'core.json',
+      schemaVersion: '1.8.0',
       exportedAt: new Date().toISOString(),
       language: currentLanguage
     };
 
-    // Add content type if selected - use only the schema file name
-    if (state.selectedContentType) {
-      output.metadataset = state.selectedContentType;
-    }
-
-    // Add content type field (ccm:oeh_flex_lrt) with structured metadata
-    // This field is not a regular canvas field, so we export it separately
-    if (state.selectedContentType) {
-      const concept = this.getContentTypeConcept();
-      if (concept) {
-        // Get both language labels (for language-independent export)
-        const labelDe = this.localizer.localizeString(concept.label, 'de');
-        const labelEn = this.localizer.localizeString(concept.label, 'en');
-        const currentLabel = this.localizer.localizeString(concept.label, currentLanguage);
-        
-        // Create enriched metadata with multilingual labels
-        const enrichedMetadata = {
-          schema_file: concept.schema_file,
-          uri: (concept as any).uri || null,
-          label: {
-            de: labelDe,
-            en: labelEn
-          },
-          language: currentLanguage,  // Language at time of export
-          displayLabel: currentLabel   // Current display label for quick access
-        };
-        
-        output['ccm:oeh_flex_lrt'] = {
-          value: enrichedMetadata,
-          repoField: false,
-          datatype: 'string',
-          multiple: false,
-          required: false,
-          schema: 'Core',
-          uri: 'ccm:oeh_flex_lrt',
-          label: 'Inhaltsart(en)',
-          status: 'filled',
-          description: 'Erkannte Ressourcentypen (Mehrfachauswahl).',
-          hasVocabulary: true,
-          vocabularyType: 'closed',
-          confidence: state.contentTypeConfidence || 1.0
-        };
-        
-        }
-    }
-
-    // Build a set of ALL sub-field IDs to exclude from export
-    // Sub-fields are reconstructed into their parent's value object
+    // Build set of sub-field IDs to exclude (they're in parent's value)
     const subFieldIds = new Set<string>();
     allFields.forEach(field => {
       if (field.isParent && field.subFields) {
-        field.subFields.forEach((sf: any) => {
-          subFieldIds.add(sf.fieldId);
-        });
+        field.subFields.forEach((sf: any) => subFieldIds.add(sf.fieldId));
       }
     });
 
-    // Add all fields with structured metadata
+    // Export all fields - values directly without wrapper
     for (const field of allFields) {
-      // Skip ALL sub-fields - they are reconstructed into parent objects
-      if (subFieldIds.has(field.fieldId)) {
-        continue;
-      }
-
-      // Skip ccm:oeh_flex_lrt if already added above
-      if (field.fieldId === 'ccm:oeh_flex_lrt' && output['ccm:oeh_flex_lrt']) {
-        continue;
-      }
-
+      // Skip sub-fields - they're reconstructed into parent objects
+      if (subFieldIds.has(field.fieldId)) continue;
+      
       let fieldValue = field.value;
 
       // Reconstruct complex objects from sub-fields
@@ -2131,103 +1943,15 @@ export class CanvasService {
         fieldValue = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
       }
 
-      // Create field metadata object
-      const fieldData: any = {
-        value: fieldValue,
-        repoField: field.repoField,
-        datatype: field.datatype,
-        multiple: field.multiple,
-        required: field.isRequired,
-        schema: field.schemaName,
-        uri: field.uri,
-        label: field.label,
-        status: field.status
-      };
+      // Skip empty values
+      if (fieldValue === null || fieldValue === undefined || fieldValue === '') continue;
+      if (Array.isArray(fieldValue) && fieldValue.length === 0) continue;
+      // Skip arrays with only empty objects
+      if (Array.isArray(fieldValue) && fieldValue.every(v => 
+        typeof v === 'object' && v !== null && Object.keys(v).length === 0)) continue;
 
-      // Get the schema definition to check for complex structure
-      const schemaName = field.schemaName === 'Core' ? 'core.json' : state.selectedContentType;
-      const schema = schemaName ? this.schemaLoader.getCachedSchema(schemaName) : null;
-      const schemaFieldDef = schema?.fields?.find((f: any) => f.id === field.fieldId);
-      
-      // Check if field has complex structure in schema (even if no subfields currently)
-      const hasVariants = !!(schemaFieldDef?.system?.items?.variants);
-      const hasShape = !!(field.shape || schemaFieldDef?.system?.items?.shape || schemaFieldDef?.system?.shape);
-      const hasComplexStructure = hasVariants || hasShape;
-      
-      // Add schema hints for fields with complex structure to enable reconstruction on import
-      if (hasComplexStructure) {
-        // Extract variant type from value's @type
-        let variantType: string | null = null;
-        if (fieldValue) {
-          if (Array.isArray(fieldValue) && fieldValue.length > 0 && fieldValue[0]['@type']) {
-            variantType = fieldValue[0]['@type'];
-          } else if (typeof fieldValue === 'object' && fieldValue['@type']) {
-            variantType = fieldValue['@type'];
-          }
-        }
-        
-        // Get expected subfield paths from schema if available
-        let expectedPaths: string[] = [];
-        if (field.isParent && field.subFields && field.subFields.length > 0) {
-          expectedPaths = field.subFields.map((sf: any) => sf.path).filter((p: string) => p);
-        } else if (hasShape && schemaFieldDef?.system?.shape) {
-          // Extract paths from old shape format
-          expectedPaths = Object.keys(schemaFieldDef.system.shape);
-        } else if (hasVariants && schemaFieldDef?.system?.items?.variants) {
-          // Extract paths from first variant
-          const firstVariant = schemaFieldDef.system.items.variants[0];
-          if (firstVariant?.fields) {
-            expectedPaths = this.extractPathsFromVariantFields(firstVariant.fields);
-          }
-        }
-        
-        // Store schema info for reconstruction
-        fieldData._schema_info = {
-          hasSubFields: field.isParent && field.subFields && field.subFields.length > 0,
-          variantType: variantType,
-          hasVariants: hasVariants,
-          hasShape: hasShape,
-          // Store expected paths even if no current subfields
-          subFieldPaths: expectedPaths
-        };
-      }
-
-      // Add description if present
-      if (field.description) {
-        fieldData.description = field.description;
-      }
-
-      // Add vocabulary information
-      if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
-        fieldData.hasVocabulary = true;
-        fieldData.vocabularyType = field.vocabulary.type || 'closed';
-        
-        // Add display value (labels) for vocabulary-based fields
-        const hasUris = field.vocabulary.concepts.some(c => c.uri);
-        if (hasUris && fieldValue) {
-          const uriToLabelMap = new Map<string, string>();
-          field.vocabulary.concepts.forEach(concept => {
-            if (concept.uri && concept.label) {
-              uriToLabelMap.set(concept.uri, concept.label);
-            }
-          });
-          
-          if (Array.isArray(fieldValue)) {
-            fieldData.displayValue = fieldValue.map(uri => uriToLabelMap.get(uri) || uri);
-          } else if (typeof fieldValue === 'string') {
-            fieldData.displayValue = uriToLabelMap.get(fieldValue) || fieldValue;
-          }
-        }
-      } else {
-        fieldData.hasVocabulary = false;
-      }
-
-      // Add confidence if extraction was done
-      if (field.confidence && field.confidence > 0) {
-        fieldData.confidence = field.confidence;
-      }
-
-      output[field.fieldId] = fieldData;
+      // Compact format: value directly (repoField from schema on import)
+      output[field.fieldId] = fieldValue;
     }
 
     return output;
