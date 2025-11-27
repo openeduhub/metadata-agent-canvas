@@ -32,12 +32,10 @@ export class FieldNormalizerService {
     if (environment.production) {
       // Production: Use Platform Detection (works for Vercel AND Netlify)
       this.apiUrl = providerConfig?.proxyUrl || this.platformDetection.getOpenAIProxyUrl();
-      console.log(`🔧 FieldNormalizerService: ${this.platformDetection.getPlatformName()} → ${this.apiUrl}`);
-    } else {
+      } else {
       // Local: Use local proxy
       this.apiUrl = providerConfig?.proxyUrl || 'http://localhost:3001/llm';
-      console.log('🔧 FieldNormalizerService: Local development → http://localhost:3001/llm');
-    }
+      }
   }
   
   /**
@@ -56,16 +54,8 @@ export class FieldNormalizerService {
    * - Labels: Fix typos based on vocabulary
    */
   normalizeValue(field: CanvasFieldState, userInput: any): Observable<any> {
-    console.log(`🔧 normalizeValue called for ${field.fieldId}:`, {
-      userInput,
-      datatype: field.datatype,
-      hasVocabulary: !!field.vocabulary,
-      apiUrl: this.apiUrl
-    });
-
     // Skip normalization for empty values
     if (userInput === null || userInput === undefined || userInput === '') {
-      console.log(`⏩ Skipping normalization (empty value)`);
       return of(userInput);
     }
 
@@ -79,24 +69,19 @@ export class FieldNormalizerService {
     
     if (localSuccess) {
       if (localNormalized !== userInput) {
-        console.log(`⚡ Local normalization succeeded: "${userInput}" → "${localNormalized}"`);
-      } else {
-        console.log(`⚡ Local validation succeeded: "${userInput}"`);
-      }
+        } else {
+        }
       return of(localNormalized);
     }
 
     // Skip API call for simple cases where LLM is not needed
     if (!this.needsLlmNormalization(field, userInput)) {
-      console.log(`⏩ Skipping LLM normalization (not needed for simple case)`);
       return of(userInput);
     }
 
     // Build normalization prompt
     const prompt = this.buildNormalizationPrompt(field, userInput);
     
-    console.log(`📝 Normalization prompt for ${field.fieldId}:`, prompt.substring(0, 200) + '...');
-
     // Get model from environment
     const provider = environment.llmProvider || 'b-api-openai';
     const providerConfig = (environment as any)[this.getProviderConfigKey(provider)];
@@ -114,11 +99,9 @@ export class FieldNormalizerService {
       max_tokens: 200
     }).pipe(
       map(response => {
-        console.log(`📥 Raw response for ${field.fieldId}:`, response);
         // OpenAI format: response.choices[0].message.content
         const content = response.choices?.[0]?.message?.content || response.content || '';
         const normalized = this.parseNormalizationResponse(content, field, userInput);
-        console.log(`✅ Normalized ${field.fieldId}:`, userInput, '→', normalized);
         return normalized;
       }),
       catchError(error => {
@@ -132,12 +115,10 @@ export class FieldNormalizerService {
         // Fallback: Try local normalization again
         const fallbackResult = this.tryLocalNormalization(field, userInput);
         if (fallbackResult.success && fallbackResult.value !== userInput) {
-          console.log(`🔄 Fallback to local normalization: "${userInput}" → "${fallbackResult.value}"`);
           return of(fallbackResult.value);
         }
         
         // Return original value on error
-        console.warn(`⚠️ No normalization possible, keeping original value: "${userInput}"`);
         return of(userInput);
       })
     );
@@ -204,7 +185,6 @@ export class FieldNormalizerService {
     if (field.datatype === 'boolean') {
       const boolMatch = this.tryParseBoolean(userInput);
       if (boolMatch !== null && boolMatch !== userInput) {
-        console.log(`  ✅ Boolean conversion: "${userInput}" → ${boolMatch}`);
         return {success: true, value: boolMatch};
       }
     }
@@ -216,10 +196,8 @@ export class FieldNormalizerService {
       // Even if it's the same value, it's been validated against vocabulary
       if (vocabMatch !== null) {
         if (vocabMatch !== userInput) {
-          console.log(`  📋 Vocabulary match: "${userInput}" → "${vocabMatch}"`);
-        } else {
-          console.log(`  ✅ Vocabulary exact match: "${userInput}"`);
-        }
+          } else {
+          }
         return {success: true, value: vocabMatch};
       }
     }
@@ -228,7 +206,6 @@ export class FieldNormalizerService {
     if (field.datatype === 'number' || field.datatype === 'integer') {
       const numberMatch = this.tryParseNumber(userInput);
       if (numberMatch !== null && numberMatch !== userInput) {
-        console.log(`  🔢 Number conversion: "${userInput}" → ${numberMatch}`);
         return {success: true, value: numberMatch};
       }
     }
@@ -237,7 +214,6 @@ export class FieldNormalizerService {
     if (field.datatype === 'date') {
       const dateMatch = this.tryParseDate(userInput);
       if (dateMatch !== null && dateMatch !== userInput) {
-        console.log(`  📅 Date conversion: "${userInput}" → "${dateMatch}"`);
         return {success: true, value: dateMatch};
       }
     }
@@ -246,7 +222,6 @@ export class FieldNormalizerService {
     if (field.datatype === 'uri' || field.datatype === 'url') {
       const urlMatch = this.tryParseUrl(userInput);
       if (urlMatch !== null && urlMatch !== userInput) {
-        console.log(`  🔗 URL conversion: "${userInput}" → "${urlMatch}"`);
         return {success: true, value: urlMatch};
       }
     }
@@ -255,7 +230,6 @@ export class FieldNormalizerService {
     if (field.fieldId?.includes('latitude') || field.fieldId?.includes('longitude')) {
       const geoMatch = this.tryParseGeoCoordinate(userInput, field.fieldId);
       if (geoMatch !== null && geoMatch !== userInput) {
-        console.log(`  🗺️ Geo coordinate: "${userInput}" → ${geoMatch}`);
         return {success: true, value: geoMatch};
       }
     }
@@ -308,7 +282,6 @@ export class FieldNormalizerService {
 
     // Check direct word match
     if (germanNumbers[str] !== undefined) {
-      console.log(`  ✅ German number word matched: "${str}" → ${germanNumbers[str]}`);
       return germanNumbers[str];
     }
 
@@ -319,7 +292,6 @@ export class FieldNormalizerService {
     }
 
     // If no match, return null so LLM fallback can try
-    console.log(`  ⚠️ Number "${str}" not recognized locally, needs LLM fallback`);
     return null;
   }
 
@@ -338,7 +310,6 @@ export class FieldNormalizerService {
     
     // Add https:// if it looks like a URL
     if (/^[a-zA-Z0-9][a-zA-Z0-9-]*\.[a-zA-Z]{2,}/i.test(str)) {
-      console.log(`  🔗 Added protocol to URL: "${str}" → "https://${str}"`);
       return `https://${str}`;
     }
     
@@ -355,7 +326,6 @@ export class FieldNormalizerService {
 
     // Already in ISO format?
     if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-      console.log(`  ✅ Date already in ISO format: "${str}"`);
       return str;
     }
 
@@ -396,17 +366,14 @@ export class FieldNormalizerService {
           const testDate = new Date(year, month - 1, day);
           if (testDate.getFullYear() === year && testDate.getMonth() === month - 1 && testDate.getDate() === day) {
             const isoDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-            console.log(`  ✅ Date parsed (${format.name}): "${str}" → "${isoDate}"`);
             return isoDate;
           } else {
-            console.log(`  ⚠️ Invalid date detected: ${day}.${month}.${year} (e.g., 31. Feb)`);
-          }
+            }
         }
       }
     }
 
     // If no format matched, signal that LLM fallback is needed
-    console.log(`  ⚠️ Date "${str}" not recognized locally, needs LLM fallback`);
     return null;
   }
 
@@ -441,7 +408,6 @@ export class FieldNormalizerService {
     if (isLatitude) {
       // Latitude: -90 to 90
       if (value < -90 || value > 90) {
-        console.log(`  ⚠️ Invalid latitude: ${value} (must be -90 to 90)`);
         return null;
       }
       // Round to 7 decimal places (~1cm precision)
@@ -449,7 +415,6 @@ export class FieldNormalizerService {
     } else if (isLongitude) {
       // Longitude: -180 to 180
       if (value < -180 || value > 180) {
-        console.log(`  ⚠️ Invalid longitude: ${value} (must be -180 to 180)`);
         return null;
       }
       // Round to 7 decimal places (~1cm precision)
@@ -639,8 +604,6 @@ export class FieldNormalizerService {
    * Parse normalization response from LLM
    */
   private parseNormalizationResponse(content: string, field: CanvasFieldState, originalValue: any): any {
-    console.log(`🔍 Parsing response for ${field.fieldId}. Raw content:`, content.substring(0, 200));
-    
     try {
       let jsonStr = content.trim();
       
@@ -648,15 +611,13 @@ export class FieldNormalizerService {
       const codeBlockMatch = jsonStr.match(/```json\s*([\s\S]*?)\s*```/);
       if (codeBlockMatch) {
         jsonStr = codeBlockMatch[1].trim();
-        console.log(`📦 Extracted from code block:`, jsonStr);
-      }
+        }
       
       // Try to parse JSON directly
       let normalized: any;
       try {
         normalized = JSON.parse(jsonStr);
-        console.log(`✅ Parsed JSON directly:`, normalized);
-      } catch (parseError) {
+        } catch (parseError) {
         // Try to extract JSON patterns
         const arrayMatch = jsonStr.match(/\[[\s\S]*\]/);
         const objectMatch = jsonStr.match(/\{[\s\S]*\}/);
@@ -664,21 +625,15 @@ export class FieldNormalizerService {
         
         if (arrayMatch) {
           normalized = JSON.parse(arrayMatch[0]);
-          console.log(`✅ Parsed from array match:`, normalized);
-        } else if (objectMatch) {
+          } else if (objectMatch) {
           normalized = JSON.parse(objectMatch[0]);
-          console.log(`✅ Parsed from object match:`, normalized);
-        } else if (stringMatch) {
+          } else if (stringMatch) {
           normalized = stringMatch[1];
-          console.log(`✅ Extracted quoted string:`, normalized);
-        } else if (jsonStr.toLowerCase() === 'null') {
+          } else if (jsonStr.toLowerCase() === 'null') {
           normalized = null;
-          console.log(`✅ Parsed as null`);
-        } else if (!isNaN(Number(jsonStr))) {
+          } else if (!isNaN(Number(jsonStr))) {
           normalized = Number(jsonStr);
-          console.log(`✅ Parsed as number:`, normalized);
-        } else {
-          console.warn(`⚠️ Could not parse response, using original value`);
+          } else {
           return originalValue;
         }
       }
@@ -698,7 +653,6 @@ export class FieldNormalizerService {
         normalized = this.validateUrl(normalized);
       }
       
-      console.log(`📤 Final normalized value for ${field.fieldId}:`, normalized);
       return normalized;
       
     } catch (error) {
@@ -707,7 +661,6 @@ export class FieldNormalizerService {
     }
     
     // Return original value if parsing fails
-    console.log(`🔄 Fallback to original value:`, originalValue);
     return originalValue;
   }
 
@@ -776,7 +729,6 @@ export class FieldNormalizerService {
           testDate.getDate() === day) {
         return str;
       } else {
-        console.warn(`⚠️ Invalid ISO date: ${str}`);
         return null;
       }
     }
@@ -788,11 +740,9 @@ export class FieldNormalizerService {
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       const isoDate = `${year}-${month}-${day}`;
-      console.log(`🔄 Converted date via Date parser: "${str}" → "${isoDate}"`);
       return isoDate;
     }
     
-    console.warn(`⚠️ Could not validate date: "${str}"`);
     return null;
   }
 
@@ -826,12 +776,10 @@ export class FieldNormalizerService {
         }
         return str;
       } else {
-        console.warn(`⚠️ Invalid ISO datetime: ${str}`);
         return null;
       }
     }
     
-    console.warn(`⚠️ Could not validate datetime: "${str}"`);
     return null;
   }
 
@@ -861,12 +809,10 @@ export class FieldNormalizerService {
         }
         return str;
       } else {
-        console.warn(`⚠️ Invalid time: ${str} (hours: 0-23, minutes: 0-59)`);
         return null;
       }
     }
     
-    console.warn(`⚠️ Could not validate time: "${str}"`);
     return null;
   }
 
@@ -901,11 +847,8 @@ export class FieldNormalizerService {
     // Treat both 'closed' and 'skos' as controlled vocabularies
     const isClosed = field.vocabulary.type === 'closed' || field.vocabulary.type === 'skos';
 
-    console.log(`📋 Vocabulary type: ${field.vocabulary.type} (treating as closed: ${isClosed})`);
-
     // Handle arrays
     if (Array.isArray(value)) {
-      console.log(`🔍 Validating array with ${value.length} items (closed: ${isClosed})`);
       const validated = value.map(v => this.validateSingleLabel(v, concepts, isClosed));
       
       // Filter out null values for controlled vocabularies
@@ -913,9 +856,7 @@ export class FieldNormalizerService {
         const filtered = validated.filter(v => v !== null);
         const removedCount = validated.length - filtered.length;
         if (removedCount > 0) {
-          console.warn(`⚠️ Removed ${removedCount} invalid value(s) from ${field.vocabulary.type} vocabulary array`);
-          console.warn(`   Invalid values:`, value.filter((v, i) => validated[i] === null));
-        }
+          }
         return filtered;
       }
       
@@ -934,8 +875,6 @@ export class FieldNormalizerService {
     if (!value || typeof value !== 'string') return null;
 
     const valueLower = value.toLowerCase().trim();
-    console.log(`🔍 Validating "${value}" against ${concepts.length} concepts (closed: ${isClosed})`);
-    
     // Check if vocabulary has URIs
     const hasUris = concepts.some(c => c.uri);
 
@@ -943,7 +882,6 @@ export class FieldNormalizerService {
     if (hasUris) {
       const uriMatch = concepts.find(c => c.uri === value);
       if (uriMatch) {
-        console.log(`✅ URI match: "${value}" (already valid URI)`);
         return value; // Keep the URI as-is
       }
     }
@@ -956,14 +894,11 @@ export class FieldNormalizerService {
 
     if (exactMatch) {
       const returnValue = hasUris && exactMatch.uri ? exactMatch.uri : exactMatch.label;
-      console.log(`✅ Exact match: "${value}" → "${returnValue}" ${hasUris ? '(URI)' : '(label)'}`);
       return returnValue;
     }
 
     // 2. Normalize value (remove special chars, extra spaces)
     const normalizedValue = valueLower.replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim();
-    console.log(`🔧 Normalized input: "${value}" → "${normalizedValue}"`);
-
     // 3. Check normalized exact match
     const normalizedMatch = concepts.find(c => {
       const normalizedLabel = c.label.toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -972,7 +907,6 @@ export class FieldNormalizerService {
 
     if (normalizedMatch) {
       const returnValue = hasUris && normalizedMatch.uri ? normalizedMatch.uri : normalizedMatch.label;
-      console.log(`✅ Normalized exact match: "${value}" → "${returnValue}" ${hasUris ? '(URI)' : '(label)'}`);
       return returnValue;
     }
 
@@ -982,16 +916,13 @@ export class FieldNormalizerService {
       const fuzzyMatch = this.findFuzzyMatch(normalizedValue, concepts);
       if (fuzzyMatch) {
         const returnValue = hasUris && fuzzyMatch.uri ? fuzzyMatch.uri : fuzzyMatch.label;
-        console.log(`🔧 Fuzzy match: "${value}" → "${returnValue}" (distance: ${fuzzyMatch.distance}) ${hasUris ? '(URI)' : '(label)'}`);
         return returnValue;
       }
       
-      console.warn(`⚠️ No match in controlled vocabulary for: "${value}"`);
       return null;
     }
 
     // For truly open vocabulary: Keep original value
-    console.log(`ℹ️ No match in open vocabulary, keeping original: "${value}"`);
     return value;
   }
 
@@ -1018,8 +949,6 @@ export class FieldNormalizerService {
       const minAltDistance = altDistances.length > 0 ? Math.min(...altDistances) : Infinity;
       const minDistance = Math.min(distance, minAltDistance);
 
-      console.log(`  📏 Distance to "${concept.label}": ${minDistance} (normalized: "${normalizedLabel}")`);
-
       // Keep best match (lowest distance)
       if (!bestMatch || minDistance < bestMatch.distance) {
         bestMatch = { label: concept.label, uri: concept.uri, distance: minDistance };
@@ -1029,8 +958,6 @@ export class FieldNormalizerService {
     // Only accept if distance is small (max 2-3 characters difference)
     // This catches typos like "CC PY" → "CC BY" (distance = 1)
     const maxDistance = Math.min(3, Math.ceil(value.length * 0.3)); // Max 30% difference
-    
-    console.log(`  🎯 Best match: "${bestMatch?.label}" with distance ${bestMatch?.distance}, max allowed: ${maxDistance}`);
     
     if (bestMatch && bestMatch.distance <= maxDistance) {
       return bestMatch;

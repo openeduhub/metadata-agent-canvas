@@ -57,8 +57,7 @@ export class I18nService {
         return saved as SupportedLanguage;
       }
     } catch (error) {
-      console.warn('Failed to read language from localStorage:', error);
-    }
+      }
     return null;
   }
 
@@ -81,31 +80,23 @@ export class I18nService {
    * Set current language
    */
   public setLanguage(lang: SupportedLanguage): void {
-    console.log(`🌐 I18nService.setLanguage('${lang}') called`);
-    
     if (!this.isSupportedLanguage(lang)) {
-      console.warn(`Unsupported language: ${lang}, using default`);
       lang = this.DEFAULT_LANGUAGE;
     }
     
     const currentLang = this.currentLanguageSubject.value;
-    console.log(`   Current: ${currentLang} → New: ${lang}`);
-    
     if (currentLang === lang) {
-      console.log(`   ⚠️ Same language, skipping (would not trigger subscribers)`);
       return;
     }
     
     this.translate.use(lang);
-    console.log(`   📤 Emitting to currentLanguageSubject...`);
     this.currentLanguageSubject.next(lang);
     
     // Save to localStorage
     try {
       localStorage.setItem(this.STORAGE_KEY, lang);
     } catch (error) {
-      console.warn('Failed to save language to localStorage:', error);
-    }
+      }
     
     // Update HTML lang attribute for accessibility
     document.documentElement.lang = lang;

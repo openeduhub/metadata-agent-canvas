@@ -29,15 +29,11 @@ export class PlatformDetectionService {
    * Detect the current deployment platform
    */
   private detectPlatform(): void {
-    console.log('🔍 [PLATFORM DETECTION] Starting detection...');
-    
     // PRIORITY 1: Check environment variable (build-time configuration)
     const envPlatform = (environment as any).deploymentPlatform;
     if (envPlatform && envPlatform !== 'auto') {
       this.platform = envPlatform as DeploymentPlatform;
       this.platformConfirmed = true;
-      console.log(`✅ [PLATFORM DETECTION] Set via environment.ts: ${envPlatform.toUpperCase()}`);
-      console.log(`✅ [PLATFORM DETECTION] Will use: ${this.getEndpointPrefix()} endpoints`);
       return;
     }
     
@@ -45,13 +41,9 @@ export class PlatformDetectionService {
     const hostname = window.location.hostname;
     const fullUrl = window.location.href;
     
-    console.log('🔍 [PLATFORM DETECTION] Environment: auto-detect');
-    console.log('🔍 [PLATFORM DETECTION] Hostname:', hostname);
-    
     // Local development
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       this.platform = 'local';
-      console.log('✅ [PLATFORM DETECTION] Detected: Local Development');
       return;
     }
     
@@ -65,9 +57,6 @@ export class PlatformDetectionService {
     if (isVercelHost || hasVercelInUrl || this.isVercelCustomDomain()) {
       this.platform = 'vercel';
       this.platformConfirmed = true;
-      console.log('✅ [PLATFORM DETECTION] Detected: VERCEL (hostname)');
-      console.log(`   Hostname: ${hostname}`);
-      console.log('✅ [PLATFORM DETECTION] Will use: /api/* endpoints');
       return;
     }
     
@@ -79,16 +68,10 @@ export class PlatformDetectionService {
     if (isNetlifyHost || this.isNetlifyCustomDomain()) {
       this.platform = 'netlify';
       this.platformConfirmed = true;
-      console.log('✅ [PLATFORM DETECTION] Detected: Netlify (hostname)');
-      console.log(`   Hostname: ${hostname}`);
-      console.log('✅ [PLATFORM DETECTION] Will use: /.netlify/functions/* endpoints');
       return;
     }
     
     // PRIORITY 3: Default fallback to Vercel
-    console.warn('⚠️ [PLATFORM DETECTION] Could not detect platform from hostname:', hostname);
-    console.warn('⚠️ [PLATFORM DETECTION] Defaulting to VERCEL (/api/*)');
-    console.warn('⚠️ [PLATFORM DETECTION] TIP: Set deploymentPlatform in environment.ts to override');
     this.platform = 'vercel';
   }
   
@@ -141,8 +124,7 @@ export class PlatformDetectionService {
     if (!this.platformConfirmed && window.location.hostname.includes('vercel')) {
       this.platform = 'vercel';
       this.platformConfirmed = true;
-      console.log('🔄 Platform corrected to Vercel via runtime check');
-    }
+      }
     
     switch (this.platform) {
       case 'netlify':
@@ -153,7 +135,6 @@ export class PlatformDetectionService {
         return 'http://localhost:3001/llm';
       default:
         // Default to Vercel (most common deployment)
-        console.warn('⚠️ [FALLBACK] Using Vercel API endpoint');
         return '/api/openai-proxy';
     }
   }
@@ -170,7 +151,6 @@ export class PlatformDetectionService {
       case 'local':
         return 'http://localhost:3001/geocoding';
       default:
-        console.warn('⚠️ [FALLBACK] Using Vercel geocode endpoint');
         return '/api/geocode-proxy';
     }
   }
@@ -187,7 +167,6 @@ export class PlatformDetectionService {
       case 'local':
         return 'http://localhost:3001/repository';
       default:
-        console.warn('⚠️ [FALLBACK] Using Vercel repository endpoint');
         return '/api/repository-proxy';
     }
   }

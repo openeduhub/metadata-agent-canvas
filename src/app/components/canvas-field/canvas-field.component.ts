@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,12 +38,11 @@ import { I18nService } from '../../services/i18n.service';
   styleUrls: ['./canvas-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default  // Changed from OnPush for sub-fields support
 })
-export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
+export class CanvasFieldComponent implements OnInit, OnChanges, OnDestroy {
   @Input() field!: CanvasFieldState;
   @Input() readonly = false;  // Viewer mode: disable editing
   @Input() showActions = true;  // Show action icons (dropdown, status, geo button)
   @Output() fieldChange = new EventEmitter<{ fieldId: string; value: any }>();
-  @ViewChild('textareaRef') textareaRef?: ElementRef<HTMLTextAreaElement>;
   @ViewChild('mainAutocomplete') autocompleteTrigger?: MatAutocompleteTrigger;
   
   private destroy$ = new Subject<void>();
@@ -219,21 +218,6 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
     this.destroy$.complete();
   }
   
-  /**
-   * Update vocabulary labels (called on language change)
-   */
-  private updateVocabularyLabels(): void {
-    if (this.field.vocabulary) {
-      const newOptions = this.field.vocabulary.concepts.map(c => c.label);
-      this.filteredOptions = newOptions;
-      console.log(`   ✅ Updated vocabulary for ${this.field.fieldId}:`, newOptions.length, 'concepts');
-      console.log(`   First: "${newOptions[0]}"`);
-      
-      // Force change detection to re-render chips with new labels
-      this.cdr.detectChanges();
-    }
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     // Update input value when field value changes
     if (changes['field']) {
@@ -246,10 +230,6 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
       // Update if value has changed
       if (!previousField || currentField.value !== previousField.value) {
         this.updateInputValue();
-        console.log(`🔄 Field ${this.field.fieldId} value updated:`, this.field.value, '-> inputValue:', this.inputValue);
-        
-        // Resize textarea after value update
-        setTimeout(() => this.autoResizeTextarea(), 0);
       }
       
       // Update vocabulary options if vocabulary exists (always check on field change)
@@ -261,37 +241,12 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
         // Always update options from field (field was re-localized by canvas service)
         this.filteredOptions = newOptions;
         
-        // Log if labels actually changed
+        // Force change detection if labels changed
         if (oldFirstOption !== newFirstOption) {
-          console.log(`🌐 Field ${this.field.fieldId} vocabulary updated:`, newOptions.length, 'concepts');
-          console.log(`   Changed: "${oldFirstOption}" → "${newFirstOption}"`);
-          
-          // Debug: Show first concept structure
-          const firstConcept = currentField.vocabulary.concepts[0];
-          if (firstConcept) {
-            console.log(`   First concept:`, {
-              label: firstConcept.label,
-              label_de: firstConcept.label_de,
-              label_en: firstConcept.label_en,
-              uri: firstConcept.uri
-            });
-          }
-          
-          // Force change detection to re-render chips
           this.cdr.detectChanges();
         }
       }
-      
-      // Log label changes (for i18n debugging)
-      if (previousField && currentField.label !== previousField.label) {
-        console.log(`🌐 Field ${this.field.fieldId} label changed: "${previousField.label}" → "${currentField.label}"`);
-      }
     }
-  }
-
-  ngAfterViewInit(): void {
-    // Initial resize
-    this.autoResizeTextarea();
   }
 
   /**
@@ -337,30 +292,20 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    * Update input value from field value
    */
   private updateInputValue(): void {
-    const oldValue = this.inputValue;
-    
     if (Array.isArray(this.field.value)) {
       // For array fields, don't show in input (show as chips instead)
       this.inputValue = '';
-      console.log(`📋 ${this.field.fieldId}: Array field, chips will show values:`, this.field.value);
     } else if (this.field.value !== null && this.field.value !== undefined && this.field.value !== '') {
-      // For boolean fields, convert to string for mat-select binding
-      if (this.field.datatype === 'boolean') {
-        this.inputValue = String(this.field.value);
-        console.log(`✏️ ${this.field.fieldId}: Set boolean inputValue to "${this.inputValue}"`);
-      } else {
-        // For single-value fields, show the value
-        this.inputValue = String(this.field.value);
-        console.log(`✏️ ${this.field.fieldId}: Set inputValue to "${this.inputValue}"`);
+      let value = String(this.field.value);
+      
+      // Fix datetime-local format: if date-only, append T00:00
+      if (this.field.datatype === 'datetime' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        value = value + 'T00:00';
       }
+      
+      this.inputValue = value;
     } else {
       this.inputValue = '';
-      console.log(`⚪ ${this.field.fieldId}: No value, clearing input`);
-    }
-    
-    // Force change detection if value changed
-    if (oldValue !== this.inputValue) {
-      console.log(`🔄 ${this.field.fieldId}: Input value changed from "${oldValue}" to "${this.inputValue}"`);
     }
   }
   
@@ -368,12 +313,9 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    * Handle boolean dropdown change
    */
   onBooleanChange(value: string | null): void {
-    console.log(`🔘 Boolean change for ${this.field.fieldId}:`, value);
-    
     if (value === null) {
       this.emitChange(null);
     } else {
-      // Convert string to actual boolean
       const boolValue = value === 'true';
       this.emitChange(boolValue);
     }
@@ -442,30 +384,11 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
   }
 
   /**
-   * Auto-resize textarea to fit content
-   */
-  private autoResizeTextarea(): void {
-    if (!this.textareaRef) return;
-
-    const textarea = this.textareaRef.nativeElement;
-    
-    // Reset height to auto to get correct scrollHeight
-    textarea.style.height = 'auto';
-    
-    // Set height to scrollHeight (content height)
-    const newHeight = Math.max(36, textarea.scrollHeight); // Min 36px (1 line)
-    textarea.style.height = `${newHeight}px`;
-  }
-
-  /**
-   * Handle input change
+   * Handle input change (CDK cdkTextareaAutosize handles resize)
    */
   onInput(event: Event): void {
     const target = event.target as HTMLTextAreaElement;
     this.inputValue = target.value;
-
-    // Auto-resize on input
-    this.autoResizeTextarea();
 
     // Filter autocomplete options (limit to 10)
     if (this.field.vocabulary) {
@@ -486,43 +409,25 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    * Select autocomplete option
    */
   selectOption(option: string): void {
-    console.log(`🎯 selectOption called for ${this.field.fieldId}:`, {
-      option,
-      multiple: this.field.multiple,
-      currentValue: this.field.value,
-      isArray: Array.isArray(this.field.value)
-    });
-    
     if (this.field.multiple) {
       // Add to array
       const currentValues = Array.isArray(this.field.value) ? this.field.value : [];
-      console.log(`📊 Current values:`, currentValues);
       
       if (!currentValues.includes(option)) {
         const newValue = [...currentValues, option];
-        console.log(`➕ Adding to array. New value:`, newValue);
-        
-        // Update field.value immediately to avoid stale state
         this.field.value = newValue;
         this.emitChange(newValue);
-      } else {
-        console.log(`⚠️ Option "${option}" already exists in array`);
       }
       // Clear input after selecting
       this.inputValue = '';
       
       // Keep autocomplete open for multiple selection
-      // Refocus and reopen panel
       setTimeout(() => {
-        if (this.textareaRef && this.autocompleteTrigger) {
-          // Clear textarea element directly to ensure it's empty
-          this.textareaRef.nativeElement.value = '';
-          this.textareaRef.nativeElement.focus();
+        if (this.autocompleteTrigger) {
           // Show all options again
           if (this.field.vocabulary) {
             this.filteredOptions = this.field.vocabulary.concepts.map(c => c.label).slice(0, 10);
           }
-          // Reopen the panel explicitly
           this.autocompleteTrigger.openPanel();
         }
       }, 50);
@@ -537,8 +442,6 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    * Handle blur event
    */
   onBlur(): void {
-    console.log(`🔵 onBlur ${this.field.fieldId}: inputValue="${this.inputValue}"`);
-
     // Delay to allow click on autocomplete
     setTimeout(() => {
       // Don't close if it's a multiple field and panel is about to reopen
@@ -548,7 +451,6 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
       
       // Process input value (for non-multiple fields or if input is not empty)
       if (this.inputValue.trim() && !this.field.multiple) {
-        console.log(`🔵 Processing input for ${this.field.fieldId}`);
         this.processInputValue();
       }
     }, 200);
@@ -573,7 +475,6 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    */
   private processInputValue(): void {
     let value: any = this.inputValue.trim();
-    console.log(`🔄 processInputValue ${this.field.fieldId}: value="${value}", datatype="${this.field.datatype}"`);
 
     if (!value) {
       // Don't clear array fields on empty input
@@ -597,15 +498,9 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
       });
       
       value = mergedValues;
-      console.log(`➕ ${this.field.fieldId}: Added values. Old:`, currentValues, 'New:', newValues, 'Merged:', mergedValues);
-      
-      // Clear input after adding
       this.inputValue = '';
     }
 
-    // Always emit value immediately
-    // Normalization will be handled by canvas.service.ts
-    console.log(`📤 Emitting value for ${this.field.fieldId}: "${value}"`);
     this.emitChange(value);
   }
 
@@ -650,8 +545,6 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    * Handle changes from sub-fields (propagate to parent)
    */
   onSubFieldChange(event: { fieldId: string; value: any }): void {
-    console.log(`📤 Sub-field change detected:`, event);
-    // Propagate to parent through fieldChange event
     this.fieldChange.emit(event);
   }
 
@@ -835,7 +728,6 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit, O
    * Handle sub-field value changes
    */
   onSubFieldValueChange(subField: CanvasFieldState): void {
-    console.log(`📝 Sub-field ${subField.fieldId} changed:`, subField.value);
     this.fieldChange.emit({ fieldId: subField.fieldId, value: subField.value });
   }
 

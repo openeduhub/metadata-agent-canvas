@@ -23,16 +23,8 @@ export class ShapeExpanderService {
    */
   expandFieldWithShape(parentField: CanvasFieldState, extractedValue: any, schemaFieldDef?: any): CanvasFieldState[] {
     if (!parentField.shape && !schemaFieldDef?.system?.items?.variants) {
-      console.log(`⚠️ No shape or variants found for ${parentField.fieldId}`);
       return [];
     }
-
-    console.log(`🔍 Expanding field ${parentField.fieldId}:`, {
-      extractedValueType: Array.isArray(extractedValue) ? `array[${extractedValue.length}]` : typeof extractedValue,
-      extractedValueSample: Array.isArray(extractedValue) ? extractedValue[0] : extractedValue,
-      hasVariants: !!(schemaFieldDef?.system?.items?.variants),
-      variantsCount: schemaFieldDef?.system?.items?.variants?.length || 0
-    });
 
     const subFields: CanvasFieldState[] = [];
     const language = this.localizer.getActiveLanguage();
@@ -63,7 +55,6 @@ export class ShapeExpanderService {
       subFields.push(...itemSubFields);
     }
 
-    console.log(`✅ Created ${subFields.length} sub-fields for ${parentField.fieldId}`);
     return subFields;
   }
 
@@ -80,22 +71,12 @@ export class ShapeExpanderService {
   ): CanvasFieldState[] {
     const subFields: CanvasFieldState[] = [];
 
-    console.log(`   📋 createSubFieldsFromObject for ${parentField.fieldId}[${arrayIndex}]:`, {
-      objectValueType: typeof objectValue,
-      objectValueKeys: typeof objectValue === 'object' && objectValue ? Object.keys(objectValue) : 'not object',
-      hasVariants: !!(schemaFieldDef?.system?.items?.variants)
-    });
-
     // NEW: Use variants from schema if available (preferred)
     if (schemaFieldDef?.system?.items?.variants) {
       const variants = schemaFieldDef.system.items.variants;
       
-      console.log(`      Found ${variants.length} variants, matching against objectValue`);
-      
       // Find matching variant based on @type or first variant
       const matchedVariant = this.findMatchingVariant(objectValue, variants) || variants[0];
-      
-      console.log(`      Matched variant:`, matchedVariant?.['@type'] || 'first variant', `with ${matchedVariant?.fields?.length || 0} fields`);
       
       if (matchedVariant?.fields) {
         // Use full schema field definitions with recursive expansion
@@ -185,10 +166,8 @@ export class ShapeExpanderService {
     // Build the full path for this field
     const fullPath = pathPrefix ? `${pathPrefix}.${fieldDef.id}` : fieldDef.id;
     
-    console.log(`🔄 expandFieldRecursively: path="${fullPath}", valueType=${typeof fieldValue}, hasNestedFields=${!!(fieldDef.fields && fieldDef.fields.length > 0)}`);
     if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
-      console.log(`   Value keys:`, Object.keys(fieldValue));
-    }
+      }
     
     // Create sub-field for this level
     const subField = this.createSubFieldFromSchema(
@@ -200,17 +179,12 @@ export class ShapeExpanderService {
       language
     );
     subFields.push(subField);
-    console.log(`   ✅ Created sub-field: ${subField.fieldId}, value=${subField.value}, status=${subField.status}`);
-    
     // If this field has nested fields, recursively expand them
     if (fieldDef.fields && Array.isArray(fieldDef.fields) && fieldDef.fields.length > 0) {
-      console.log(`   🔽 Expanding ${fieldDef.fields.length} nested fields...`);
       fieldDef.fields.forEach((nestedFieldDef: any) => {
         const nestedValue = fieldValue && typeof fieldValue === 'object'
           ? fieldValue[nestedFieldDef.id]
           : null;
-        
-        console.log(`      Looking for "${nestedFieldDef.id}" in fieldValue:`, nestedValue);
         
         // Recursive call for nested field
         this.expandFieldRecursively(

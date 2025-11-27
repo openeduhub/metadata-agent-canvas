@@ -22,12 +22,9 @@ export class AppComponent implements OnInit {
   title = 'Metadata Agent - Canvas Edition';
   
   constructor() {
-    console.log('✅ Canvas AppComponent constructor called');
-  }
+    }
   
   ngOnInit() {
-    console.log('✅ Canvas AppComponent ngOnInit called');
-    
     // Erkenne Theme aus URL-Parameter
     const params = new URLSearchParams(window.location.search);
     const theme = params.get('theme');
@@ -46,6 +43,5 @@ export class AppComponent implements OnInit {
     link.href = 'assets/themes/edu-sharing-theme.css';
     document.head.appendChild(link);
     
-    console.log('🎨 edu-sharing Theme loaded');
-  }
+    }
 }

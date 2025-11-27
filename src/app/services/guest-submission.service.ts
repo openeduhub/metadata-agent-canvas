@@ -23,13 +23,11 @@ export class GuestSubmissionService {
     if (environment.production) {
       // Use Platform Detection for correct endpoint
       const proxyUrl = this.platformDetection.getRepositoryProxyUrl();
-      console.log(`📦 Repository proxy (${this.platformDetection.getPlatformName()}): ${proxyUrl}`);
       return proxyUrl;
     }
     
     // Development: Use URL from environment config
     const proxyUrl = (environment as any).repository?.proxyUrl || 'http://localhost:3001/repository';
-    console.log(`📦 Repository proxy (local): ${proxyUrl}`);
     return proxyUrl;
   }
   
@@ -50,7 +48,6 @@ export class GuestSubmissionService {
       });
       
       if (!response.ok) {
-        console.warn('Duplicate check failed:', response.status);
         return { exists: false };
       }
       
@@ -68,14 +65,11 @@ export class GuestSubmissionService {
    */
   async submitAsGuest(metadata: any): Promise<{success: boolean; nodeId?: string; error?: string; duplicate?: boolean}> {
     try {
-      console.log('📮 Submitting metadata as guest via proxy...');
-      
       // 0. Check for duplicates first
       const url = metadata['ccm:wwwurl'];
       if (url) {
         const duplicateCheck = await this.checkDuplicate(url);
         if (duplicateCheck.exists) {
-          console.log('⚠️ Duplicate found:', duplicateCheck.nodeId);
           return {
             success: false,
             duplicate: true,
@@ -105,8 +99,6 @@ export class GuestSubmissionService {
       const createData = await createResponse.json();
       const nodeId = createData.nodeId;
       
-      console.log('✅ Node created:', nodeId);
-      
       // 2. Set metadata via proxy
       await fetch(this.PROXY_URL, {
         method: 'POST',
@@ -118,8 +110,6 @@ export class GuestSubmissionService {
           data: { nodeId, metadata }
         })
       });
-      
-      console.log('✅ Metadata set');
       
       // 3. Set collections if present
       const collectionIds = [
@@ -139,8 +129,7 @@ export class GuestSubmissionService {
           })
         });
         
-        console.log('✅ Collections set');
-      }
+        }
       
       // 4. Start workflow via proxy
       await fetch(this.PROXY_URL, {
@@ -153,8 +142,6 @@ export class GuestSubmissionService {
           data: { nodeId }
         })
       });
-      
-      console.log('✅ Workflow started');
       
       return {
         success: true,

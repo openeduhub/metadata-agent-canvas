@@ -44,12 +44,10 @@ export class IntegrationModeService {
     if (modeParam === 'browser-extension') {
       this.mode = 'browser-extension';
       this.loadExtensionData(params);
-      console.log('🔌 Mode: Browser Extension (URL param)');
       return;
     } else if (modeParam === 'bookmarklet') {
       this.mode = 'bookmarklet';
       this.loadBookmarkletData();
-      console.log('🔖 Mode: Bookmarklet (URL param)');
       return;
     }
     
@@ -59,17 +57,13 @@ export class IntegrationModeService {
     if (isInIframe) {
       // In iframe - check origin to determine if Browser Extension or Bookmarklet
       // For now, we'll wait for postMessage to determine
-      console.log('📱 Running in iframe - waiting for postMessage to determine mode...');
-      
       // Listen for first postMessage to determine mode
       window.addEventListener('message', (event) => {
         if (event.data.mode === 'browser-extension') {
           this.mode = 'browser-extension';
-          console.log('🔌 Mode: Browser Extension (via postMessage)');
-        } else if (event.data.mode === 'bookmarklet') {
+          } else if (event.data.mode === 'bookmarklet') {
           this.mode = 'bookmarklet';
-          console.log('🔖 Mode: Bookmarklet (via postMessage)');
-        }
+          }
       }, { once: true });
       
       // Default to bookmarklet if running deployed
@@ -78,12 +72,10 @@ export class IntegrationModeService {
       
       if (isDeployed) {
         this.mode = 'bookmarklet';
-        console.log('🌐 Mode: Bookmarklet (iframe, deployed)');
-      } else {
+        } else {
         // Local iframe - likely extension testing
         this.mode = 'browser-extension';
-        console.log('🔌 Mode: Browser Extension (iframe, local)');
-      }
+        }
       return;
     }
     
@@ -94,12 +86,10 @@ export class IntegrationModeService {
     if (isDeployed) {
       // Deployed without iframe = Standalone (direct access to Netlify URL)
       this.mode = 'standalone';
-      console.log('🌐 Mode: Standalone (deployed, direct access)');
-    } else {
+      } else {
       // Local development
       this.mode = 'standalone';
-      console.log('🖥️ Mode: Standalone (local development)');
-    }
+      }
   }
   
   /**
@@ -108,7 +98,6 @@ export class IntegrationModeService {
   private loadExtensionData(params: URLSearchParams) {
     const encodedData = params.get('data');
     if (!encodedData) {
-      console.warn('⚠️ No data parameter in Extension mode');
       return;
     }
     
@@ -129,13 +118,7 @@ export class IntegrationModeService {
         username: 'Gast'
       };
       
-      console.log('📦 Extension data loaded:', {
-        url: this.pageData.url,
-        contentLength: this.pageData.content?.length,
-        isLoggedIn: this.userInfo.isLoggedIn
-      });
-      
-    } catch (error) {
+      } catch (error) {
       console.error('❌ Failed to parse Extension data:', error);
     }
   }
@@ -160,17 +143,12 @@ export class IntegrationModeService {
           metaTags: data.metaTags
         };
         
-        console.log('📦 Bookmarklet data loaded from URL:', {
-          url: this.pageData.url,
-          contentLength: this.pageData.content?.length
-        });
-      } catch (error) {
+        } catch (error) {
         console.error('❌ Failed to parse bookmarklet data:', error);
       }
     } else {
       // No data parameter - user will input manually
-      console.log('📮 Bookmarklet mode (manual input)');
-    }
+      }
     
     // Always guest mode in bookmarklet
     this.userInfo = {
@@ -184,8 +162,7 @@ export class IntegrationModeService {
    */
   setMode(mode: IntegrationMode) {
     this.mode = mode;
-    console.log(`🔄 Mode updated to: ${mode}`);
-  }
+    }
   
   /**
    * Get current integration mode
@@ -254,8 +231,7 @@ export class IntegrationModeService {
         mode: this.mode
       }, '*');
       
-      console.log('📤 Metadata sent to parent');
-    }
+      }
   }
   
   /**
@@ -267,8 +243,7 @@ export class IntegrationModeService {
         type: 'CANVAS_CLOSE'
       }, '*');
       
-      console.log('🚪 Close requested');
-    }
+      }
   }
   
   /**

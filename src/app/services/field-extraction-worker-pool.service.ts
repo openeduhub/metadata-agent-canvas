@@ -88,16 +88,12 @@ export class FieldExtractionWorkerPoolService {
       // Build extraction prompt
       const prompt = this.buildExtractionPrompt(field, userText, task.promptModifier);
 
-      console.log(`🔍 Extracting field: ${field.label} (${field.fieldId})`);
-
       // Call OpenAI via proxy (with automatic retries)
       const response = await this.openaiProxy.invoke([
         { role: 'user', content: prompt }
       ]);
 
       const content = response.choices[0].message.content.trim();
-      console.log(`📝 LLM Response for ${field.label}: "${content}"`);
-
       // Parse JSON response
       const value = this.parseJsonResponse(content, field);
 
@@ -105,10 +101,8 @@ export class FieldExtractionWorkerPoolService {
       const confidence = value !== null ? 0.85 : 0.0;
 
       if (value !== null) {
-        console.log(`✅ Extracted ${field.label}: ${JSON.stringify(value)}`);
-      } else {
-        console.log(`⚪ No value found for ${field.label}`);
-      }
+        } else {
+        }
 
       return {
         fieldId: field.fieldId,
@@ -119,8 +113,6 @@ export class FieldExtractionWorkerPoolService {
       // Silent failure: Log error but don't show to user
       // Return empty result instead of propagating error
       console.error(`❌ Extraction failed for field ${field.fieldId} (${field.label}) after retries:`, error);
-      console.log(`⚪ Returning empty value for ${field.label} (silent failure)`);
-      
       return {
         fieldId: field.fieldId,
         value: null,
@@ -226,11 +218,8 @@ export class FieldExtractionWorkerPoolService {
         const result = JSON.parse(jsonMatch[0]);
         let value = result[field.fieldId];
         
-        console.log(`🔍 Parsing ${field.fieldId}: Raw value from LLM:`, value, 'Type:', typeof value, 'IsArray:', Array.isArray(value));
-        
         // Return null if explicitly null or undefined
         if (value === null || value === undefined) {
-          console.log(`⚪ ${field.fieldId}: LLM returned null/undefined`);
           return null;
         }
         
@@ -238,25 +227,21 @@ export class FieldExtractionWorkerPoolService {
         if (typeof value === 'object' && !Array.isArray(value)) {
           // If field has a shape, keep the object structure
           if (field.shape) {
-            console.log(`🏗️ ${field.fieldId}: Keeping structured object (has shape)`);
             // Keep as-is
           } else if ('amount' in value && 'currency' in value) {
             // Price object - flatten for simple fields
             value = `${value.amount} ${value.currency}`;
-            console.log(`💰 ${field.fieldId}: Flattened price object to:`, value);
-          } else {
+            } else {
             // General object - convert to string representation for simple fields
             const stringValue = Object.entries(value)
               .map(([k, v]) => `${k}: ${v}`)
               .join(', ');
             value = stringValue || null;
-            console.log(`🔧 ${field.fieldId}: Flattened object to:`, value);
-          }
+            }
         }
         
         // Handle empty arrays
         if (Array.isArray(value) && value.length === 0) {
-          console.log(`⚪ ${field.fieldId}: Empty array returned`);
           return null;
         }
         
@@ -264,7 +249,6 @@ export class FieldExtractionWorkerPoolService {
         if (Array.isArray(value)) {
           // If field has a shape, keep objects as-is (structured data)
           if (field.shape) {
-            console.log(`🏗️ ${field.fieldId}: Keeping structured array of objects (has shape)`);
             // Keep objects as-is
           } else {
             // For simple fields, flatten objects to strings
@@ -286,17 +270,14 @@ export class FieldExtractionWorkerPoolService {
               }
               return item;
             });
-            console.log(`📋 ${field.fieldId}: Flattened array objects:`, value);
-          }
+            }
         }
         
         // Ensure arrays for multiple fields
         if (field.multiple && !Array.isArray(value)) {
           if (typeof value === 'string' && value.trim() !== '') {
             value = [value];
-            console.log(`📋 ${field.fieldId}: Converted string to array:`, value);
-          } else {
-            console.log(`⚪ ${field.fieldId}: Cannot convert to array`);
+            } else {
             return null;
           }
         }
@@ -305,19 +286,15 @@ export class FieldExtractionWorkerPoolService {
         if (Array.isArray(value)) {
           value = value.filter(v => v !== null && v !== undefined && String(v).trim() !== '');
           if (value.length === 0) {
-            console.log(`⚪ ${field.fieldId}: Array is empty after filtering`);
             return null;
           }
-          console.log(`📋 ${field.fieldId}: Cleaned array:`, value);
-        }
+          }
         
         // Validate final value
         if (typeof value === 'string' && value.trim() === '') {
-          console.log(`⚪ ${field.fieldId}: Empty string, returning null`);
           return null;
         }
         
-        console.log(`✅ ${field.fieldId}: Final parsed value:`, value);
         return value;
       }
     } catch (error) {
@@ -325,7 +302,6 @@ export class FieldExtractionWorkerPoolService {
     }
     
     // Fallback to simple text parsing
-    console.log(`🔄 ${field.fieldId}: Falling back to text parsing`);
     return this.parseExtractionResponse(content, field);
   }
 

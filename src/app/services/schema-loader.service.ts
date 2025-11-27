@@ -40,8 +40,7 @@ export class SchemaLoaderService {
   ) {
     // Dynamisch Base-URL ermitteln für Cross-Origin Web Component Einbindung
     this.schemaBasePath = this.getComponentBaseUrl() + 'schemata/';
-    console.log('📂 Schema base path:', this.schemaBasePath);
-  }
+    }
 
   /**
    * Ermittelt die Base-URL der Web Component Scripts
@@ -75,13 +74,10 @@ export class SchemaLoaderService {
     
     // Return pending request if one exists (prevents duplicate HTTP calls)
     if (this.pendingRequests.has(schemaName)) {
-      console.log(`⏳ Schema ${schemaName} already loading, reusing request`);
       return this.pendingRequests.get(schemaName)!;
     }
 
     const schemaPath = `${this.schemaBasePath}${schemaName}`;
-    console.log(`📥 Loading schema: ${schemaPath}`);
-    
     // Create and store the shared request
     const request$ = this.http.get(schemaPath).pipe(
       take(1), // Ensure single emission
@@ -109,14 +105,11 @@ export class SchemaLoaderService {
     return this.loadSchema(schemaName).pipe(
       map((schema: any) => {
         if (!schema || !schema.fields) {
-          console.warn(`⚠️ Schema ${schemaName} has no fields`);
           return [];
         }
 
         // Return RAW fields - DO NOT filter properties!
         // Canvas service needs group, group_label, system, etc.
-        console.log(`📋 Loaded ${schema.fields.length} fields from ${schemaName}`);
-        
         return schema.fields;
       })
     );
@@ -130,7 +123,6 @@ export class SchemaLoaderService {
       map((schema: any) => {
         // Use output_template if available, otherwise build from fields
         if (schema.output_template) {
-          console.log(`📄 Using output_template from ${schemaName}`);
           return schema.output_template;
         }
         
@@ -144,7 +136,6 @@ export class SchemaLoaderService {
             const askUser = field.system?.ask_user !== false;
             
             if (!aiFillable && !askUser) {
-              console.log(`⏭️ Skipping field ${field.id} in template (ai_fillable=false && ask_user=false)`);
               return; // Skip this field
             }
             

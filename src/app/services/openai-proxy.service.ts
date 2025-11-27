@@ -49,22 +49,14 @@ export class OpenAIProxyService {
       this.providerConfig = environment.openai;
     }
     
-    console.log('🧭 Provider configuration loaded:', {
-      provider: this.provider,
-      platform: this.platformDetection.getPlatformName(),
-      production: environment.production
-    });
-
     // Determine proxy URL based on platform (Netlify/Vercel/Local)
     if (environment.production) {
       // Production: Auto-detect platform and use correct proxy
       this.proxyUrl = this.providerConfig.proxyUrl || this.platformDetection.getOpenAIProxyUrl();
-      console.log(`🚀 Production: ${this.provider.toUpperCase()} via ${this.platformDetection.getPlatformName()} → ${this.proxyUrl}`);
-    } else {
+      } else {
       // Development: Use local proxy
       this.proxyUrl = this.providerConfig.proxyUrl || 'http://localhost:3001/llm';
-      console.log(`🔧 Development: ${this.provider.toUpperCase()} via proxy → ${this.proxyUrl}`);
-    }
+      }
     
     // SECURITY: Always use proxy to keep API keys server-side
     // Direct API access is disabled for security - keys must never be in frontend code
@@ -94,9 +86,6 @@ export class OpenAIProxyService {
       
       if (shouldRetry && !isLastAttempt) {
         const delay = this.calculateBackoffDelay(attempt);
-        console.warn(`⚠️ OpenAI API error (attempt ${attempt + 1}/${this.MAX_RETRIES + 1}): ${error.message}`);
-        console.log(`🔄 Retrying in ${delay}ms...`);
-        
         await this.sleep(delay);
         return this.invokeWithRetry(messages, attempt + 1);
       }

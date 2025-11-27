@@ -24,13 +24,11 @@ export class GeocodingService {
   private getPhotonUrl(): string {
     if (environment.production) {
       const proxyUrl = (environment as any).geocoding?.proxyUrl || this.platformDetection.getGeocodingProxyUrl();
-      console.log(`🗺️ Using ${this.platformDetection.getPlatformName()} geocoding proxy: ${proxyUrl}`);
       return proxyUrl;
     }
     
     // Development: Use URL from environment config
     const proxyUrl = (environment as any).geocoding?.proxyUrl || 'http://localhost:3001/geocoding';
-    console.log(`🗺️ Using geocoding proxy: ${proxyUrl}`);
     return proxyUrl;
   }
 
@@ -62,13 +60,10 @@ export class GeocodingService {
 
       // No address components available
       if (queryParts.length === 0) {
-        console.log('⚠️ Geocoding skipped: No address components available');
         return null;
       }
 
       const query = queryParts.join(', ');
-      console.log(`🗺️ Geocoding address: "${query}"`);
-
       // Rate limiting: Wait if needed to respect 1 request/second
       await this.waitForRateLimit();
 
@@ -86,7 +81,6 @@ export class GeocodingService {
 
       // Check if we got results
       if (!data.features || data.features.length === 0) {
-        console.log(`⚠️ No geocoding results found for: "${query}"`);
         return null;
       }
 
@@ -123,7 +117,6 @@ export class GeocodingService {
         }
       };
 
-      console.log(`✅ Geocoded: ${result.latitude}, ${result.longitude}`);
       return result;
 
     } catch (error) {
@@ -175,8 +168,6 @@ export class GeocodingService {
       return locations;
     }
 
-    console.log(`🗺️ Geocoding ${locations.length} locations...`);
-
     // Process sequentially to respect rate limit (not in parallel)
     const geocodedLocations: any[] = [];
     for (const location of locations) {
@@ -191,8 +182,6 @@ export class GeocodingService {
     }
 
     const geocodedCount = geocodedLocations.filter(l => l.geo).length;
-    console.log(`✅ Geocoded ${geocodedCount} of ${locations.length} locations`);
-
     return geocodedLocations;
   }
 
@@ -206,7 +195,6 @@ export class GeocodingService {
     
     if (timeSinceLastRequest < this.RATE_LIMIT_MS) {
       const waitTime = this.RATE_LIMIT_MS - timeSinceLastRequest;
-      console.log(`⏱️ Rate limiting: Waiting ${waitTime}ms before next geocoding request`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
     

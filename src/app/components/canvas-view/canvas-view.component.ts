@@ -199,7 +199,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['metadataInput'] && changes['metadataInput'].currentValue) {
       const metadata = changes['metadataInput'].currentValue;
-      console.log('📥 metadataInput changed, loading metadata:', metadata);
       this.loadMetadataFromInput(metadata);
     }
   }
@@ -213,8 +212,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     this.isLoadingInput = true;
     try {
       await this.onJsonLoaded({ metadata, fileName: 'Input Data' });
-      console.log('✅ Metadata loaded from @Input()');
-    } catch (error) {
+      } catch (error) {
       console.error('❌ Error loading metadata from input:', error);
     } finally {
       this.isLoadingInput = false;
@@ -243,23 +241,18 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     const coreFieldsParam = urlParams.get('coreFields');
     const specialFieldsParam = urlParams.get('specialFields');
     
-    console.log(`🔧 URL params: coreFields=${coreFieldsParam}, specialFields=${specialFieldsParam}`);
-    
     if (coreFieldsParam === 'false') {
       this._showCoreFields = false;
-      console.log('📋 Core fields HIDDEN via URL parameter');
-    }
+      }
     if (specialFieldsParam === 'false') {
       this._showSpecialFields = false;
-      console.log('📋 Special fields HIDDEN via URL parameter');
-    }
+      }
     
     // Field actions visibility
     const fieldActionsParam = urlParams.get('fieldActions');
     if (fieldActionsParam === 'false') {
       this._showFieldActions = false;
-      console.log('🎛️ Field actions HIDDEN via URL parameter');
-    }
+      }
     
     // Controls visibility
     const controlsParam = urlParams.get('controls');
@@ -276,44 +269,35 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     
     // Auto-load JSON file if specified
     if (autoloadFile && this.isViewerMode) {
-      console.log(`📂 Auto-loading JSON file: ${autoloadFile}`);
       this.autoLoadJsonFile(autoloadFile);
     }
   }
 
   ngOnInit(): void {
-    console.log('🚀 CanvasView ngOnInit started');
-    
     // Detect if running as Angular Element (web component)
     // Standard Angular selector is 'app-canvas-view', web component uses custom tag name
     const hostTagName = this.elementRef.nativeElement.tagName?.toLowerCase();
     this._isWebComponent = hostTagName && hostTagName !== 'app-canvas-view';
     if (this._isWebComponent) {
-      console.log(`🧩 Running as Web Component: <${hostTagName}>`);
-    }
+      }
     
     // Apply URL parameters as fallback (if @Input not set)
     this.applyUrlParameters();
     
     // Log active modes
     if (this.isCompactUI) {
-      console.log(`🎨 Compact UI mode activated`);
-    }
+      }
     if (this.isViewerMode) {
-      console.log(`👁️ Viewer mode (readonly: ${this.isReadonly}, controls: ${this.showControls})`);
-    }
+      }
     if (!this._showCoreFields) {
-      console.log(`📋 Core fields hidden - showing only special fields`);
-    }
+      }
     if (!this._showSpecialFields) {
-      console.log(`📋 Special fields hidden - showing only core fields`);
-    }
+      }
     
     // Pre-load core schema (non-blocking, with deduplication for web component usage)
     if (this._isWebComponent) {
       // Web component mode: use static promise to prevent duplicate loads
       if (!CanvasViewComponent._schemaLoadPromise) {
-        console.log('🧩 Web Component: Starting deferred schema load...');
         CanvasViewComponent._schemaLoadPromise = this.canvasService.ensureCoreSchemaLoaded().then(() => {
           CanvasViewComponent._isInitialized = true;
           this.updateContentTypeOptions();
@@ -343,8 +327,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
         this.cdr.markForCheck();
       });
     
-    console.log('📡 Setting up language change subscription...');
-    
     // Subscribe to language changes to re-localize fields
     this.i18n.currentLanguage$
       .pipe(
@@ -352,10 +334,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
         takeUntil(this.destroy$)
       )
       .subscribe(async (language) => {
-        console.log(`🔔 Language Observable fired: ${language}`);
-
-        console.log(`🌐 Language changed to: ${language}, re-localizing fields...`);
-        
         // Re-localize all fields
         await this.relocalizeFields(language);
         
@@ -363,10 +341,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
         const newState = this.canvasService.getCurrentState();
         
         if (newState.coreFields.length > 0 || newState.fieldGroups.length > 0) {
-          console.log(`📝 Updating component state with new field references...`);
-          console.log(`   Core fields: ${newState.coreFields.length}`);
-          console.log(`   Field groups: ${newState.fieldGroups.length}`);
-        }
+          }
         
         // Force Angular to recognize the change by reassigning
         this.state = {
@@ -384,10 +359,8 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
         
         // Use setTimeout to ensure change detection runs after state assignment
         setTimeout(() => {
-          console.log(`🔄 Triggering change detection...`);
           this.cdr.detectChanges();
-          console.log(`✅ UI updated with ${language} labels`);
-        }, 0);
+          }, 0);
       });
     
     // Listen for postMessage from parent window (test integration)
@@ -407,7 +380,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
    */
   private setupAutoLoadListener(): void {
     window.addEventListener('loadExampleJson', (event: any) => {
-      console.log('👁️ Auto-loading example JSON for viewer mode...');
       const jsonData = event.detail;
       if (jsonData) {
         this.onJsonLoaded({ metadata: jsonData, fileName: 'Example Data' });
@@ -439,8 +411,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     try {
       const baseUrl = this.getComponentBaseUrl();
       const url = `${baseUrl}assets/examples/${filename}`;
-      console.log(`📂 Loading example JSON: ${url}`);
-      
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to load ${filename}: ${response.status}`);
@@ -465,8 +435,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     const pageData = this.integrationMode.getPageData();
     
     if (pageData && pageData.content) {
-      console.log('🚀 Auto-starting extraction from integration mode');
-      
       // Pre-fill text area
       this.userText = pageData.content;
       this.cdr.detectChanges();
@@ -482,8 +450,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   private setupPostMessageListener(): void {
     window.addEventListener('message', (event) => {
       // Log incoming message for debugging
-      console.log('📬 postMessage received from:', event.origin, 'Type:', event.data?.type);
-      
       // Security: Accept messages from HTTPS, localhost, or Chrome extensions
       const isSecureOrigin = event.origin.startsWith('https://') || 
                              event.origin.includes('localhost') ||
@@ -492,16 +458,11 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
                              event.origin.startsWith('moz-extension://');
       
       if (!isSecureOrigin) {
-        console.warn('⚠️ Message from untrusted origin rejected:', event.origin);
         return;
       }
       
-      console.log('✅ Message origin accepted:', event.origin);
-      
       // Handle legacy SET_TEXT (backward compatibility)
       if (event.data.type === 'SET_TEXT' && event.data.text) {
-        console.log('📨 Received text via postMessage (legacy):', event.data.text.substring(0, 100) + '...');
-        
         // Set text in textarea
         this.userText = event.data.text;
         
@@ -516,29 +477,14 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
           }, event.origin);
         }
         
-        console.log('✅ Text successfully set in canvas textarea');
-        
         // Auto-start extraction in Compact UI mode
         this.autoStartExtractionIfCompact();
       }
       
       // Handle structured SET_PAGE_DATA (bookmarklet/plugin with URL and structured data)
       if (event.data.type === 'SET_PAGE_DATA' && event.data.text) {
-        console.log('📨 Received page data via postMessage:');
-        console.log('  - URL:', event.data.url);
-        console.log('  - Title:', event.data.pageTitle);
-        console.log('  - Mode:', event.data.mode);
-        
         // Log structured data availability
         const pageData = event.data.pageData || event.data.structuredData || {};
-        console.log('  - Has JSON-LD:', !!pageData.structuredData || !!pageData.jsonLd);
-        console.log('  - Has Schema.org:', !!pageData.schemaOrg);
-        console.log('  - Has Dublin Core:', !!pageData.dublinCore?.title);
-        console.log('  - Has LRMI:', !!pageData.lrmi?.educationalUse);
-        console.log('  - Has License:', !!pageData.license);
-        console.log('  - Has Breadcrumbs:', !!pageData.breadcrumbs);
-        console.log('  - Has Tags:', !!pageData.tags);
-        
         // Update mode if specified
         if (event.data.mode) {
           this.integrationMode.setMode(event.data.mode);
@@ -560,8 +506,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
         // Store complete page data for extraction enhancement
         if (pageData && Object.keys(pageData).length > 0) {
           sessionStorage.setItem('canvas_page_data', JSON.stringify(pageData));
-          console.log('📦 Stored complete page data with', Object.keys(pageData).length, 'categories');
-        }
+          }
         
         // Backward compatibility: also store old structuredData format
         if (event.data.structuredData) {
@@ -579,31 +524,19 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
           }, event.origin);
         }
         
-        console.log('✅ Page data successfully set in canvas');
-        
         // Auto-start extraction in Compact UI mode
         this.autoStartExtractionIfCompact();
       }
       
       // Handle PLUGIN_PAGE_DATA (Browser-Plugin with page extraction)
       if (event.data.type === 'PLUGIN_PAGE_DATA') {
-        console.log('📨 Received PLUGIN_PAGE_DATA from Browser Plugin:');
-        console.log('  - URL:', event.data.url);
-        console.log('  - Title:', event.data.title);
-        console.log('  - Mode:', event.data.mode);
-        console.log('  - Text length:', event.data.text?.length || 0);
-        console.log('  - HTML length:', event.data.html?.length || 0);
-        console.log('  - Text preview:', event.data.text?.substring(0, 100));
-        
         // Update mode to browser-extension
         if (event.data.mode === 'browser-extension') {
           this.integrationMode.setMode('browser-extension');
-          console.log('✅ Mode set to browser-extension');
-        }
+          }
         
         // Set text in textarea (use text or html)
         const newText = event.data.text || event.data.html || '';
-        console.log('📝 Setting userText to:', newText.length, 'characters');
         this.userText = newText;
         
         // Store URL for later use
@@ -614,13 +547,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
         // Store metadata if provided
         if (event.data.metadata) {
           sessionStorage.setItem('canvas_plugin_metadata', JSON.stringify(event.data.metadata));
-          console.log('✅ Metadata stored in sessionStorage');
-        }
+          }
         
         // Trigger change detection
         this.cdr.detectChanges();
-        console.log('✅ Change detection triggered');
-        
         // Send confirmation back to plugin
         if (event.source) {
           try {
@@ -629,15 +559,11 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
               success: true,
               textLength: this.userText.length
             }, event.origin);
-            console.log('✅ Confirmation sent back to plugin');
-          } catch (error) {
+            } catch (error) {
             console.error('❌ Error sending confirmation:', error);
           }
         } else {
-          console.warn('⚠️ No event.source, cannot send confirmation');
-        }
-        
-        console.log('✅ Plugin page data successfully set in canvas, userText length:', this.userText.length);
+          }
         
         // Auto-start extraction in Compact UI mode
         this.autoStartExtractionIfCompact();
@@ -650,8 +576,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
    */
   private autoStartExtractionIfCompact(): void {
     if (this.isCompactUI && this.userText.trim()) {
-      console.log('🎨 Compact UI mode: Auto-starting extraction...');
-      
       // Use setTimeout to ensure UI is updated first
       setTimeout(() => {
         this.startExtraction();
@@ -702,8 +626,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   private emitMetadataChange(): void {
     const metadata = this.canvasService.exportAsJson();
     this.metadataChange.emit(metadata);
-    console.log('📤 metadataChange emitted');
-  }
+    }
   
   /**
    * Save current scroll position
@@ -843,20 +766,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
       
       // BROWSER-EXTENSION MODE: Send to plugin via postMessage
       if (this.integrationMode.isBrowserExtension()) {
-        console.log('📤 Sending metadata to Browser-Plugin...');
-        
         // Use new structured format with repoField flags for Browser-Plugin
         const pluginMetadata = this.canvasService.getMetadataForPlugin();
         
         // Debug: Log essential fields that Plugin will use for createNode
-        console.log('🔍 Essential fields for createNode:', {
-          'cclom:title': pluginMetadata['cclom:title'],
-          'cclom:general_description': pluginMetadata['cclom:general_description'],
-          'cclom:general_keyword': pluginMetadata['cclom:general_keyword'],
-          'ccm:wwwurl': pluginMetadata['ccm:wwwurl'],
-          'cclom:general_language': pluginMetadata['cclom:general_language']
-        });
-        
         this.integrationMode.sendMetadataToParent(pluginMetadata);
         
         // Close canvas immediately after sending
@@ -869,7 +782,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
       }
       
       // STANDALONE/BOOKMARKLET MODE: Submit to Netlify Functions
-      console.log('📤 Submitting as guest to repository...');
       const result = await this.guestSubmission.submitAsGuest(metadata);
       
       if (result.success && result.nodeId) {
@@ -1243,14 +1155,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
    * Select a content type from dropdown
    */
   async selectContentType(option: { label: string; schemaFile: string }): Promise<void> {
-    console.log('📝 Content type selected:', option);
-    console.log('Schema file to load:', option.schemaFile);
-    
     // Update field value first
     this.onFieldChange({ fieldId: 'ccm:oeh_flex_lrt', value: option.label });
     
     // Trigger schema reload and re-extraction
-    console.log('🔄 Triggering schema reload for:', option.schemaFile);
     await this.canvasService.changeContentTypeManually(option.schemaFile);
   }
 
@@ -1293,8 +1201,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     
     if (optionsChanged) {
       this.contentTypeOptions = newOptions;
-      console.log('✅ Updated content type options for language:', currentLang, this.contentTypeOptions);
-    }
+      }
   }
   
   /**
@@ -1337,12 +1244,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     });
     
     // Debug logging
-    console.log(`📋 getVisibleFieldGroups: showCore=${this._showCoreFields}, showSpecial=${this._showSpecialFields}`);
-    console.log(`   Total groups: ${this.state.fieldGroups.length}, Visible: ${visible.length}`);
     this.state.fieldGroups.forEach(g => {
       const schemaLower = (g.schemaName || '').toLowerCase();
-      console.log(`   - ${g.label} (${g.schemaName}) -> isCore=${schemaLower === 'core'}, visible=${visible.includes(g)}`);
-    });
+      });
     
     return visible;
   }
@@ -1379,8 +1283,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
    * Handle JSON file loaded
    */
   async onJsonLoaded(data: LoadedJsonData): Promise<void> {
-    console.log('📂 JSON loaded:', data);
-    
     try {
       await this.canvasService.importJsonData(data.metadata, data.detectedSchema);
       
@@ -1418,8 +1320,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
       if (!this.isViewerMode) {
         alert(`✅ JSON erfolgreich geladen!\n\n${data.fileName}\nSchema: ${schemaFile}\nInhaltsart: ${contentTypeLabel}\nSprache: ${currentLanguage}`);
       } else {
-        console.log(`✅ JSON erfolgreich geladen: ${data.fileName} (Viewer-Modus: keine Meldung)`);
-      }
+        }
       this.cdr.detectChanges();
     } catch (error) {
       console.error('❌ Error loading JSON:', error);
@@ -1451,8 +1352,6 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     // Emit submit event with current metadata
     const metadata = this.canvasService.exportAsJson();
     this.metadataSubmit.emit(metadata);
-    console.log('📤 metadataSubmit emitted');
-    
     // Continue with regular submit flow
     await this.submitAsGuest();
   }

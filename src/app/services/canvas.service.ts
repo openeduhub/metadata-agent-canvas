@@ -72,8 +72,6 @@ export class CanvasService {
    * Start extraction process
    */
   async startExtraction(userText: string): Promise<void> {
-    console.log('🚀 Starting canvas extraction...');
-
     // Get current metadata context for incremental updates
     const metadataContext = this.getCurrentMetadataContext();
     const enrichedUserText = userText + metadataContext;
@@ -108,8 +106,6 @@ export class CanvasService {
         state.specialFields.length > 0 ? this.extractSpecialFields(enrichedUserText) : Promise.resolve()
       ]);
 
-      console.log('✅ Canvas extraction complete');
-      
       // Step 5: Auto-enrich with geocoding (after extraction complete)
       await this.autoEnrichWithGeocoding();
       
@@ -134,10 +130,6 @@ export class CanvasService {
     );
     const groupOrderMap = new Map(groups?.map((g: any, index: number) => [g.id, index]) || []);
     
-    console.log('📚 Loaded Core groups:', groups);
-    console.log('📚 GroupMap:', Array.from(groupMap.entries()));
-    console.log('📚 GroupOrderMap:', Array.from(groupOrderMap.entries()));
-
     const coreFields: CanvasFieldState[] = coreSchemaFields
       .filter((field: any) => {
         // Only AI-fillable fields that should be shown to user
@@ -150,8 +142,6 @@ export class CanvasService {
           || groupMap.get(groupId) 
           || this.localizer.getFallbackGroupLabel(language);
         const groupOrder = groupOrderMap.get(groupId) ?? 999;
-        
-        console.log(`🔍 Field ${field.id}: group="${groupId}", group_label="${field.group_label}", resolved="${groupLabel}", order=${groupOrder}`);
         
         const localizedField = this.localizer.localizeField(field, language);
 
@@ -229,8 +219,7 @@ export class CanvasService {
       };
       this.updateFieldStatus('ccm:oeh_flex_lrt', FieldStatus.FILLED, localizedLabel, state.contentTypeConfidence);
       this.updateMetadata('ccm:oeh_flex_lrt', metadataValue);
-      console.log(`✅ Content type field filled: ${localizedLabel} (${metadataValue.schema_file || metadataValue.uri || 'n/a'})`);
-    }
+      }
   }
 
   /**
@@ -341,8 +330,7 @@ export class CanvasService {
             selectedContentType: result.schema
           });
           
-          console.log(`📋 Content type detected: ${result.schema} (${Math.round(result.confidence * 100)}%) - ${result.reason}`);
-        }
+          }
       }
     } catch (error) {
       console.error('Content type detection error:', error);
@@ -363,8 +351,6 @@ export class CanvasService {
         retryAttempt: 0
       }));
 
-    console.log(`⚡ Extracting ${tasks.length} core fields in parallel...`);
-
     const promises = tasks.map(task => this.extractSingleField(task));
     await Promise.all(promises);
   }
@@ -373,8 +359,6 @@ export class CanvasService {
    * Load special schema
    */
   private async loadSpecialSchema(schemaFile: string): Promise<void> {
-    console.log(`📥 Loading special schema: ${schemaFile}`);
-
     const specialSchemaFields = await this.schemaLoader.getFields(schemaFile).toPromise();
     if (!specialSchemaFields) return;
 
@@ -385,10 +369,6 @@ export class CanvasService {
     );
     const groupOrderMap = new Map(groups?.map((g: any, index: number) => [g.id, index]) || []);
     
-    console.log(`📚 Loaded ${schemaFile} groups:`, groups);
-    console.log(`📚 GroupMap for ${schemaFile}:`, Array.from(groupMap.entries()));
-    console.log(`📚 GroupOrderMap for ${schemaFile}:`, Array.from(groupOrderMap.entries()));
-
     const schemaName = schemaFile.replace('.json', '')
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -407,15 +387,12 @@ export class CanvasService {
           || this.localizer.getFallbackGroupLabel(language);
         const groupOrder = groupOrderMap.get(groupId) ?? 999;
         
-        console.log(`🔍 ${schemaFile} Field ${field.id}: group="${groupId}", group_label="${field.group_label}", resolved="${groupLabel}", order=${groupOrder}`);
-        
         const localizedField = this.localizer.localizeField(field, language);
         
         // IMPORTANT: Fallback to field.id if label is missing
         const fieldLabel = localizedField.label || field.id;
         if (!localizedField.label) {
-          console.warn(`⚠️ No label found for field ${field.id}, using ID as fallback`);
-        }
+          }
 
         return {
           fieldId: field.id,
@@ -461,13 +438,6 @@ export class CanvasService {
     const template = await this.schemaLoader.getOutputTemplate(schemaFile).toPromise();
     const mergedMetadata = { ...state.metadata, ...(template || {}) };
 
-    console.log(`✅ Loaded ${schemaFile}:`, {
-      specialFields: specialFields.length,
-      totalTopLevel: allFields.length,
-      totalWithSubFields: totalFieldsCount,
-      subFields: allSubFields.length
-    });
-
     this.updateState({
       specialFields: specialFields,
       fieldGroups: fieldGroups,
@@ -487,8 +457,6 @@ export class CanvasService {
       priority: field.isRequired ? 10 : 5,
       retryAttempt: 0
     }));
-
-    console.log(`⚡ Extracting ${tasks.length} special fields in parallel...`);
 
     const promises = tasks.map(task => this.extractSingleField(task));
     await Promise.all(promises);
@@ -542,16 +510,13 @@ export class CanvasService {
           
           // Create sub-fields for fields with shape or variants (complex objects)
           if (effectiveTask.field.shape || effectiveTask.field.datatype === 'array') {
-            console.log(`🏗️ Creating sub-fields for ${result.fieldId}`);
-            
             // Get full schema definition for this field
             const schemaName = effectiveTask.field.schemaName === 'Core' ? 'core.json' : this.getCurrentState().selectedContentType;
             const schema = schemaName ? this.schemaLoader.getCachedSchema(schemaName) : null;
             const schemaFieldDef = schema?.fields?.find((f: any) => f.id === result.fieldId);
             
             if (schemaFieldDef) {
-              console.log(`   📖 Found schema definition for ${result.fieldId}:`, schemaFieldDef.system?.items?.variants ? 'has variants' : 'no variants');
-            }
+              }
             
             const subFields = this.shapeExpander.expandFieldWithShape(
               effectiveTask.field, 
@@ -582,8 +547,7 @@ export class CanvasService {
                 });
               }
               
-              console.log(`✅ Created ${subFields.length} sub-fields for ${result.fieldId}`);
-            }
+              }
           }
         }
       }
@@ -627,6 +591,11 @@ export class CanvasService {
     confidence?: number,
     error?: string
   ): void {
+    // Remove duplicates from array values
+    if (Array.isArray(value)) {
+      value = [...new Set(value)];
+    }
+    
     const state = this.getCurrentState();
     
     // Helper to update a field (including subFields)
@@ -638,7 +607,6 @@ export class CanvasService {
         if (value !== undefined) updated.value = value;
         if (confidence !== undefined) updated.confidence = confidence;
         if (error) updated.extractionError = error;
-        console.log(`🔄 Updated field ${fieldId}:`, { status, value, confidence });
         return updated;
       }
       
@@ -651,7 +619,6 @@ export class CanvasService {
             if (value !== undefined) updated.value = value;
             if (confidence !== undefined) updated.confidence = confidence;
             if (error) updated.extractionError = error;
-            console.log(`🔄 Updated subField ${fieldId}:`, { status, value, confidence });
             return updated;
           }
           return sf;
@@ -703,6 +670,11 @@ export class CanvasService {
    * Update metadata object
    */
   private updateMetadata(fieldId: string, value: any): void {
+    // Remove duplicates from array values
+    if (Array.isArray(value)) {
+      value = [...new Set(value)];
+    }
+    
     const state = this.getCurrentState();
     const metadata = { ...state.metadata };
     metadata[fieldId] = value;
@@ -754,12 +726,9 @@ export class CanvasService {
         return a.order - b.order;
       });
     
-    console.log('📦 Created field groups (sorted by schema + order):');
     result.forEach((g, index) => {
-      console.log(`  ${index + 1}. ${g.label} (${g.schemaName}, order=${g.order}) - ${g.fields.length} fields:`);
       g.fields.forEach(f => {
-        console.log(`     - ${f.fieldId} (status: ${f.status}, hasShape: ${!!f.shape})`);
-      });
+        });
     });
     
     return result;
@@ -769,8 +738,6 @@ export class CanvasService {
    * User manually changes a field value
    */
   updateFieldValue(fieldId: string, value: any): void {
-    console.log(`📝 updateFieldValue called for ${fieldId}:`, value);
-    
     // Special handling for content type change (needs immediate update)
     if (fieldId === 'ccm:oeh_flex_lrt') {
       this.updateFieldStatus(fieldId, FieldStatus.FILLED, value, 1.0);
@@ -805,21 +772,11 @@ export class CanvasService {
     }
     
     if (!field) {
-      console.warn(`⚠️ Field not found for normalization: ${fieldId}`);
       return;
     }
 
-    console.log(`👤 User updated field ${fieldId}:`, {
-      value,
-      datatype: field.datatype,
-      hasVocabulary: !!field.vocabulary,
-      vocabularyType: field.vocabulary?.type,
-      hasShape: !!field.shape
-    });
-    
     // Check if this is an address field change - trigger re-geocoding
     if (this.isAddressField(fieldId)) {
-      console.log(`🗺️ Address field changed, will trigger re-geocoding after update`);
       // Defer geocoding to allow the value to be set first
       setTimeout(() => this.triggerReGeocoding(fieldId), 100);
     }
@@ -827,7 +784,6 @@ export class CanvasService {
     // Skip normalization for structured fields (fields with shape definition)
     // These should keep their object structure intact
     if (field.shape || field.datatype === 'object') {
-      console.log(`🏗️ Skipping normalization for structured field ${fieldId} (has shape or is object type)`);
       const newStatus = (value === null || (Array.isArray(value) && value.length === 0))
         ? FieldStatus.EMPTY 
         : FieldStatus.FILLED;
@@ -842,7 +798,6 @@ export class CanvasService {
         // Handle null/invalid values for controlled vocabularies (closed or skos)
         const isControlled = field.vocabulary?.type === 'closed' || field.vocabulary?.type === 'skos';
         if (normalizedValue === null && isControlled) {
-          console.warn(`⚠️ Invalid value rejected for ${field.vocabulary?.type} vocabulary: "${value}"`);
           // Clear the field
           this.updateFieldStatus(fieldId, FieldStatus.EMPTY, null, 0);
           this.updateMetadata(fieldId, null);
@@ -859,18 +814,14 @@ export class CanvasService {
         const valueChanged = JSON.stringify(normalizedValue) !== JSON.stringify(value);
         
         if (valueChanged) {
-          console.log(`✅ Field ${fieldId} normalized:`, value, '→', normalizedValue);
-          
           // Special handling for arrays: Check if items were removed
           if (Array.isArray(value) && Array.isArray(normalizedValue)) {
             if (normalizedValue.length < value.length) {
               const removedItems = value.filter(v => !normalizedValue.includes(v));
-              console.warn(`⚠️ Removed invalid items from ${fieldId}:`, removedItems);
-            }
+              }
           }
         } else {
-          console.log(`ℹ️ Field ${fieldId} unchanged after normalization`);
-        }
+          }
         
         // ALWAYS update the field (even if unchanged) to ensure UI consistency
         this.updateFieldStatus(fieldId, newStatus, normalizedValue, 1.0);
@@ -897,17 +848,8 @@ export class CanvasService {
   ): Promise<void> {
     const field = task.field;
 
-    console.log(`🤖 Normalizing AI-extracted value for ${fieldId}:`, {
-      value,
-      datatype: field.datatype,
-      hasVocabulary: !!field.vocabulary,
-      vocabularyType: field.vocabulary?.type,
-      isRetry
-    });
-
     // Skip normalization for structured fields (fields with shape definition)
     if (field.shape || field.datatype === 'object') {
-      console.log(`🏗️ Skipping normalization for structured field ${fieldId} (has shape or is object type)`);
       this.updateMetadata(fieldId, value);
       return;
     }
@@ -921,11 +863,8 @@ export class CanvasService {
           const normalizationFailed = normalizedValue === null && isControlled;
           
           if (normalizationFailed) {
-            console.warn(`⚠️ AI extraction failed vocabulary validation for ${fieldId}: "${value}"`);
-            
             // Retry ONCE if this is the first attempt
             if (!isRetry) {
-              console.log(`🔄 Retrying extraction for ${fieldId} with stricter prompt...`);
               this.retryFieldExtractionWithStricterPrompt(task).then(resolve);
               return;
             } else {
@@ -947,8 +886,7 @@ export class CanvasService {
           const valueChanged = JSON.stringify(normalizedValue) !== JSON.stringify(value);
           
           if (valueChanged) {
-            console.log(`✅ AI value ${fieldId} normalized:`, value, '→', normalizedValue);
-          }
+            }
           
           // Update with normalized value
           this.updateFieldStatus(fieldId, newStatus, normalizedValue, confidence);
@@ -971,15 +909,12 @@ export class CanvasService {
    */
   private async retryFieldExtractionWithStricterPrompt(task: FieldExtractionTask): Promise<void> {
     const nextAttempt = (task.retryAttempt ?? 0) + 1;
-    console.log(`🔄 Retrying field extraction (Versuch ${nextAttempt}) mit strengerem Prompt: ${task.field.label}`);
-    
     if (task.field.vocabulary) {
       const vocabSample = task.field.vocabulary.concepts
         .slice(0, 10)
         .map(c => c.label)
         .join(', ');
-      console.log(`📋 Beispiel erlaubter Labels (Top 10): ${vocabSample}`);
-    }
+      }
     
     const retryTask: FieldExtractionTask = {
       ...task,
@@ -1005,8 +940,6 @@ export class CanvasService {
    * Public method to change content type (called from UI)
    */
   async changeContentTypeManually(schemaFile: string): Promise<void> {
-    console.log('🔄 Manual content type change requested:', schemaFile);
-    
     const state = this.getCurrentState();
     
     // Update selected content type and set confidence to 1.0 (user manually selected = 100% confident)
@@ -1022,19 +955,15 @@ export class CanvasService {
     
     // Re-extract special fields if we have user text
     if (state.userText) {
-      console.log('🔄 Re-extracting special fields with new schema...');
       await this.extractSpecialFields(state.userText);
     }
     
-    console.log('✅ Content type change complete (confidence: 100% - manual selection)');
-  }
+    }
 
   /**
    * Handle content type change (automatic during extraction)
    */
   private async onContentTypeChange(contentType: string | string[]): Promise<void> {
-    console.log('🔄 Content type changed:', contentType);
-
     // Get schema file from vocabulary
     const state = this.getCurrentState();
     const contentTypeField = state.coreFields.find(f => f.fieldId === 'ccm:oeh_flex_lrt');
@@ -1169,7 +1098,6 @@ export class CanvasService {
       }
     });
     
-    console.log('📦 Metadata prepared for Plugin (NEW format with repoField flag)');
     return output;
   }
 
@@ -1277,7 +1205,6 @@ export class CanvasService {
       }
     });
 
-    console.log('📦 Metadata prepared for Repository submission (legacy format)');
     return result;
   }
 
@@ -1316,7 +1243,6 @@ export class CanvasService {
     }
     
     // Fallback: value not found in vocabulary
-    console.warn(`⚠️ Value "${value}" not found in vocabulary concepts`);
     return {
       label: value,
       uri: ''
@@ -1331,8 +1257,6 @@ export class CanvasService {
     const state = this.getCurrentState();
     const metadata = { ...state.metadata };
     const allFields = [...state.coreFields, ...state.specialFields];
-
-    console.log('🗺️ Starting geocoding enrichment...');
 
     // List of fields that may contain location data
     const locationFields = [
@@ -1349,7 +1273,6 @@ export class CanvasService {
       // Check if field has sub-fields that need to be reconstructed first
       const field = allFields.find(f => f.fieldId === fieldId);
       if (field && field.isParent && field.subFields && field.subFields.length > 0) {
-        console.log(`🔧 Reconstructing ${fieldId} from sub-fields before geocoding...`);
         value = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
         metadata[fieldId] = value; // Update metadata with reconstructed value
       }
@@ -1357,8 +1280,6 @@ export class CanvasService {
       if (!value) {
         continue; // Field not present or empty
       }
-
-      console.log(`🔍 Checking ${fieldId}:`, value);
 
       try {
         // Handle array of locations (e.g., multiple event venues)
@@ -1400,12 +1321,10 @@ export class CanvasService {
     }
 
     if (geocodedCount > 0) {
-      console.log(`✅ Geocoding enrichment complete: ${geocodedCount} locations geocoded`);
       // Update metadata in state
       this.updateState({ metadata });
     } else {
-      console.log('ℹ️ No new locations geocoded (addresses may already have coordinates or no addresses found)');
-    }
+      }
   }
 
   /**
@@ -1423,8 +1342,6 @@ export class CanvasService {
    * Trigger re-geocoding when user changes an address field
    */
   private async triggerReGeocoding(fieldId: string): Promise<void> {
-    console.log(`🗺️ Re-geocoding triggered by field change: ${fieldId}`);
-    
     const state = this.getCurrentState();
     const allFields = [...state.coreFields, ...state.specialFields];
     
@@ -1441,11 +1358,8 @@ export class CanvasService {
     }
     
     if (!parentField) {
-      console.log(`⚠️ Could not find parent location field for ${fieldId}`);
       return;
     }
-    
-    console.log(`📍 Found parent field: ${parentField.fieldId}`);
     
     const subFields = parentField.subFields!;
     
@@ -1464,12 +1378,10 @@ export class CanvasService {
     const hasAddress = (streetField?.value || postalField?.value || localityField?.value);
     
     if (!hasAddress) {
-      console.log(`⏭️ Not enough address data for geocoding`);
       return;
     }
     
     if (!latField || !lonField) {
-      console.log(`⚠️ Missing lat/lon fields`);
       return;
     }
     
@@ -1481,19 +1393,10 @@ export class CanvasService {
       addressCountry: countryField?.value || ''
     };
     
-    console.log(`🌍 Re-geocoding address:`, address);
-    
     try {
       const geoResult = await this.geocodingService.geocodeAddress(address);
       
       if (geoResult) {
-        console.log(`   🎯 Re-geocoding result:`, {
-          latFieldId: latField.fieldId,
-          lonFieldId: lonField.fieldId,
-          latValue: geoResult.latitude,
-          lonValue: geoResult.longitude
-        });
-        
         // Update latitude field using proper method (ensures Change Detection)
         this.updateFieldStatus(latField.fieldId, FieldStatus.FILLED, geoResult.latitude, 1.0);
         this.updateMetadata(latField.fieldId, geoResult.latitude);
@@ -1506,16 +1409,13 @@ export class CanvasService {
         if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
           this.updateFieldStatus(regionField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressRegion, 1.0);
           this.updateMetadata(regionField.fieldId, geoResult.enrichedAddress.addressRegion);
-          console.log(`   📍 Added region: ${geoResult.enrichedAddress.addressRegion}`);
-        }
+          }
         if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
           this.updateFieldStatus(countryField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressCountry, 1.0);
           this.updateMetadata(countryField.fieldId, geoResult.enrichedAddress.addressCountry);
-          console.log(`   📍 Added country: ${geoResult.enrichedAddress.addressCountry}`);
-        }
+          }
         
-        console.log(`✅ Re-geocoded: ${address.addressLocality} → ${geoResult.latitude}, ${geoResult.longitude}`);
-      }
+        }
     } catch (error) {
       console.error(`❌ Re-geocoding failed:`, error);
     }
@@ -1526,8 +1426,6 @@ export class CanvasService {
    * Fills empty geo fields (latitude/longitude) automatically
    */
   private async autoEnrichWithGeocoding(): Promise<void> {
-    console.log('🗺️ Auto-enriching with geocoding...');
-    
     const state = this.getCurrentState();
     const allFields = [...state.coreFields, ...state.specialFields];
     
@@ -1539,18 +1437,13 @@ export class CanvasService {
       && f.subFields.length > 0
     );
     
-    console.log(`📍 Found ${locationParentFields.length} location parent fields with sub-fields`);
-    
     if (locationParentFields.length === 0) {
-      console.log('ℹ️ No location fields with sub-fields found');
       return;
     }
     
     let geocodedCount = 0;
     
     for (const parentField of locationParentFields) {
-      console.log(`\n🔍 Processing ${parentField.fieldId} (${parentField.subFields!.length} sub-fields)`);
-      
       const subFields = parentField.subFields!;
       
       // Find address sub-fields
@@ -1564,35 +1457,19 @@ export class CanvasService {
       const latField = subFields.find(sf => sf.fieldId.includes('latitude'));
       const lonField = subFields.find(sf => sf.fieldId.includes('longitude'));
       
-      console.log(`   📬 Address fields:`, {
-        street: `${streetField?.fieldId} = ${streetField?.value}`,
-        postal: `${postalField?.fieldId} = ${postalField?.value}`,
-        locality: `${localityField?.fieldId} = ${localityField?.value}`,
-        region: `${regionField?.fieldId} = ${regionField?.value}`,
-        country: `${countryField?.fieldId} = ${countryField?.value}`
-      });
-      
-      console.log(`   🗺️ Geo fields:`, {
-        lat: `${latField?.fieldId} = ${latField?.value}`,
-        lon: `${lonField?.fieldId} = ${lonField?.value}`
-      });
-      
       // Check if we have address data
       const hasAddress = (streetField?.value || postalField?.value || localityField?.value);
       
       if (!hasAddress) {
-        console.log(`   ⏭️ Skipping: No address data`);
         continue;
       }
       
       // Skip if geo coordinates already exist
       if (latField?.value && lonField?.value) {
-        console.log(`   ⏭️ Skipping: Geo coordinates already present`);
         continue;
       }
       
       if (!latField || !lonField) {
-        console.log(`   ⚠️ Missing latitude/longitude fields`);
         continue;
       }
       
@@ -1605,19 +1482,10 @@ export class CanvasService {
         addressCountry: countryField?.value || ''
       };
       
-      console.log(`   🌍 Geocoding address:`, address);
-      
       try {
         const geoResult = await this.geocodingService.geocodeAddress(address);
         
         if (geoResult) {
-          console.log(`   🎯 Updating fields:`, {
-            latFieldId: latField.fieldId,
-            lonFieldId: lonField.fieldId,
-            latValue: geoResult.latitude,
-            lonValue: geoResult.longitude
-          });
-          
           // Update latitude field using proper method (ensures Change Detection)
           this.updateFieldStatus(latField.fieldId, FieldStatus.FILLED, geoResult.latitude, 1.0);
           this.updateMetadata(latField.fieldId, geoResult.latitude);
@@ -1626,40 +1494,27 @@ export class CanvasService {
           this.updateFieldStatus(lonField.fieldId, FieldStatus.FILLED, geoResult.longitude, 1.0);
           this.updateMetadata(lonField.fieldId, geoResult.longitude);
           
-          console.log(`   📍 Updated geo fields:`, {
-            latField: latField.fieldId,
-            latValue: geoResult.latitude,
-            lonField: lonField.fieldId,
-            lonValue: geoResult.longitude
-          });
-          
           // Also update region and country if returned by geocoding API
           if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
             this.updateFieldStatus(regionField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressRegion, 1.0);
             this.updateMetadata(regionField.fieldId, geoResult.enrichedAddress.addressRegion);
-            console.log(`   📍 Added region: ${geoResult.enrichedAddress.addressRegion}`);
-          }
+            }
           if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
             this.updateFieldStatus(countryField.fieldId, FieldStatus.FILLED, geoResult.enrichedAddress.addressCountry, 1.0);
             this.updateMetadata(countryField.fieldId, geoResult.enrichedAddress.addressCountry);
-            console.log(`   📍 Added country: ${geoResult.enrichedAddress.addressCountry}`);
-          }
+            }
           
           geocodedCount++;
-          console.log(`   ✅ Geocoded: ${address.addressLocality} → ${geoResult.latitude}, ${geoResult.longitude}`);
-        } else {
-          console.log(`   ⚠️ Geocoding returned no result`);
-        }
+          } else {
+          }
       } catch (error) {
         console.error(`   ❌ Geocoding failed:`, error);
       }
     }
     
     if (geocodedCount > 0) {
-      console.log(`\n✅ Auto-geocoding complete: ${geocodedCount} locations geocoded`);
-    } else {
-      console.log('\nℹ️ No locations geocoded');
-    }
+      } else {
+      }
   }
 
   /**
@@ -1669,19 +1524,15 @@ export class CanvasService {
     // Check if already cached
     const cached = this.schemaLoader.getCachedSchema('core.json');
     if (cached) {
-      console.log('✅ Core schema already cached');
       return;
     }
     
     // Load schema and wait for completion
-    console.log('📥 Pre-loading core.json schema for i18n...');
     try {
       const schema = await this.schemaLoader.loadSchema('core.json').toPromise();
       if (schema) {
-        console.log('✅ Core schema cached successfully');
-      } else {
-        console.warn('⚠️ Core schema loaded but is null/undefined');
-      }
+        } else {
+        }
     } catch (err) {
       console.error('❌ Failed to pre-load core schema:', err);
     }
@@ -1698,12 +1549,9 @@ export class CanvasService {
       return;
     }
     
-    console.log(`🌐 Re-localizing all fields to ${language}...`);
-    
     // Check if core schema is cached
     const coreSchema = this.schemaLoader.getCachedSchema('core.json');
     if (!coreSchema) {
-      console.warn('⚠️ Core schema not cached during re-localization. This should not happen if ensureCoreSchemaLoaded() was called.');
       return;
     }
     
@@ -1771,26 +1619,14 @@ export class CanvasService {
           
           // Debug first group's first field
           if (groupIdx === 0 && fieldIdx === 0) {
-            console.log(`🔍 Group 0 Field 0 (${field.fieldId}):`, {
-              originalSchemaName: group.schemaName,
-              normalizedSchemaName: normalizedSchemaName,
-              schemaCached: !!schema,
-              fieldDefFound: !!fieldDef,
-              currentLabel: field.label,
-              targetLanguage: language
-            });
-          }
+            }
           
           if (fieldDef) {
             const localized = this.localizer.localizeField(fieldDef, language);
             
             // Debug first group's first field
             if (groupIdx === 0 && fieldIdx === 0) {
-              console.log(`   Localized:`, {
-                localizedLabel: localized.label,
-                willUse: localized.label || field.label
-              });
-            }
+              }
             
             // Create new object with all properties (deep copy for nested objects)
             return {
@@ -1805,8 +1641,7 @@ export class CanvasService {
           
           // Debug if field def not found
           if (groupIdx === 0 && fieldIdx === 0) {
-            console.warn(`   ⚠️ Field definition not found in schema!`);
-          }
+            }
           
           // Return new object with localized group label even if no field localization
           return { ...field, groupLabel: localizedGroupLabel };
@@ -1827,14 +1662,7 @@ export class CanvasService {
     const newState = this.getCurrentState();
     this.stateSubject.next(newState);
     
-    console.log(`✅ Fields re-localized to ${language}:`, {
-      coreFields: localizedCoreFields.length,
-      specialFields: localizedSpecialFields.length,
-      fieldGroups: localizedFieldGroups.length,
-      sampleCoreField: localizedCoreFields[0]?.label,
-      sampleSpecialField: localizedSpecialFields[0]?.label
-    });
-  }
+    }
   
   /**
    * Get localized group label
@@ -1864,13 +1692,9 @@ export class CanvasService {
    * Supports both old format (flat) and new format (structured with metadata)
    */
   async importJsonData(jsonData: any, detectedSchema?: string): Promise<void> {
-    console.log('📂 Importing JSON data...', { detectedSchema });
-
     try {
       // Detect format: new structured format has objects with 'value' property
       const isNewFormat = this.detectJsonFormat(jsonData);
-      console.log(`🔍 Detected format: ${isNewFormat ? 'new (structured)' : 'old (flat)'}`);
-
       // Convert old format to new format if needed
       const normalizedData = isNewFormat ? jsonData : this.convertOldToNewFormat(jsonData);
       
@@ -1885,8 +1709,7 @@ export class CanvasService {
       const contentTypeField = normalizedData['ccm:oeh_flex_lrt'];
       if (contentTypeField && typeof contentTypeField.value === 'object' && contentTypeField.value.schema_file) {
         schemaFileToLoad = contentTypeField.value.schema_file;
-        console.log(`📋 Content type from ccm:oeh_flex_lrt: ${schemaFileToLoad}`);
-      }
+        }
       // Second priority: metadataset field
       else if (detectedSchema && detectedSchema !== 'mds_oeh') {
         // Remove 'mds_oeh_' prefix if present and ensure .json extension
@@ -1894,8 +1717,7 @@ export class CanvasService {
         if (!schemaFileToLoad.endsWith('.json')) {
           schemaFileToLoad = `${schemaFileToLoad}.json`;
         }
-        console.log(`📋 Content type from metadataset: ${schemaFileToLoad}`);
-      }
+        }
 
       // Load the detected schema
       if (schemaFileToLoad) {
@@ -1910,10 +1732,8 @@ export class CanvasService {
             ...currentState,
             selectedContentType: schemaFileToLoad
           });
-          console.log(`✅ Updated state.selectedContentType to: ${schemaFileToLoad}`);
-        } catch (error) {
-          console.warn(`Could not load ${schemaFileToLoad} schema, continuing with core only:`, error);
-        }
+          } catch (error) {
+          }
       }
 
       // Step 3: Map JSON data to fields
@@ -1923,13 +1743,6 @@ export class CanvasService {
       let importedCount = 0;
       const fieldUpdates: { [key: string]: CanvasFieldState } = {};
       
-      console.log(`📋 Import field mapping:`, {
-        totalFields: allFields.length,
-        coreFields: state.coreFields.length,
-        specialFields: state.specialFields.length,
-        selectedContentType: state.selectedContentType
-      });
-
       for (const field of allFields) {
         const fieldData = normalizedData[field.fieldId];
         
@@ -1969,7 +1782,6 @@ export class CanvasService {
           
           // Store structured metadata separately
           this.updateMetadata('ccm:oeh_flex_lrt', contentTypeMetadata);
-          console.log(`✅ Imported ccm:oeh_flex_lrt with structured metadata:`, contentTypeMetadata, 'Display:', displayLabel);
           continue;
         }
         
@@ -1987,14 +1799,6 @@ export class CanvasService {
           const schema = schemaName ? this.schemaLoader.getCachedSchema(schemaName) : null;
           const schemaFieldDef = schema?.fields?.find((f: any) => f.id === field.fieldId);
           
-          console.log(`   🔎 Schema lookup for ${field.fieldId}:`, {
-            fieldSchemaName: field.schemaName,
-            lookupSchemaName: schemaName,
-            schemaFound: !!schema,
-            schemaFieldDefFound: !!schemaFieldDef,
-            schemaFieldsCount: schema?.fields?.length || 0
-          });
-          
           // Check if this field has variants (complex object structure) or is a shape-based object
           // Prioritize schema hints from export if available
           const hasVariants = hasSchemaHints ? schemaInfo.hasVariants : (schemaFieldDef?.system?.items?.variants);
@@ -2002,42 +1806,13 @@ export class CanvasService {
           const isComplexObject = (hasSchemaHints || hasShape || hasVariants || field.datatype === 'array') && 
                                   (typeof jsonValue === 'object' || Array.isArray(jsonValue));
           
-          console.log(`🔍 Import field ${field.fieldId}:`, {
-            hasSchemaHints: !!hasSchemaHints,
-            variantType: schemaInfo?.variantType,
-            hasVariants: !!hasVariants,
-            hasShape: !!hasShape,
-            isComplexObject,
-            valueType: Array.isArray(jsonValue) ? 'array' : typeof jsonValue,
-            valueKeys: typeof jsonValue === 'object' && jsonValue !== null ? Object.keys(jsonValue) : [],
-            expectedSubFields: schemaInfo?.subFieldPaths?.length || 0
-          });
-          
           if (isComplexObject) {
-            console.log(`🏗️ Creating sub-fields for ${field.fieldId} during import`, {
-              usingHints: hasSchemaHints,
-              variantType: schemaInfo?.variantType,
-              jsonValueType: Array.isArray(jsonValue) ? 'array' : typeof jsonValue,
-              jsonValueSample: Array.isArray(jsonValue) ? jsonValue[0] : jsonValue,
-              schemaFieldDefKeys: schemaFieldDef ? Object.keys(schemaFieldDef) : 'no schema',
-              hasVariants: !!(schemaFieldDef?.system?.items?.variants),
-              hasShape: !!(schemaFieldDef?.system?.items?.shape || schemaFieldDef?.system?.shape)
-            });
-            
             // CRITICAL: Pass the actual data value, not schema metadata
             // For arrays, the value should be the array of data objects
             // For objects, the value should be the data object
-            console.log(`   📊 JSON Value to expand:`, JSON.stringify(jsonValue).substring(0, 200));
-            
             // Use ShapeExpander to create sub-fields from the imported value
             // Schema hints help ensure correct variant selection
             const subFields = this.shapeExpander.expandFieldWithShape(field, jsonValue, schemaFieldDef);
-            
-            console.log(`   ✅ Created ${subFields.length} sub-fields`, {
-              expected: schemaInfo?.subFieldPaths?.length,
-              created: subFields.length,
-              paths: subFields.map((sf: any) => sf.path).filter((p: string) => p)
-            });
             
             if (subFields.length > 0) {
               // Mark parent as having sub-fields
@@ -2065,14 +1840,11 @@ export class CanvasService {
                 const missingPaths = expectedPaths.filter((p: string) => !createdPaths.includes(p));
                 
                 if (missingPaths.length > 0) {
-                  console.warn(`⚠️ Import validation: Missing ${missingPaths.length} subfields for ${field.fieldId}:`, missingPaths);
-                } else {
-                  console.log(`✅ Import validation: All subfields reconstructed correctly for ${field.fieldId}`);
-                }
+                  } else {
+                  }
               }
             } else {
               // No subfields created - treat as regular array/object field
-              console.log(`   💡 No subfields created for ${field.fieldId}, treating as regular array/object field`);
               const updatedField: CanvasFieldState = {
                 ...field,
                 value: jsonValue,
@@ -2139,16 +1911,7 @@ export class CanvasService {
         extractionProgress: progress  // Calculate based on actual filled fields
       });
 
-      console.log(`✅ JSON imported successfully:`, {
-        importedValues: importedCount,
-        totalFieldsCount: totalFieldsCount,
-        filledFieldsCount: filledCount,
-        coreFields: updatedCoreFields.length,
-        specialFields: updatedSpecialFields.length,
-        subFields: allSubFields.length,
-        progress: `${progress}%`
-      });
-    } catch (error) {
+      } catch (error) {
       console.error('❌ Error importing JSON:', error);
       throw error;
     }
@@ -2299,15 +2062,8 @@ export class CanvasService {
 
     // Add content type field (ccm:oeh_flex_lrt) with structured metadata
     // This field is not a regular canvas field, so we export it separately
-    console.log('🔍 Export check:', {
-      selectedContentType: state.selectedContentType,
-      detectedContentType: state.detectedContentType
-    });
-    
     if (state.selectedContentType) {
       const concept = this.getContentTypeConcept();
-      console.log('🔍 Concept found:', concept);
-      
       if (concept) {
         // Get both language labels (for language-independent export)
         const labelDe = this.localizer.localizeString(concept.label, 'de');
@@ -2342,8 +2098,7 @@ export class CanvasService {
           confidence: state.contentTypeConfidence || 1.0
         };
         
-        console.log('✅ Exported ccm:oeh_flex_lrt:', enrichedMetadata);
-      }
+        }
     }
 
     // Build a set of ALL sub-field IDs to exclude from export
@@ -2357,13 +2112,10 @@ export class CanvasService {
       }
     });
 
-    console.log(`📦 Export: Found ${subFieldIds.size} sub-fields to exclude`);
-
     // Add all fields with structured metadata
     for (const field of allFields) {
       // Skip ALL sub-fields - they are reconstructed into parent objects
       if (subFieldIds.has(field.fieldId)) {
-        console.log(`   ⏭️  Skipping sub-field: ${field.fieldId}`);
         continue;
       }
 
