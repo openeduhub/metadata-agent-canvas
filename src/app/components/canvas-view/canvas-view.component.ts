@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef, Input, Output, EventEmitter, ElementRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -169,6 +169,11 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   _showFieldActions = true;  // Show action icons in fields
   _controlsExplicit = false; // Track if controls was set explicitly
   _borderless = false;       // Borderless mode for seamless embedding
+  _isWebComponent = false;   // True when used as Angular Element (web component)
+  
+  // Static flag to prevent multiple schema loads across component instances
+  private static _schemaLoadPromise: Promise<void> | null = null;
+  private static _isInitialized = false;
   
   private destroy$ = new Subject<void>();
   private savedScrollPosition = 0;
@@ -182,7 +187,8 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     private eduSharingLlmService: EduSharingLlmService,
     public integrationMode: IntegrationModeService,
     private guestSubmission: GuestSubmissionService,
-    public i18n: I18nService
+    public i18n: I18nService,
+    private elementRef: ElementRef
   ) {
     this.state = this.canvasService.getCurrentState();
   }
@@ -278,6 +284,14 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   ngOnInit(): void {
     console.log('🚀 CanvasView ngOnInit started');
     
+    // Detect if running as Angular Element (web component)
+    // Standard Angular selector is 'app-canvas-view', web component uses custom tag name
+    const hostTagName = this.elementRef.nativeElement.tagName?.toLowerCase();
+    this._isWebComponent = hostTagName && hostTagName !== 'app-canvas-view';
+    if (this._isWebComponent) {
+      console.log(`🧩 Running as Web Component: <${hostTagName}>`);
+    }
+    
     // Apply URL parameters as fallback (if @Input not set)
     this.applyUrlParameters();
     
@@ -295,11 +309,30 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
       console.log(`📋 Special fields hidden - showing only core fields`);
     }
     
-    // Pre-load core schema (non-blocking - runs in background)
-    this.canvasService.ensureCoreSchemaLoaded().then(() => {
-      // Load content type options after schema is loaded
-      this.updateContentTypeOptions();
-    });
+    // Pre-load core schema (non-blocking, with deduplication for web component usage)
+    if (this._isWebComponent) {
+      // Web component mode: use static promise to prevent duplicate loads
+      if (!CanvasViewComponent._schemaLoadPromise) {
+        console.log('🧩 Web Component: Starting deferred schema load...');
+        CanvasViewComponent._schemaLoadPromise = this.canvasService.ensureCoreSchemaLoaded().then(() => {
+          CanvasViewComponent._isInitialized = true;
+          this.updateContentTypeOptions();
+        });
+      } else if (CanvasViewComponent._isInitialized) {
+        // Already loaded, just update options
+        this.updateContentTypeOptions();
+      } else {
+        // Wait for existing load
+        CanvasViewComponent._schemaLoadPromise.then(() => {
+          this.updateContentTypeOptions();
+        });
+      }
+    } else {
+      // Normal mode: load immediately
+      this.canvasService.ensureCoreSchemaLoaded().then(() => {
+        this.updateContentTypeOptions();
+      });
+    }
     
     // Subscribe to state changes
     this.canvasService.state$

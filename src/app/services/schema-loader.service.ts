@@ -5,7 +5,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, catchError, of } from 'rxjs';
+import { Observable, map, catchError, of, shareReplay, take } from 'rxjs';
 import { SchemaField } from '../models/workflow-models';
 import { SchemaLocalizerService } from './schema-localizer.service';
 
@@ -31,6 +31,8 @@ interface SchemaDefinition {
 export class SchemaLoaderService {
   private schemaBasePath: string;
   private schemaCache: Map<string, any> = new Map();
+  // Track pending requests to prevent duplicate HTTP calls
+  private pendingRequests: Map<string, Observable<any>> = new Map();
 
   constructor(
     private http: HttpClient,
@@ -63,24 +65,41 @@ export class SchemaLoaderService {
   }
 
   /**
-   * Load a schema file
+   * Load a schema file (with deduplication of pending requests)
    */
   loadSchema(schemaName: string): Observable<any> {
+    // Return from cache if available
     if (this.schemaCache.has(schemaName)) {
       return of(this.schemaCache.get(schemaName));
     }
+    
+    // Return pending request if one exists (prevents duplicate HTTP calls)
+    if (this.pendingRequests.has(schemaName)) {
+      console.log(`⏳ Schema ${schemaName} already loading, reusing request`);
+      return this.pendingRequests.get(schemaName)!;
+    }
 
     const schemaPath = `${this.schemaBasePath}${schemaName}`;
-    return this.http.get(schemaPath).pipe(
+    console.log(`📥 Loading schema: ${schemaPath}`);
+    
+    // Create and store the shared request
+    const request$ = this.http.get(schemaPath).pipe(
+      take(1), // Ensure single emission
       map((schema: any) => {
         this.schemaCache.set(schemaName, schema);
+        this.pendingRequests.delete(schemaName); // Clean up pending
         return schema;
       }),
       catchError((error: any) => {
         console.error(`Error loading schema ${schemaName}:`, error);
+        this.pendingRequests.delete(schemaName); // Clean up pending
         return of(null);
-      })
+      }),
+      shareReplay(1) // Share result with all subscribers
     );
+    
+    this.pendingRequests.set(schemaName, request$);
+    return request$;
   }
 
   /**

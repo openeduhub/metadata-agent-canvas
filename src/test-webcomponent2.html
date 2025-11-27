@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Component Test - Viewer Mode (Readonly)</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #fff; }
+        
+        #canvas-container {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        metadata-agent-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <metadata-agent-canvas id="canvas"></metadata-agent-canvas>
+    </div>
+
+    <script>
+        async function loadScripts() {
+            const baseUrl = '/';
+            const scripts = ['runtime.js', 'polyfills.js', 'main.js'];
+            for (const src of scripts) {
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = baseUrl + src;
+                    s.onload = resolve;
+                    s.onerror = reject;
+                    document.body.appendChild(s);
+                });
+            }
+        }
+
+        async function loadExampleJson() {
+            const response = await fetch('/assets/examples/metadata_1763413461093.json');
+            return response.json();
+        }
+
+        (async function() {
+            try {
+                await loadScripts();
+                await customElements.whenDefined('metadata-agent-canvas');
+                
+                const exampleData = await loadExampleJson();
+                const canvas = document.getElementById('canvas');
+                
+                canvas.viewerMode = true;
+                canvas.readonly = true;
+                canvas.controls = false;
+                canvas.showCoreFields = false;
+                canvas.showFieldActions = false;
+                canvas.borderless = true;
+                canvas.backgroundColor = '#ffffff';
+                
+                canvas.metadataInput = exampleData;
+                
+                console.log('✅ Ready');
+            } catch (e) {
+                console.error('❌ Error:', e);
+            }
+        })();
+    </script>
+</body>
+</html>

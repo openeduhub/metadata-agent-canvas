@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Component Test - Editable with Events</title>
+    <!-- Material Design Styles - WICHTIG für korrektes Styling! -->
+    <!-- Für LOKAL: /styles.css  |  Für PRODUKTION: https://metadata-agent-canvas.staging.openeduhub.net/styles.css -->
+    <link rel="stylesheet" href="/styles.css">
+    <!-- Material Icons - WICHTIG für Icons (x auf Chips, etc.) -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #fff; }
+        
+        #canvas-container {
+            width: 100%;
+            height: calc(100vh - 40px);
+        }
+        
+        metadata-agent-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Status-Leiste unten */
+        #status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #333;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 20px;
+        }
+        
+        #status-bar .label { color: #888; }
+        #status-bar .count { color: #0f0; font-weight: bold; }
+        #status-bar .time { color: #666; }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <metadata-agent-canvas id="canvas"></metadata-agent-canvas>
+    </div>
+    
+    <div id="status-bar">
+        <span class="label">Events:</span>
+        <span>Change: <span id="change-count" class="count">0</span></span>
+        <span>Submit: <span id="submit-count" class="count">0</span></span>
+        <span class="time" id="last-event">—</span>
+    </div>
+
+    <script>
+        // =========================================================
+        // ERGEBNIS-VARIABLEN (hier landen die Metadaten)
+        // =========================================================
+        
+        let currentMetadata = null;   // Aktueller Stand bei jeder Änderung
+        let submittedMetadata = null; // Gespeicherter Stand bei Submit
+        
+        let changeCount = 0;
+        let submitCount = 0;
+
+        // Scripts laden
+        async function loadScripts() {
+            // Für LOKAL: '/'  |  Für PRODUKTION: 'https://metadata-agent-canvas.staging.openeduhub.net/'
+            const baseUrl = '/';
+            const scripts = ['runtime.js', 'polyfills.js', 'main.js'];
+            for (const src of scripts) {
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = baseUrl + src;
+                    s.onload = resolve;
+                    s.onerror = reject;
+                    document.body.appendChild(s);
+                });
+            }
+        }
+
+        // Beispiel-JSON laden
+        async function loadExampleJson() {
+            // Für LOKAL: '/'  |  Für PRODUKTION: 'https://metadata-agent-canvas.staging.openeduhub.net/'
+            const baseUrl = '/';
+            const response = await fetch(baseUrl + 'assets/examples/metadata_1763413461093.json');
+            return response.json();
+        }
+        
+        // Status-Anzeige aktualisieren
+        function updateStatus(type) {
+            const time = new Date().toLocaleTimeString();
+            document.getElementById('last-event').textContent = `Letztes Event: ${type} @ ${time}`;
+            document.getElementById('change-count').textContent = changeCount;
+            document.getElementById('submit-count').textContent = submitCount;
+        }
+
+        // Initialisierung
+        (async function() {
+            try {
+                await loadScripts();
+                await customElements.whenDefined('metadata-agent-canvas');
+                
+                const exampleData = await loadExampleJson();
+                const canvas = document.getElementById('canvas');
+                
+                // Konfiguration (EDITIERBAR ohne Input-Box)
+                canvas.viewerMode = true;           // Viewer-Modus (kein Input/Footer)
+                canvas.readonly = false;            // ABER: Felder sind editierbar!
+                canvas.controls = false;            // Controls ausblenden
+                canvas.showCoreFields = false;      // Core-Felder ausblenden
+                canvas.showFieldActions = false;    // Feld-Aktionen ausblenden
+                canvas.borderless = true;           // Randlos
+                canvas.backgroundColor = '#ffffff'; // Weißer Hintergrund
+                
+                // Event-Listener für Änderungen
+                canvas.addEventListener('metadataChange', (event) => {
+                    changeCount++;
+                    currentMetadata = event.detail;
+                    updateStatus('metadataChange');
+                    console.log('📝 metadataChange:', currentMetadata);
+                });
+                
+                // Event-Listener für Submit
+                canvas.addEventListener('metadataSubmit', (event) => {
+                    submitCount++;
+                    submittedMetadata = event.detail;
+                    updateStatus('metadataSubmit');
+                    console.log('✅ metadataSubmit:', submittedMetadata);
+                    
+                    // Hier können die Daten weiterverarbeitet werden:
+                    // z.B. an Backend senden, in localStorage speichern, etc.
+                });
+                
+                // Metadaten laden
+                canvas.metadataInput = exampleData;
+                
+                console.log('✅ Web Component konfiguriert (editierbar mit Events)');
+                console.log('💡 Variablen: currentMetadata, submittedMetadata');
+                
+            } catch (e) {
+                console.error('❌ Fehler:', e);
+            }
+        })();
+    </script>
+</body>
+</html>

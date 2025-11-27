@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metadata Agent - Web Component Viewer Demo</title>
+    <!-- Material Design Styles - WICHTIG für korrektes Styling! -->
+    <!-- Für LOKAL: /styles.css  |  Für PRODUKTION: https://metadata-agent-canvas.staging.openeduhub.net/styles.css -->
+    <link rel="stylesheet" href="/styles.css">
+    <!-- Material Icons - WICHTIG für Icons (x auf Chips, etc.) -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
@@ -222,8 +228,11 @@
         </div>
     </div>
 
-    <!-- Angular Scripts (vom Dev-Server / nach Build) -->
+    <!-- Angular Scripts -->
     <script>
+        // Für LOKAL: '/'  |  Für PRODUKTION: 'https://metadata-agent-canvas.staging.openeduhub.net/'
+        const BASE_URL = '/';
+        
         // Dynamisch die Angular-Scripts laden
         function loadScript(src) {
             return new Promise((resolve, reject) => {
@@ -251,9 +260,9 @@
         // Scripts laden und Events registrieren
         (async function() {
             try {
-                await loadScript('/runtime.js');
-                await loadScript('/polyfills.js');
-                await loadScript('/main.js');
+                await loadScript(BASE_URL + 'runtime.js');
+                await loadScript(BASE_URL + 'polyfills.js');
+                await loadScript(BASE_URL + 'main.js');
                 console.log('✅ Angular Scripts loaded');
                 
                 // Warte bis Custom Element definiert ist

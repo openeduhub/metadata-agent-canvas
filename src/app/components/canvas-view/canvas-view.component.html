@@ -1,5 +1,6 @@
 <div class="canvas-container" 
      [class.borderless]="_borderless"
+     [class.is-web-component]="_isWebComponent"
      [style.background]="backgroundColor || null">
   <!-- Floating Controls Container -->
   <div class="floating-controls-wrapper" 
@@ -178,7 +179,7 @@
     <div *ngFor="let group of getVisibleFieldGroups(); trackBy: trackByGroupId" class="field-group">
       <div class="group-header">
         <h3>📋 {{ group.label }}</h3>
-        <div class="group-badges">
+        <div class="group-badges" *ngIf="_showFieldActions">
           <span class="group-badge schema-badge">{{ group.schemaName }}</span>
           <span class="group-badge count-badge">{{ getFilledFieldsCount(group) }} / {{ getFlattenedFields(group.fields).length }}</span>
           <span class="badge-text">{{ 'PROGRESS.FIELDS_RECOGNIZED' | translate }}</span>

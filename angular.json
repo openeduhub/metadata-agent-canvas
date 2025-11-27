@@ -60,6 +60,16 @@
                 "glob": "test-webcomponent.html",
                 "input": "src",
                 "output": "."
+              },
+              {
+                "glob": "test-webcomponent2.html",
+                "input": "src",
+                "output": "."
+              },
+              {
+                "glob": "test-webcomponent3.html",
+                "input": "src",
+                "output": "."
               }
             ],
             "styles": ["src/styles.scss"],
@@ -108,7 +118,10 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "metadata-agent-webcomponent:build"
+            "buildTarget": "metadata-agent-webcomponent:build",
+            "allowedHosts": ["all"],
+            "liveReload": false,
+            "hmr": false
           },
           "configurations": {
             "production": {

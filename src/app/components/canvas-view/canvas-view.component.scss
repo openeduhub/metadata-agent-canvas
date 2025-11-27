@@ -1,4 +1,13 @@
+/* ============================================
+   CSS ISOLATION für Web Component Einbindung
+   Schützt gegen Host-Seiten CSS-Overrides
+   ============================================ */
 
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
 /* Canvas layout root */
 .canvas-container {
@@ -12,37 +21,63 @@
   font-family: 'Inter', 'Roboto', sans-serif;
   position: relative;
   
+  /* Web component mode - disable fixed viewport height */
+  &.is-web-component {
+    height: auto;
+    min-height: 100%;
+  }
+  
   /* Borderless mode for seamless embedding as web component */
+  /* Entfernt Card-Styling, Felder gehen bis zum Rand */
   &.borderless {
     height: 100%;
     padding: 0;
+    background: transparent;
     
-    /* Remove padding from canvas area */
     .canvas-area {
       padding: 0;
       margin: 0;
     }
     
-    /* Field groups go edge-to-edge */
+    .canvas-content {
+      padding: 12px; /* ~3mm Rand auf allen Seiten */
+      margin: 0 !important;
+    }
+    
+    /* Field groups - Card-Styling entfernen */
     .field-group {
-      border-radius: 0;
       margin: 0;
-      box-shadow: none;
+      padding: 0;
+      background: transparent;
       border: none;
+      border-radius: 0;
+      box-shadow: none;
       
-      &:first-child {
-        border-radius: 0;
-      }
+      /* Gruppe trennen durch Linie statt Card */
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 24px;
       
       &:last-child {
-        border-radius: 0;
+        border-bottom: none;
       }
     }
     
-    /* Remove outer margins from groups */
-    .groups-container {
+    /* Gruppen-Header vereinfachen */
+    .group-header {
+      background: transparent;
+      padding: 0 0 16px 0;
+      border-bottom: none;
+      
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2a3d;
+      }
+    }
+    
+    /* Felder ohne Padding */
+    .group-fields {
       padding: 0;
-      gap: 1px; /* Minimal separator between groups */
     }
   }
 }
