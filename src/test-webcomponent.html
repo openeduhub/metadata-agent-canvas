@@ -198,6 +198,8 @@
             <div class="code-example" style="font-size: 11px;">
                 <span class="comment">// Metadata laden</span><br>
                 canvas.metadataInput = json;<br><br>
+                <span class="comment">// Schema-Context setzen</span><br>
+                canvas.contextName = 'mds_oeh';<br><br>
                 <span class="comment">// Modi setzen</span><br>
                 canvas.viewerMode = true;<br>
                 canvas.readonly = true;<br>
@@ -206,6 +208,15 @@
                 <span class="comment">// Felder filtern</span><br>
                 canvas.showCoreFields = false;<br>
                 canvas.showSpecialFields = true;
+            </div>
+            
+            <h2 style="margin-top: 20px;">📦 HTML Attribute</h2>
+            <div class="code-example" style="font-size: 11px;">
+                <span class="tag">&lt;metadata-agent-canvas</span><br>
+                &nbsp;&nbsp;<span class="attr">context-name</span>=<span class="string">"mds_oeh"</span><br>
+                &nbsp;&nbsp;<span class="attr">viewer-mode</span>=<span class="string">"true"</span><br>
+                &nbsp;&nbsp;<span class="attr">readonly</span>=<span class="string">"true"</span><br>
+                <span class="tag">&gt;&lt;/metadata-agent-canvas&gt;</span>
             </div>
 
             <h2 style="margin-top: 20px;">📤 Output Events</h2>

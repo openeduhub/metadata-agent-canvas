@@ -418,8 +418,13 @@ export class CanvasFieldComponent implements OnInit, OnChanges, OnDestroy {
         this.field.value = newValue;
         this.emitChange(newValue);
       }
-      // Clear input after selecting
-      this.inputValue = '';
+      
+      // Clear input AFTER mat-autocomplete has set its value (next tick)
+      // mat-autocomplete writes the selected value to input AFTER this handler completes
+      setTimeout(() => {
+        this.inputValue = '';
+        this.cdr.markForCheck();
+      }, 0);
       
       // Keep autocomplete open for multiple selection
       setTimeout(() => {
@@ -499,6 +504,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, OnDestroy {
       
       value = mergedValues;
       this.inputValue = '';
+      this.cdr.markForCheck();  // Trigger change detection to update textarea
     }
 
     this.emitChange(value);

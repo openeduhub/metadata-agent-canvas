@@ -47,7 +47,7 @@
     "LABEL": "Inhaltsart",
     "CHANGE": "ÄNDERN",
     "SELECT": "Inhaltsart wählen",
-    "NOT_DETECTED": "Nicht erkannt",
+    "NOT_DETECTED": "Bitte wählen",
     "CONFIDENCE": "Konfidenz"
   },
   "PROGRESS": {

@@ -130,10 +130,58 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   }
   
   /**
+   * Input: Show input area in viewer mode (text input for AI extraction)
+   * Only applies when viewer-mode="true". Shows input field with viewer-mode styling.
+   * For Web Component: <metadata-agent-canvas viewer-mode="true" show-input-area="true">
+   */
+  @Input() set showInputArea(value: boolean | string) {
+    this._showInputArea = value === true || value === 'true';
+  }
+  
+  /**
+   * Input: Show status bar in viewer mode (content type selector + progress bar)
+   * Only applies when viewer-mode="true". Shows the bar below input with viewer-mode styling.
+   * For Web Component: <metadata-agent-canvas viewer-mode="true" show-status-bar="true">
+   */
+  @Input() set showStatusBar(value: boolean | string) {
+    this._showStatusBar = value === true || value === 'true';
+  }
+  
+  /**
+   * Input: Show only content type selector in floating controls (hide other action buttons)
+   * For Web Component: <metadata-agent-canvas viewer-mode="true" controls="true" show-content-type-only="true">
+   */
+  @Input() set showContentTypeOnly(value: boolean | string) {
+    this._showContentTypeOnly = value === true || value === 'true';
+  }
+  
+  /**
    * Input: Custom background color for the canvas container
    * Accepts any valid CSS color (e.g., '#FFFFFF', 'white', 'rgb(255,255,255)')
    */
   @Input() backgroundColor: string = '';
+  
+  /**
+   * Input: Schema context name (e.g., 'default', 'mds_oeh')
+   * Controls which schema set is used for content types and field definitions.
+   * If not provided, uses 'default' or the context from loaded JSON file.
+   * 
+   * For Web Component: <metadata-agent-canvas context-name="mds_oeh">
+   */
+  @Input() set contextName(value: string) {
+    if (value && value !== this._contextName) {
+      this._contextName = value;
+      // Async set context (waits for registry if needed)
+      this.schemaLoader.ensureRegistryLoaded().then(() => {
+        this.schemaLoader.setContext(value);
+        console.log(`🎯 Context set via @Input: ${value}`);
+      });
+    }
+  }
+  get contextName(): string {
+    return this._contextName;
+  }
+  private _contextName: string = '';
   
   // ===== OUTPUT EVENTS =====
   
@@ -153,7 +201,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   userText = '';
   FieldStatus = FieldStatus;
   isSubmitting = false;
-  contentTypeOptions: Array<{ label: string; schemaFile: string }> = [];
+  contentTypeOptions: Array<{ label: string; schemaFile: string; icon?: string }> = [];
   llmProvider = environment.llmProvider;
   llmModel = this.getActiveLlmModel();
   
@@ -170,6 +218,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   _controlsExplicit = false; // Track if controls was set explicitly
   _borderless = false;       // Borderless mode for seamless embedding
   _isWebComponent = false;   // True when used as Angular Element (web component)
+  _showInputArea = false;    // Show input area in viewer mode
+  _showStatusBar = false;    // Show status bar in viewer mode
+  _showContentTypeOnly = false;  // Show only content type selector in floating controls
   
   // Static flag to prevent multiple schema loads across component instances
   private static _schemaLoadPromise: Promise<void> | null = null;
@@ -224,9 +275,37 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
   /**
    * Apply URL parameters as fallback for @Input() properties
    * URL parameters are only used if corresponding @Input was not set
+   * 
+   * Context priority:
+   * 1. @Input contextName (web component attribute)
+   * 2. URL parameter ?contextName=xxx
+   * 3. localStorage config (for bookmarklet/plugin)
+   * 4. Default: 'default'
    */
-  private applyUrlParameters(): void {
+  private async applyUrlParameters(): Promise<void> {
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // Context parameters - must be set BEFORE schema loading
+    const contextNameParam = urlParams.get('contextName');
+    const schemaVersionParam = urlParams.get('schemaVersion');
+    const mode = urlParams.get('mode'); // bookmarklet, extension, viewer, etc.
+    
+    await this.schemaLoader.ensureRegistryLoaded();
+    
+    if (contextNameParam && !this._contextName) {
+      // Set context from URL (if not already set via @Input)
+      this.schemaLoader.setContext(contextNameParam, schemaVersionParam || undefined);
+      this._contextName = contextNameParam;
+    } else if (!this._contextName && (mode === 'bookmarklet' || mode === 'extension')) {
+      // For bookmarklet/plugin: check localStorage for configured context
+      const savedContext = localStorage.getItem('metadata_agent_context');
+      const savedVersion = localStorage.getItem('metadata_agent_schema_version');
+      if (savedContext) {
+        this.schemaLoader.setContext(savedContext, savedVersion || undefined);
+        this._contextName = savedContext;
+        console.log(`📌 Context loaded from config: ${savedContext}`);
+      }
+    }
     
     // Mode parameters (only if not set via @Input)
     if (urlParams.get('mode') === 'viewer' && !this.isViewerMode) {
@@ -275,7 +354,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     // Detect if running as Angular Element (web component)
     // Standard Angular selector is 'app-canvas-view', web component uses custom tag name
     const hostTagName = this.elementRef.nativeElement.tagName?.toLowerCase();
@@ -284,7 +363,8 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
       }
     
     // Apply URL parameters as fallback (if @Input not set)
-    this.applyUrlParameters();
+    // MUST await to set context BEFORE schema loading
+    await this.applyUrlParameters();
     
     // Log active modes
     if (this.isCompactUI) {
@@ -592,6 +672,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
 
   /**
    * Start extraction
+   * After extraction completes, clears the input field so user can enter follow-up instructions
    */
   async startExtraction(): Promise<void> {
     if (!this.userText.trim()) {
@@ -600,6 +681,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     await this.canvasService.startExtraction(this.userText);
+    
+    // Clear input field after extraction so user can enter additional instructions
+    this.userText = '';
+    this.cdr.markForCheck();
   }
 
   /**
@@ -1206,7 +1291,8 @@ export class CanvasViewComponent implements OnInit, OnDestroy, OnChanges {
     const currentLang = this.i18n.getCurrentLanguage();
     const newOptions = contentTypeFieldDef.system.vocabulary.concepts.map((concept: any) => ({
       label: this.schemaLocalizer.localizeString(concept.label, currentLang),
-      schemaFile: concept.schema_file || ''
+      schemaFile: concept.schema_file || '',
+      icon: concept.icon || ''
     }));
     
     // Only update if options changed (prevent unnecessary re-renders and flicker)

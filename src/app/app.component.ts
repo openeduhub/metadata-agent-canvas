@@ -22,7 +22,7 @@ export class AppComponent implements OnInit {
   title = 'Metadata Agent - Canvas Edition';
   
   constructor() {
-    }
+  }
   
   ngOnInit() {
     // Erkenne Theme aus URL-Parameter
@@ -32,6 +32,7 @@ export class AppComponent implements OnInit {
     if (theme === 'edu-sharing') {
       this.loadEduSharingTheme();
     }
+    // Note: contextName URL parameter is handled by CanvasViewComponent
   }
   
   private loadEduSharingTheme() {

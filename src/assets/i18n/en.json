@@ -47,7 +47,7 @@
     "LABEL": "Content Type",
     "CHANGE": "CHANGE",
     "SELECT": "Select Content Type",
-    "NOT_DETECTED": "Not Detected",
+    "NOT_DETECTED": "Please select",
     "CONFIDENCE": "Confidence"
   },
   "PROGRESS": {

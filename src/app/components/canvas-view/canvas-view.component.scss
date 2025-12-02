@@ -85,6 +85,18 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  
+  // Web Component mode: position relative to container, not viewport
+  .is-web-component & {
+    position: sticky;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    transform: none;
+    justify-content: center;
+    margin: 16px auto;
+    width: fit-content;
+  }
 
   /* Normal Mode: floating at bottom center */
   &.floating-normal {
@@ -418,6 +430,15 @@
   margin: 21px 21px 16px;
   box-shadow: none;
   
+  // Viewer Mode Style: Angepasstes Design ohne Box
+  &.viewer-mode-style {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin: 16px 12px 16px 12px;  // gleicher Rand wie canvas-content (borderless: 12px)
+    padding: 0;
+  }
+  
   // Material Form Field Styles
   mat-form-field {
     width: 100%;
@@ -606,6 +627,15 @@
   gap: 24px;
   align-items: center;
   margin: 0 21px 6px;
+  
+  // Viewer Mode Style: Angepasstes Design ohne Box
+  &.viewer-mode-style {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin: 16px 12px 16px 12px;  // gleicher Rand wie canvas-content (borderless: 12px)
+    padding: 12px 0;
+  }
 
   /* Left: Content Type Split Button */
   .content-type-section-split {
@@ -727,6 +757,15 @@
       gap: 12px;
       font-size: 14px;
       transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      .menu-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-right: 8px;
+        color: #1f2a3d;
+      }
       
       span {
         flex: 1;

@@ -20,7 +20,16 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/assets", 
-              "src/schemata",
+              {
+                "glob": "**/*",
+                "input": "src/schemata",
+                "output": "schemata"
+              },
+              {
+                "glob": "_headers",
+                "input": "src",
+                "output": "."
+              },
               {
                 "glob": "test-sidebar.html",
                 "input": "src",
@@ -73,6 +82,11 @@
               },
               {
                 "glob": "test-webcomponent4.html",
+                "input": "src",
+                "output": "."
+              },
+              {
+                "glob": "test-webcomponent5.html",
                 "input": "src",
                 "output": "."
               }

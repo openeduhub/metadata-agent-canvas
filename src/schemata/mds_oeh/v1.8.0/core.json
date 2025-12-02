@@ -602,7 +602,7 @@
                 "de": "Person",
                 "en": "Person"
               },
-              "icon": "👤",
+              "icon": "person",
               "schema_file": "person.json"
             },
             {
@@ -610,7 +610,7 @@
                 "de": "Organisation",
                 "en": "Organization"
               },
-              "icon": "🏢",
+              "icon": "business",
               "schema_file": "organization.json"
             },
             {
@@ -618,64 +618,16 @@
                 "de": "Veranstaltung",
                 "en": "Event"
               },
-              "icon": "📅",
+              "icon": "event",
               "schema_file": "event.json"
-            },
-            {
-              "label": {
-                "de": "Lernmaterial",
-                "en": "Learning material"
-              },
-              "icon": "📚",
-              "schema_file": "learning_material.json"
             },
             {
               "label": {
                 "de": "Bildungsgänge und Bildungsangebote",
                 "en": "Educational programmes and offerings"
               },
-              "icon": "🎓",
+              "icon": "school",
               "schema_file": "education_offer.json"
-            },
-            {
-              "label": {
-                "de": "Berufsbilder",
-                "en": "Occupations"
-              },
-              "icon": "💼",
-              "schema_file": "occupation.json"
-            },
-            {
-              "label": {
-                "de": "Prompts",
-                "en": "Prompts"
-              },
-              "icon": "💭",
-              "schema_file": "prompt.json"
-            },
-            {
-              "label": {
-                "de": "Tools Infrastrukturen & Services",
-                "en": "Tools, infrastructures & services"
-              },
-              "icon": "🛠️",
-              "schema_file": "tool_service.json"
-            },
-            {
-              "label": {
-                "de": "Quelle",
-                "en": "Source"
-              },
-              "icon": "📰",
-              "schema_file": "source.json"
-            },
-            {
-              "label": {
-                "de": "Didaktische Planungsinstrumente (Unterrichtsmethoden und -entwürfe)",
-                "en": "Didactic planning tools (teaching methods and lesson designs)"
-              },
-              "icon": "📋",
-              "schema_file": "didactic_planning_tools.json"
             }
           ]
         },

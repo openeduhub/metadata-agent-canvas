@@ -1759,11 +1759,17 @@ export class CanvasService {
 
   /**
    * Import JSON data and pre-fill fields
-   * Compact format: { metadataset, schemaVersion, fieldId: { value, repoField } }
+   * Compact format: { contextName, schemaVersion, metadataset, fieldId: value }
    */
   async importJsonData(jsonData: any): Promise<void> {
     try {
-      // Step 1: Initialize with correct schema
+      // Step 0: Detect and set context from JSON data
+      await this.schemaLoader.ensureRegistryLoaded();
+      const detectedContext = this.schemaLoader.detectContextFromJson(jsonData);
+      this.schemaLoader.setContext(detectedContext.contextName, detectedContext.schemaVersion);
+      console.log(`📥 Import: Using context ${detectedContext.contextName}@${detectedContext.schemaVersion}`);
+      
+      // Step 1: Initialize with correct schema (using detected context)
       await this.initializeCoreFields();
 
       // Step 2: Load schema from metadataset
@@ -1915,12 +1921,16 @@ export class CanvasService {
     const allFields = [...state.coreFields, ...state.specialFields];
     const currentLanguage = this.i18n.getCurrentLanguage();
     
-    // Header with schema info
+    // Get current context info
+    const contextConfig = this.schemaLoader.getContext();
+    
+    // Header with schema and context info (consistent order)
     const output: any = {
+      contextName: contextConfig.contextName,
+      schemaVersion: contextConfig.schemaVersion,
       metadataset: state.selectedContentType || 'core.json',
-      schemaVersion: '1.8.0',
-      exportedAt: new Date().toISOString(),
-      language: currentLanguage
+      language: currentLanguage,
+      exportedAt: new Date().toISOString()
     };
 
     // Build set of sub-field IDs to exclude (they're in parent's value)

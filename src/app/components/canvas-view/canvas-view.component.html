@@ -12,7 +12,7 @@
       <div class="split-button-container">
         <!-- Left side: Content Type Display -->
         <div class="split-button-main">
-          <mat-icon>category</mat-icon>
+          <mat-icon>{{ getContentTypeIcon() || 'category' }}</mat-icon>
           <span>{{ getContentTypeLabel() }}</span>
         </div>
         
@@ -33,14 +33,15 @@
           *ngFor="let option of contentTypeOptions"
           (click)="selectContentType(option)"
           [class.active]="getContentTypeLabel() === option.label">
+          <mat-icon *ngIf="option.icon" class="menu-icon">{{ option.icon }}</mat-icon>
           <span>{{ option.label }}</span>
           <mat-icon *ngIf="getContentTypeLabel() === option.label" class="checkmark">check</mat-icon>
         </button>
       </mat-menu>
     </div>
     
-    <!-- Right: Action Buttons -->
-    <div class="floating-action-buttons">
+    <!-- Right: Action Buttons (hidden when showContentTypeOnly is true) -->
+    <div class="floating-action-buttons" *ngIf="!_showContentTypeOnly">
       <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
       
       <button 
@@ -76,8 +77,10 @@
     </div>
   </div>
 
-  <!-- Input Section -->
-  <div class="input-section" *ngIf="!isViewerMode && !isCompactUI">
+  <!-- Input Section (normal mode or viewer mode with showInputArea) -->
+  <div class="input-section" 
+       [class.viewer-mode-style]="isViewerMode && _showInputArea"
+       *ngIf="(!isViewerMode && !isCompactUI) || (isViewerMode && _showInputArea)">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'INPUT.PLACEHOLDER' | translate }}</mat-label>
       <textarea
@@ -113,8 +116,10 @@
     </div>
   </div>
 
-  <!-- Compact Status Bar: Content Type + Progress (only in normal mode, not in Compact UI) -->
-  <div *ngIf="state.totalFields > 0 && !isViewerMode && !isCompactUI" class="compact-status-bar">
+  <!-- Compact Status Bar: Content Type + Progress (normal mode or viewer mode with showStatusBar) -->
+  <div class="compact-status-bar"
+       [class.viewer-mode-style]="isViewerMode && _showStatusBar"
+       *ngIf="state.totalFields > 0 && ((!isViewerMode && !isCompactUI) || (isViewerMode && _showStatusBar))">
     <!-- Left: Content Type Split Button -->
     <div class="content-type-section-split">
       <div class="split-button-container">

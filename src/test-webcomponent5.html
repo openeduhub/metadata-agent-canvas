@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metadata Agent - MDS OEH Context Demo</title>
+    <!-- Material Design Styles - WICHTIG für korrektes Styling! -->
+    <link rel="stylesheet" href="/styles.css">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .demo-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .control-panel {
+            width: 380px;
+            min-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #1976d2;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .webcomponent-wrapper {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: calc(100vh - 140px);
+        }
+
+        /* Web Component füllt den Container */
+        metadata-agent-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .code-example {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 14px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+
+        .code-example .tag { color: #569cd6; }
+        .code-example .attr { color: #9cdcfe; }
+        .code-example .string { color: #ce9178; }
+        .code-example .comment { color: #6a9955; }
+        .code-example .keyword { color: #c586c0; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #43a047;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #1976d2;
+            color: #1976d2;
+        }
+        .btn-outline:hover {
+            background: #e3f2fd;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .output-area {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .event-log {
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .event-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #fff3c4;
+        }
+
+        .event-entry:last-child {
+            border-bottom: none;
+        }
+
+        .event-time {
+            color: #666;
+            margin-right: 8px;
+        }
+
+        .event-type {
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1100px) {
+            .demo-container {
+                flex-direction: column;
+            }
+
+            .control-panel {
+                width: 100%;
+                min-width: 100%;
+            }
+
+            .webcomponent-wrapper {
+                min-height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>📦 MDS OEH Context Demo</h1>
+        <p>Angular Web Component mit context-name="mds_oeh" - Nur 4 Inhaltsarten: Person, Organisation, Veranstaltung, Bildungsangebote</p>
+    </div>
+
+    <div class="demo-container">
+        <div class="control-panel">
+            <!-- Configuration Card -->
+            <div class="card">
+                <h2>⚙️ Aktive Konfiguration</h2>
+                <div class="info-row">
+                    <span class="info-label">Context:</span>
+                    <span class="badge badge-info">mds_oeh</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Schema-Version:</span>
+                    <span class="badge badge-success">v1.8.0</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Core-Felder:</span>
+                    <span class="badge badge-info">ausgeblendet</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Modus:</span>
+                    <span class="badge badge-success">bearbeitbar</span>
+                </div>
+                
+                <h3 style="margin-top: 16px; font-size: 14px; color: #333;">🎛️ Viewer-Modus Optionen:</h3>
+                <div class="button-group" style="margin-top: 8px;">
+                    <button class="btn btn-outline" id="btn-toggle-input" onclick="toggleInputArea()">
+                        ✏️ Eingabefeld
+                    </button>
+                    <button class="btn btn-outline" id="btn-toggle-status" onclick="toggleStatusBar()">
+                        📊 Status-Bar
+                    </button>
+                    <button class="btn btn-primary" id="btn-toggle-content-only" onclick="toggleContentTypeOnly()">
+                        🏷️ Nur Inhaltstyp
+                    </button>
+                </div>
+            </div>
+
+            <!-- HTML Embed Code -->
+            <div class="card">
+                <h2>📝 HTML Einbettung</h2>
+                <div class="code-example">
+                    <span class="tag">&lt;metadata-agent-canvas</span><br>
+                    &nbsp;&nbsp;<span class="attr">context-name</span>=<span class="string">"mds_oeh"</span><br>
+                    &nbsp;&nbsp;<span class="attr">viewer-mode</span>=<span class="string">"true"</span><br>
+                    &nbsp;&nbsp;<span class="attr">borderless</span>=<span class="string">"true"</span><br>
+                    &nbsp;&nbsp;<span class="attr">background-color</span>=<span class="string">"white"</span><br>
+                    &nbsp;&nbsp;<span class="attr">show-core-fields</span>=<span class="string">"false"</span><br>
+                    &nbsp;&nbsp;<span class="attr">show-field-actions</span>=<span class="string">"false"</span><br>
+                    &nbsp;&nbsp;<span class="attr">controls</span>=<span class="string">"true"</span><br>
+                    <span class="tag">&gt;&lt;/metadata-agent-canvas&gt;</span>
+                </div>
+                
+                <h3 style="margin-top: 16px; font-size: 14px; color: #666;">Optionale Viewer-Parameter:</h3>
+                <div class="code-example" style="margin-top: 8px;">
+                    <span class="comment">// Eingabefeld für KI-Extraktion</span><br>
+                    <span class="attr">show-input-area</span>=<span class="string">"true"</span><br><br>
+                    <span class="comment">// Status-Bar (Inhaltstyp + Fortschritt)</span><br>
+                    <span class="attr">show-status-bar</span>=<span class="string">"true"</span><br><br>
+                    <span class="comment">// Nur Inhaltstyp-Button (andere Buttons ausblenden)</span><br>
+                    <span class="attr">show-content-type-only</span>=<span class="string">"true"</span>
+                </div>
+            </div>
+
+            <!-- Input Demo -->
+            <div class="card">
+                <h2>📥 Inhaltstyp wählen</h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
+                    Wähle einen Inhaltstyp (leeres Formular):
+                </p>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="loadEventSchema()">
+                        📅 Veranstaltung
+                    </button>
+                    <button class="btn btn-primary" onclick="loadPersonSchema()">
+                        👤 Person
+                    </button>
+                    <button class="btn btn-primary" onclick="loadOrganizationSchema()">
+                        🏢 Organisation
+                    </button>
+                    <button class="btn btn-primary" onclick="loadEducationOfferSchema()">
+                        🎓 Bildungsangebot
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Demo -->
+            <div class="card">
+                <h2>📤 Daten auslesen (Output)</h2>
+                <div class="button-group" style="margin-bottom: 12px;">
+                    <button class="btn btn-success" onclick="readMetadata()">
+                        📋 Aktuelle Daten lesen
+                    </button>
+                </div>
+                <div class="output-area" id="output-display">
+                    <em style="color: #999;">Klicke "Aktuelle Daten lesen" um die Metadaten anzuzeigen...</em>
+                </div>
+            </div>
+
+            <!-- Event Log -->
+            <div class="card">
+                <h2>📊 Event-Log</h2>
+                <div class="event-log" id="event-log">
+                    <em style="color: #999;">Warte auf Events...</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- Web Component -->
+        <div class="webcomponent-wrapper">
+            <metadata-agent-canvas 
+                id="canvas"
+                context-name="mds_oeh"
+                viewer-mode="true"
+                borderless="true"
+                background-color="white"
+                show-core-fields="false"
+                show-field-actions="false"
+                controls="true"
+                show-content-type-only="true"
+            ></metadata-agent-canvas>
+        </div>
+    </div>
+
+    <!-- Angular Scripts -->
+    <script>
+        // Für LOKAL: '/'  |  Für PRODUKTION: 'https://metadata-agent-canvas.staging.openeduhub.net/'
+        const BASE_URL = '/';
+        
+        // Schema-Definitionen (nur Metadaten, keine Feldwerte)
+        const SCHEMA_EVENT = {
+            "contextName": "mds_oeh",
+            "schemaVersion": "1.8.0",
+            "metadataset": "event.json"
+        };
+
+        const SCHEMA_PERSON = {
+            "contextName": "mds_oeh",
+            "schemaVersion": "1.8.0",
+            "metadataset": "person.json"
+        };
+        
+        const SCHEMA_ORGANIZATION = {
+            "contextName": "mds_oeh",
+            "schemaVersion": "1.8.0",
+            "metadataset": "organization.json"
+        };
+        
+        const SCHEMA_EDUCATION_OFFER = {
+            "contextName": "mds_oeh",
+            "schemaVersion": "1.8.0",
+            "metadataset": "education_offer.json"
+        };
+
+        // Dynamisch die Angular-Scripts laden
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
+
+        // Event-Log Funktion
+        function logEvent(type, detail) {
+            const log = document.getElementById('event-log');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'event-entry';
+            entry.innerHTML = `<span class="event-time">${time}</span><span class="event-type">${type}</span>`;
+            
+            // Erste Zeile entfernen wenn "Warte auf Events"
+            if (log.querySelector('em')) {
+                log.innerHTML = '';
+            }
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Nur letzte 10 Einträge behalten
+            while (log.children.length > 10) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Canvas-Referenz
+        let canvas;
+        
+        // Toggle-States für Viewer-Modus Optionen
+        let showInputArea = false;
+        let showStatusBar = false;
+        let showContentTypeOnly = true;  // Standard: nur Inhaltstyp anzeigen
+        
+        // Toggle Eingabefeld
+        function toggleInputArea() {
+            showInputArea = !showInputArea;
+            if (canvas) {
+                canvas.showInputArea = showInputArea;
+                const btn = document.getElementById('btn-toggle-input');
+                btn.classList.toggle('btn-primary', showInputArea);
+                btn.classList.toggle('btn-outline', !showInputArea);
+                logEvent(showInputArea ? '✅' : '❌', 'Eingabefeld: ' + (showInputArea ? 'AN' : 'AUS'));
+            }
+        }
+        
+        // Toggle Status-Bar
+        function toggleStatusBar() {
+            showStatusBar = !showStatusBar;
+            if (canvas) {
+                canvas.showStatusBar = showStatusBar;
+                const btn = document.getElementById('btn-toggle-status');
+                btn.classList.toggle('btn-primary', showStatusBar);
+                btn.classList.toggle('btn-outline', !showStatusBar);
+                logEvent(showStatusBar ? '✅' : '❌', 'Status-Bar: ' + (showStatusBar ? 'AN' : 'AUS'));
+            }
+        }
+        
+        // Toggle Content Type Only (hide other action buttons)
+        function toggleContentTypeOnly() {
+            showContentTypeOnly = !showContentTypeOnly;
+            if (canvas) {
+                canvas.showContentTypeOnly = showContentTypeOnly;
+                const btn = document.getElementById('btn-toggle-content-only');
+                btn.classList.toggle('btn-primary', showContentTypeOnly);
+                btn.classList.toggle('btn-outline', !showContentTypeOnly);
+                logEvent(showContentTypeOnly ? '✅' : '❌', 'Nur Inhaltstyp: ' + (showContentTypeOnly ? 'AN' : 'AUS'));
+            }
+        }
+
+        // Schema laden (leeres Formular für den jeweiligen Inhaltstyp)
+        function loadEventSchema() {
+            if (canvas) {
+                canvas.metadataInput = SCHEMA_EVENT;
+                logEvent('📅 Schema', 'Veranstaltung geladen');
+            }
+        }
+
+        function loadPersonSchema() {
+            if (canvas) {
+                canvas.metadataInput = SCHEMA_PERSON;
+                logEvent('👤 Schema', 'Person geladen');
+            }
+        }
+        
+        function loadOrganizationSchema() {
+            if (canvas) {
+                canvas.metadataInput = SCHEMA_ORGANIZATION;
+                logEvent('🏢 Schema', 'Organisation geladen');
+            }
+        }
+        
+        function loadEducationOfferSchema() {
+            if (canvas) {
+                canvas.metadataInput = SCHEMA_EDUCATION_OFFER;
+                logEvent('🎓 Schema', 'Bildungsangebot geladen');
+            }
+        }
+
+        function clearCanvas() {
+            if (canvas) {
+                canvas.metadataInput = SCHEMA_EVENT;
+                logEvent('🗑️ clear', 'Canvas geleert');
+            }
+        }
+
+        // Daten auslesen
+        function readMetadata() {
+            const outputDisplay = document.getElementById('output-display');
+            
+            // Versuche über Event-Listener
+            const changeHandler = (event) => {
+                const data = event.detail;
+                outputDisplay.textContent = JSON.stringify(data, null, 2);
+                canvas.removeEventListener('metadataChange', changeHandler);
+            };
+            
+            // Alternativ: Triggere eine minimale Änderung um Event zu erhalten
+            // Für Demo zeigen wir die Struktur
+            outputDisplay.innerHTML = `<span style="color: #666;">// Daten werden via 'metadataChange' Event ausgelesen
+// oder beim Submit via 'metadataSubmit' Event
+
+canvas.addEventListener('metadataChange', (e) => {
+  console.log('Metadata:', e.detail);
+});
+
+canvas.addEventListener('metadataSubmit', (e) => {
+  console.log('Submitted:', e.detail);
+});</span>`;
+            
+            logEvent('📖 read', 'Output-Code angezeigt');
+        }
+
+        // Scripts laden und Events registrieren
+        (async function() {
+            try {
+                await loadScript(BASE_URL + 'runtime.js');
+                await loadScript(BASE_URL + 'polyfills.js');
+                await loadScript(BASE_URL + 'main.js');
+                console.log('✅ Angular Scripts loaded');
+                
+                // Warte bis Custom Element definiert ist
+                await customElements.whenDefined('metadata-agent-canvas');
+                console.log('✅ Custom Element ready');
+                
+                canvas = document.getElementById('canvas');
+                
+                // Event Listener registrieren
+                canvas.addEventListener('metadataChange', (event) => {
+                    logEvent('📝 metadataChange', 'Daten geändert');
+                    
+                    // Update output display with actual data
+                    const outputDisplay = document.getElementById('output-display');
+                    const data = event.detail;
+                    if (data && Object.keys(data).length > 5) {
+                        outputDisplay.textContent = JSON.stringify(data, null, 2);
+                    }
+                });
+                
+                canvas.addEventListener('metadataSubmit', (event) => {
+                    logEvent('✅ metadataSubmit', 'Daten abgesendet');
+                    alert('Metadaten abgesendet!\n\nSiehe Konsole für Details.');
+                    console.log('Submitted metadata:', event.detail);
+                });
+                
+                logEvent('🚀 ready', 'Web Component bereit');
+                
+            } catch (error) {
+                console.error('❌ Failed to load:', error);
+            }
+        })();
+    </script>
+</body>
+</html>

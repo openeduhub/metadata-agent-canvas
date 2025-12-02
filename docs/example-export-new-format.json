@@ -1,5 +1,7 @@
 {
-  "metadataset": "mds_oeh",
+  "contextName": "default",
+  "schemaVersion": "1.8.0",
+  "metadataset": "learning_material.json",
   "exportedAt": "2025-02-04T08:30:00.000Z",
   "language": "de",
   "cclom:title": {

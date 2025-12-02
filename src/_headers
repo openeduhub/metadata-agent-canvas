@@ -1,0 +1,34 @@
+# =======================================================================
+# Netlify Headers Configuration for Cross-Origin Web Component Usage
+# =======================================================================
+# Diese Datei wird beim Build nach dist/ kopiert und von Netlify verwendet.
+# Ermöglicht das Laden der Web Component und Schema-Dateien auf Drittseiten.
+
+# JavaScript Files - CORS für Web Component Einbindung
+/*.js
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Access-Control-Allow-Headers: Content-Type
+
+# CSS Files - CORS für Styles
+/*.css
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+
+# Schema Files - CORS für JSON Schemas
+/schemata/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Access-Control-Allow-Headers: Content-Type
+  Cache-Control: public, max-age=3600
+
+# i18n Files - CORS für Übersetzungen
+/assets/i18n/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Cache-Control: public, max-age=3600
+
+# Example Files - CORS für Beispiel-JSONs
+/assets/examples/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS

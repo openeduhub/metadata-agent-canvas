@@ -1,6 +1,7 @@
 {
-  "metadataset": "event.json",
+  "contextName": "default",
   "schemaVersion": "1.8.0",
+  "metadataset": "event.json",
   "exportedAt": "2025-11-27T21:05:20.866Z",
   "language": "de",
   "cclom:title": "Stadtführung: Weimar kompakt 1 Stunde",
